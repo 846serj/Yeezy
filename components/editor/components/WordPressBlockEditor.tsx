@@ -848,6 +848,8 @@ function WordPressBlockEditor({
                                         onBlur={(e) => {
                                           const newCaption = e.currentTarget.textContent || '';
                                           updateBlock(block.clientId, { caption: newCaption });
+                                          e.currentTarget.style.borderColor = 'transparent';
+                                          e.currentTarget.style.backgroundColor = 'transparent';
                                         }}
                                         style={{ 
                                           fontSize: 'var(--wp--preset--font-size--x-small)',
@@ -866,10 +868,6 @@ function WordPressBlockEditor({
                                         onFocus={(e) => {
                                           e.currentTarget.style.borderColor = '#007cba';
                                           e.currentTarget.style.backgroundColor = '#f0f8ff';
-                                        }}
-                                        onBlur={(e) => {
-                                          e.currentTarget.style.borderColor = 'transparent';
-                                          e.currentTarget.style.backgroundColor = 'transparent';
                                         }}
                                         placeholder="Add caption..."
                                         data-placeholder="Add caption..."
