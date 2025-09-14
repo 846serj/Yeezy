@@ -1,0 +1,1203 @@
+/* ========================================
+   WORDPRESS GUTENBERG EDITOR STYLES
+   Professional WordPress Block Editor
+   ======================================== */
+
+/* ========================================
+   1. BLOCK EDITOR CONTAINER (WordPress Style)
+   ======================================== */
+.block-editor__container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: calc(100vh - 46px);
+  background: #f9f9f9;
+  font-family: var(--wp--preset--font-family--manrope);
+}
+
+.block-editor__container.hide-if-no-js {
+  display: block;
+}
+
+/* ========================================
+   2. INTERFACE SKELETON (WordPress Structure)
+   ======================================== */
+.interface-interface-skeleton {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+}
+
+.interface-interface-skeleton__header {
+  flex-shrink: 0;
+  background: white;
+  border-bottom: 1px solid #ddd;
+  z-index: 100;
+  max-width: 592px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.interface-interface-skeleton__body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.interface-interface-skeleton__content {
+  flex: 1;
+  overflow: auto;
+  background: white;
+}
+
+.interface-interface-skeleton__sidebar {
+  flex-shrink: 0;
+  width: 280px;
+  background: #f9f9f9;
+  border-left: 1px solid #ddd;
+}
+
+.interface-interface-skeleton__actions {
+  flex-shrink: 0;
+  background: white;
+  border-top: 1px solid #ddd;
+  padding: 12px 16px;
+}
+
+/* ========================================
+   3. EDITOR HEADER (WordPress Style)
+   ======================================== */
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  min-height: 60px;
+}
+
+.editor-header__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-header__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 16px;
+}
+
+.editor-header__settings {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-document-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-document-tools__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-document-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-document-bar__title {
+  font-size: var(--wp--preset--font-size--medium);
+  font-weight: 600;
+  color: var(--wp--preset--color--contrast);
+}
+
+.editor-document-bar__post-title {
+  font-size: var(--wp--preset--font-size--large);
+  font-weight: 700;
+}
+
+.editor-document-bar__post-type-label {
+  color: var(--wp--preset--color--tertiary);
+  font-size: var(--wp--preset--font-size--small);
+}
+
+/* ========================================
+   4. EDITOR STYLES WRAPPER (WordPress Core)
+   ======================================== */
+:where(.editor-styles-wrapper) {
+  margin: 0;
+  background-color: var(--wp--preset--color--base);
+  color: var(--wp--preset--color--contrast);
+  font-family: var(--wp--preset--font-family--manrope);
+  font-size: var(--wp--preset--font-size--medium);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.4;
+  --wp--style--root--padding-top: 0;
+  --wp--style--root--padding-right: var(--wp--preset--spacing--60);
+  --wp--style--root--padding-bottom: 0;
+  --wp--style--root--padding-left: var(--wp--preset--spacing--60);
+}
+
+:where(.editor-styles-wrapper) .wp-site-blocks {
+  padding-top: var(--wp--style--root--padding-top);
+  padding-bottom: var(--wp--style--root--padding-bottom);
+}
+
+:where(.editor-styles-wrapper) .has-global-padding {
+  padding-right: var(--wp--style--root--padding-right);
+  padding-left: var(--wp--style--root--padding-left);
+}
+
+:where(.editor-styles-wrapper) .has-global-padding > .alignfull {
+  margin-right: calc(var(--wp--style--root--padding-right) * -1);
+  margin-left: calc(var(--wp--style--root--padding-left) * -1);
+}
+
+/* ========================================
+   5. BLOCK STYLES (WordPress Standard)
+   ======================================== */
+:where(.editor-styles-wrapper) .wp-block {
+  margin: var(--wp--style--block-gap) 0;
+  max-width: var(--wp--style--global--content-size);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+:where(.editor-styles-wrapper) .wp-block:first-child {
+  margin-top: 0;
+}
+
+:where(.editor-styles-wrapper) .wp-block:last-child {
+  margin-bottom: 0;
+}
+
+:where(.editor-styles-wrapper) .wp-block > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+  max-width: var(--wp--style--global--content-size);
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+:where(.editor-styles-wrapper) .wp-block > .alignwide {
+  max-width: var(--wp--style--global--wide-size);
+}
+
+:where(.editor-styles-wrapper) .wp-block > .alignfull {
+  max-width: none;
+}
+
+/* ========================================
+   6. TYPOGRAPHY (WordPress Standard)
+   ======================================== */
+:where(.editor-styles-wrapper) h1,
+:where(.editor-styles-wrapper) h2,
+:where(.editor-styles-wrapper) h3,
+:where(.editor-styles-wrapper) h4,
+:where(.editor-styles-wrapper) h5,
+:where(.editor-styles-wrapper) h6 {
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: calc(var(--wp--style--block-gap) * 2);
+}
+
+:where(.editor-styles-wrapper) h1 {
+  font-size: var(--wp--preset--font-size--x-large);
+}
+
+:where(.editor-styles-wrapper) h2 {
+  font-size: var(--wp--preset--font-size--large);
+}
+
+:where(.editor-styles-wrapper) h3 {
+  font-size: var(--wp--preset--font-size--medium);
+}
+
+:where(.editor-styles-wrapper) h4 {
+  font-size: var(--wp--preset--font-size--small);
+}
+
+:where(.editor-styles-wrapper) h5 {
+  font-size: var(--wp--preset--font-size--x-small);
+  text-transform: uppercase;
+}
+
+:where(.editor-styles-wrapper) h6 {
+  font-size: var(--wp--preset--font-size--x-small);
+}
+
+:where(.editor-styles-wrapper) p {
+  line-height: calc(1em + 0.75rem);
+}
+
+/* ========================================
+   7. IMAGE BLOCKS (WordPress Standard)
+   ======================================== */
+:where(.editor-styles-wrapper) .wp-block-image {
+  margin: var(--wp--style--block-gap) 0;
+}
+
+:where(.editor-styles-wrapper) .wp-block-image .wp-element-caption {
+  text-align: center;
+  color: var(--wp--preset--color--contrast);
+  font-size: var(--wp--preset--font-size--x-small);
+  margin-top: var(--wp--preset--spacing--30);
+  margin-bottom: var(--wp--style--block-gap);
+}
+
+:where(.editor-styles-wrapper) .wp-block-image img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ========================================
+   8. LINKS (WordPress Standard)
+   ======================================== */
+:where(.editor-styles-wrapper) a:where(:not(.wp-element-button)) {
+  color: var(--wp--preset--color--primary);
+  text-decoration: none;
+}
+
+:where(.editor-styles-wrapper) a:where(:not(.wp-element-button)):hover {
+  color: var(--wp--preset--color--tertiary);
+}
+
+/* ========================================
+   9. BUTTONS (WordPress Components)
+   ======================================== */
+:where(.editor-styles-wrapper) .wp-element-button,
+:where(.editor-styles-wrapper) .wp-block-button__link {
+  background-color: var(--wp--preset--color--contrast);
+  border-radius: 0;
+  border-width: 0;
+  color: var(--wp--preset--color--base);
+  font-family: inherit;
+  font-size: var(--wp--preset--font-size--x-small);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  padding: 1.0625rem 2.125rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+:where(.editor-styles-wrapper) .wp-element-button:hover,
+:where(.editor-styles-wrapper) .wp-block-button__link:hover {
+  background-color: var(--wp--preset--color--primary);
+  color: var(--wp--preset--color--base);
+}
+
+:where(.editor-styles-wrapper) .wp-element-button:focus,
+:where(.editor-styles-wrapper) .wp-block-button__link:focus {
+  background-color: var(--wp--preset--color--primary);
+  color: var(--wp--preset--color--base);
+  outline-color: var(--wp--preset--color--primary);
+  outline-offset: 2px;
+  outline-style: dotted;
+  outline-width: 1px;
+}
+
+/* ========================================
+   10. COMPONENTS (WordPress Style)
+   ======================================== */
+.components-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: #1e1e1e;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  min-height: 36px;
+}
+
+.components-button:hover {
+  background: #f0f0f0;
+  color: #1e1e1e;
+}
+
+.components-button.is-primary {
+  background: #007cba;
+  color: #fff;
+  border-color: #007cba;
+}
+
+.components-button.is-primary:hover {
+  background: #005a87;
+  border-color: #005a87;
+  color: #fff;
+}
+
+.components-button.is-secondary {
+  background: #f0f0f0;
+  color: #1e1e1e;
+  border-color: #ddd;
+}
+
+.components-button.is-secondary:hover {
+  background: #e0e0e0;
+  border-color: #ccc;
+}
+
+.components-button.is-compact {
+  padding: 4px 8px;
+  min-height: 32px;
+  font-size: 12px;
+}
+
+.components-button.has-icon {
+  padding: 6px;
+  min-width: 36px;
+}
+
+.components-button.has-text.has-icon {
+  padding: 6px 12px;
+  min-width: auto;
+}
+
+/* ========================================
+   11. RESPONSIVE DESIGN (WordPress Standard)
+   ======================================== */
+@media (min-width: 600px) {
+  .block-editor__container {
+    bottom: 0;
+    left: 0;
+    min-height: calc(100vh - 46px);
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
+
+@media screen and (max-width: 782px) {
+  body * {
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  
+  .interface-interface-skeleton__sidebar {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 200;
+    background: white;
+  }
+  
+  .components-button {
+    min-height: 44px;
+    padding: 8px 16px;
+  }
+  
+  .components-button.is-compact {
+    min-height: 40px;
+    padding: 6px 12px;
+  }
+}
+
+/* ========================================
+   12. BLOCK INSERTER (WordPress Style)
+   ======================================== */
+
+/* WordPress Block Popover Inbetween */
+.components-popover.block-editor-block-popover__inbetween,
+.components-popover.block-editor-block-popover__inbetween * {
+  pointer-events: none;
+}
+
+.components-popover.block-editor-block-popover {
+  margin: 0 !important;
+  pointer-events: none;
+  position: absolute;
+  z-index: 31;
+}
+
+.components-popover {
+  box-sizing: border-box;
+  will-change: transform;
+  z-index: 1000000;
+}
+
+/* Block Inserter Toggle Button */
+.components-button.block-editor-inserter__toggle {
+  background: #007cba;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  text-decoration: none;
+  outline: none;
+}
+
+.components-button.block-editor-inserter__toggle:hover {
+  background: #005a87;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.components-button.block-editor-inserter__toggle:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.components-button.block-editor-inserter__toggle:focus {
+  outline: 2px solid #007cba;
+  outline-offset: 2px;
+}
+
+.components-button.block-editor-inserter__toggle.is-next-40px-default-size {
+  height: 40px;
+  width: 40px;
+}
+
+.components-button.block-editor-inserter__toggle.has-icon {
+  padding: 0;
+}
+
+.components-button.block-editor-inserter__toggle.is-primary {
+  background: #007cba;
+  color: white;
+}
+
+.components-button.block-editor-inserter__toggle.is-compact {
+  height: 40px;
+  width: 40px;
+  padding: 0;
+}
+
+/* Block Inserter Popover */
+.block-editor-inserter__popover {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 3px 30px rgba(25, 30, 35, 0.2);
+  margin: 0;
+  max-width: 90vw;
+  width: 650px;
+  z-index: 1000000;
+}
+
+.block-editor-inserter__popover.is-quick {
+  width: 650px;
+}
+
+.block-editor-inserter__popover.is-positioned {
+  position: absolute;
+}
+
+.block-editor-inserter__quick-inserter {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.block-editor-inserter__search {
+  border-bottom: 1px solid #ddd;
+  padding: 16px;
+}
+
+.block-editor-inserter__search .components-input-control__container {
+  position: relative;
+}
+
+.block-editor-inserter__search input {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 8px 12px;
+  width: 100%;
+  background: white;
+  color: #1e1e1e;
+}
+
+.block-editor-inserter__search input:focus {
+  border-color: #007cba;
+  box-shadow: 0 0 0 1px #007cba;
+  outline: none;
+}
+
+.block-editor-inserter__block-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.block-editor-block-types-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.block-editor-block-types-list__item {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #1e1e1e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 12px 16px;
+  text-align: left;
+  transition: all 0.15s ease;
+  width: 100%;
+  gap: 12px;
+}
+
+.block-editor-block-types-list__item:hover {
+  background: #f0f0f0;
+  color: #007cba;
+}
+
+.block-editor-block-types-list__item:focus {
+  background: #f0f0f0;
+  color: #007cba;
+  outline: none;
+}
+
+.block-editor-block-types-list__item:active {
+  background: #e0e0e0;
+}
+
+/* Block List Insertion Point */
+.block-editor-block-list__insertion-point {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  margin: 8px 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.block-editor-block-list__insertion-point.is-vertical {
+  flex-direction: column;
+}
+
+.block-editor-block-list__insertion-point.is-with-inserter {
+  padding: 8px 0;
+}
+
+.block-editor-block-list__insertion-point-indicator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background: #007cba;
+  border-radius: 1px;
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.block-editor-block-list__insertion-point:hover .block-editor-block-list__insertion-point-indicator {
+  opacity: 1;
+}
+
+.block-editor-block-list__insertion-point-inserter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.block-editor-block-list__insertion-point:hover .block-editor-block-list__insertion-point-inserter {
+  opacity: 1;
+}
+
+/* Block Inserter Dropdown */
+.components-dropdown.block-editor-inserter {
+  position: relative;
+}
+
+/* Block Popover Inbetween Container */
+.block-editor-block-popover__inbetween-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Hover States */
+.block-editor-block-list__insertion-point:hover {
+  pointer-events: auto;
+}
+
+.block-editor-block-list__insertion-point:hover .components-button.block-editor-inserter__toggle {
+  pointer-events: auto;
+}
+
+/* WordPress Block List Insertion Points */
+.block-editor-block-list__layout {
+  position: relative;
+}
+
+.block-editor-block-list__layout .wp-block {
+  position: relative;
+}
+
+/* Show insertion points on hover */
+.block-editor-block-list__layout:hover .wp-block::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #007cba;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.block-editor-block-list__layout .wp-block:hover::after {
+  opacity: 1;
+}
+
+/* Block inserter button between blocks */
+.block-editor-block-list__insertion-point {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  margin: 3px 0;
+  z-index: 10;
+}
+
+.block-editor-block-list__insertion-point-indicator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  background: #007cba;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.block-editor-block-list__insertion-point:hover .block-editor-block-list__insertion-point-indicator {
+  opacity: 1;
+}
+
+.block-editor-block-list__insertion-point:hover .block-editor-inserter__toggle {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.block-editor-inserter__toggle {
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  transform: translateX(-50%) scale(0.8);
+  background: #007cba;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.block-editor-inserter__toggle:hover {
+  background: #005a87;
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* ========================================
+   13. LEGACY SUPPORT
+   ======================================== */
+.gutenberg-editor {
+  font-family: var(--wp--preset--font-family--manrope);
+}
+
+.official-gutenberg-editor {
+  font-family: var(--wp--preset--font-family--manrope);
+  background: #f9f9f9;
+  min-height: 100vh;
+}
+
+/* ========================================
+   2. BLOCK EDITOR LAYOUT
+   ======================================== */
+.official-gutenberg-editor .block-editor-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f9f9f9;
+}
+
+.official-gutenberg-editor .editor-styles-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: visible;
+  min-height: calc(100vh - 40px);
+}
+
+.official-gutenberg-editor .editor-writing-flow {
+  flex: 1;
+  padding: 20px;
+  overflow-y: visible;
+  min-height: auto;
+}
+
+/* ========================================
+   3. BLOCK STYLES
+   ======================================== */
+.official-gutenberg-editor .wp-block {
+  margin: 1.5em 0;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.official-gutenberg-editor .wp-block:first-child {
+  margin-top: 0;
+}
+
+.official-gutenberg-editor .wp-block:last-child {
+  margin-bottom: 0;
+}
+
+/* ========================================
+   4. TEXTAREA AUTO-RESIZE
+   ======================================== */
+.gutenberg-editor textarea {
+  height: auto !important;
+  min-height: 32px !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  resize: none !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-family: inherit !important;
+  line-height: 1.5 !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+}
+
+.gutenberg-editor .block-editor-block-list__block textarea {
+  all: unset !important;
+  display: block !important;
+  width: 100% !important;
+  min-height: 32px !important;
+  height: auto !important;
+  font-family: inherit !important;
+  font-size: 19px !important;
+  line-height: 1.5 !important;
+  color: inherit !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+  overflow: hidden !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
+
+/* ========================================
+   5. HEADING STYLES
+   ======================================== */
+.gutenberg-editor [data-type="core/heading"] textarea {
+  min-height: 28px !important;
+  line-height: 1.2 !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+
+.gutenberg-editor [data-type="core/heading"] textarea:not([data-multiline="true"]) {
+  height: 32px !important;
+  line-height: 1.1 !important;
+}
+
+/* ========================================
+   6. BLOCK INSERTER POPOVER
+   ======================================== */
+.components-popover {
+  position: absolute;
+  z-index: 100000;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 3px 30px rgba(25, 30, 35, 0.12);
+  max-width: 400px;
+  min-width: 280px;
+}
+
+.components-popover__content {
+  max-height: 473px;
+  overflow: auto;
+  padding: 0;
+}
+
+.block-editor-inserter__popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 1;
+  transform: translateX(0) translateY(0) scale(1) translateZ(0);
+  transform-origin: 50% 0%;
+}
+
+.block-editor-inserter__quick-inserter {
+  padding: 0;
+  margin: 0;
+}
+
+.block-editor-inserter__quick-inserter.has-search {
+  padding-top: 0;
+}
+
+.block-editor-inserter__quick-inserter.has-expand {
+  padding-bottom: 0;
+}
+
+/* ========================================
+   7. SEARCH CONTROL
+   ======================================== */
+.components-base-control {
+  margin-bottom: 0;
+}
+
+.components-input-control {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.components-input-control__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.components-input-control__input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.15s ease;
+}
+
+.components-input-control__input:focus {
+  outline: none;
+  border-color: #007cba;
+  box-shadow: 0 0 0 1px #007cba;
+}
+
+.components-input-control__suffix {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.components-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ========================================
+   8. BLOCK TYPES LIST
+   ======================================== */
+.block-editor-block-types-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
+}
+
+.block-editor-block-types-list__item {
+  flex: 1;
+  min-width: 120px;
+}
+
+.block-editor-block-types-list__item-button {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  color: #1a1a1a;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.block-editor-block-types-list__item-button:hover {
+  background: #f0f0f0;
+  border-color: #007cba;
+}
+
+.block-editor-block-types-list__item-button:focus {
+  outline: none;
+  border-color: #007cba;
+  box-shadow: 0 0 0 1px #007cba;
+}
+
+/* ========================================
+   9. RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 782px) {
+  .components-popover {
+    max-width: 320px;
+    min-width: 260px;
+  }
+  
+  .block-editor-block-types-list__item {
+    padding: 12px 16px;
+    min-height: 44px;
+  }
+  
+  .block-editor-inserter__quick-inserter-expand {
+    padding: 16px;
+    min-height: 48px;
+  }
+}
+
+/* WordPress-style content width constraints */
+.is-root-container.is-layout-constrained {
+  max-width: 700px !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+}
+
+.wp-block-post-content {
+  max-width: 650px !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+}
+
+.block-editor-block-list__layout {
+  max-width: 650px !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+}
+
+/* Reduce spacing between blocks */
+.block-editor-block-list__layout > * + * {
+  margin-top: 0.5rem !important;
+}
+
+.wp-block-paragraph + .wp-block-paragraph {
+  margin-top: 0.5rem !important;
+}
+
+.wp-block-heading + .wp-block-paragraph {
+  margin-top: 0.75rem !important;
+}
+
+.wp-block-paragraph + .wp-block-heading {
+  margin-top: 0.75rem !important;
+}
+
+.wp-block-image {
+  margin: 0.5rem 0 !important;
+}
+
+.wp-block-quote {
+  margin: 0.5rem 0 !important;
+}
+
+.wp-block-separator {
+  margin: 0.5rem 0 !important;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .is-root-container.is-layout-constrained,
+  .wp-block-post-content,
+  .block-editor-block-list__layout {
+    max-width: 100% !important;
+    padding: 0 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .is-root-container.is-layout-constrained,
+  .wp-block-post-content,
+  .block-editor-block-list__layout {
+    padding: 0 12px !important;
+  }
+}
+
+/* WordPress-style inserter button for insertion points - HIGH SPECIFICITY */
+.block-editor-block-list__layout .block-editor-block-list__insertion-point::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 40px !important;
+  height: 40px !important;
+  background: #007cba !important;
+  border: none !important;
+  border-radius: 50% !important;
+  color: white !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  opacity: 0 !important;
+  transition: all 0.2s ease !important;
+  z-index: 9999 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+}
+
+.block-editor-block-list__layout .block-editor-block-list__insertion-point::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 24px !important;
+  height: 24px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24' aria-hidden='true' focusable='false'%3E%3Cpath d='M11 12.5V17.5H12.5V12.5H17.5V11H12.5V6H11V11H6V12.5H11Z' fill='white'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 24px 24px !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+}
+
+.block-editor-block-list__layout .block-editor-block-list__insertion-point:hover::after {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1.1) !important;
+}
+
+.block-editor-block-list__layout .block-editor-block-list__insertion-point:hover::before {
+  opacity: 1 !important;
+}
+
+/* WordPress-style inserter toggle button */
+.components-button.block-editor-inserter__toggle {
+  background: #007cba;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  margin: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  text-decoration: none;
+  outline: none;
+  position: relative;
+  z-index: 20;
+}
+
+.components-button.block-editor-inserter__toggle:hover {
+  background: #005a87;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.components-button.block-editor-inserter__toggle:active {
+  transform: scale(0.95);
+}
+
+.components-button.block-editor-inserter__toggle svg {
+  fill: currentColor;
+  width: 24px;
+  height: 24px;
+}
+
+/* Removed conflicting CSS - using only HTML buttons */
+
+/* Clean insertion point styling */
+.block-editor-block-list__insertion-point {
+  background: transparent !important;
+  border: none !important;
+  min-height: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 3px 0 !important;
+}
