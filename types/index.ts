@@ -164,6 +164,7 @@ export interface ArticleEditorState {
 
 // Editor Types
 export interface EditorContent {
+  id?: number;
   title: string;
   content: string;
   excerpt: string;
