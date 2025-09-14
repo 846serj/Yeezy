@@ -869,7 +869,6 @@ function WordPressBlockEditor({
                                           e.currentTarget.style.borderColor = '#007cba';
                                           e.currentTarget.style.backgroundColor = '#f0f8ff';
                                         }}
-                                        placeholder="Add caption..."
                                         data-placeholder="Add caption..."
                                       >
                                         {block.attributes.caption || ''}
