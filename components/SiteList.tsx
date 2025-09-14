@@ -29,6 +29,8 @@ export function SiteList({ onConnect }: SiteListProps) {
   const [error, setError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addingSite, setAddingSite] = useState(false);
 
   useEffect(() => {
     fetchSites();
@@ -83,6 +85,46 @@ export function SiteList({ onConnect }: SiteListProps) {
     }
   };
 
+  const handleAddSite = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAddingSite(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const siteUrl = formData.get('siteUrl') as string;
+    const username = formData.get('username') as string;
+    const appPassword = formData.get('appPassword') as string;
+    const siteName = formData.get('siteName') as string;
+    
+    try {
+      const response = await fetch('/api/sites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          siteUrl,
+          username,
+          appPassword,
+          siteName: siteName || undefined
+        }),
+      });
+      
+      if (response.ok) {
+        setShowAddModal(false);
+        fetchSites(); // Refresh the sites list
+        // Reset form
+        (e.target as HTMLFormElement).reset();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to add site');
+      }
+    } catch (err) {
+      alert('Failed to add site');
+    } finally {
+      setAddingSite(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -116,12 +158,18 @@ export function SiteList({ onConnect }: SiteListProps) {
 
   return (
     <div>
-      {/* Head: empty - button moved to main header */}
-      <div className="editor-head" style={{ display: 'none' }}>
-        {/* Button moved to main header */}
+      {/* Add Site Button */}
+      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>WordPress Sites</h2>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="btn btn-primary"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Site
+        </button>
       </div>
-
-      {/* Search and filters moved to header row */}
 
       {/* Table */}
       <div className="table-wrap">
@@ -245,6 +293,136 @@ export function SiteList({ onConnect }: SiteListProps) {
           </tbody>
         </table>
       </div>
+
+      {/* Add Site Modal */}
+      {showAddModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '8px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+            maxWidth: '500px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflow: 'auto'
+          }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'black' }}>
+              Add WordPress Site
+            </h3>
+            
+            <form onSubmit={handleAddSite}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Site URL *
+                </label>
+                <input
+                  type="url"
+                  name="siteUrl"
+                  required
+                  placeholder="https://yoursite.com"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Username *
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  required
+                  placeholder="your_username"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Application Password *
+                </label>
+                <input
+                  type="password"
+                  name="appPassword"
+                  required
+                  placeholder="Your WordPress App Password"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '1rem'
+                  }}
+                />
+                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  Generate this in WordPress: Users → Profile → Application Passwords
+                </p>
+              </div>
+              
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Site Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="siteName"
+                  placeholder="My Blog"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+              
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="btn btn-secondary"
+                  disabled={addingSite}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={addingSite}
+                >
+                  {addingSite ? 'Adding...' : 'Add Site'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
