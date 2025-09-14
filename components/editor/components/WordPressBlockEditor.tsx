@@ -196,13 +196,14 @@ function WordPressBlockEditor({
     // Inserter,
     // BlockAppender
   } = WordPressComponents || {};
-  const { 
+  const {
     blocks, 
     setBlocks, 
     title, 
     setTitle, 
     handleSave, 
-    addBlock 
+    addBlock,
+    updateBlock
   } = useBlockManagement(post, onSave);
   const {
     showImageSearch,
