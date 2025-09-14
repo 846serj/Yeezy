@@ -675,7 +675,7 @@ function WordPressBlockEditor({
                     <div 
                       className="editor-visual-editor__post-title-wrapper edit-post-visual-editor__post-title-wrapper has-global-padding"
                       style={{
-                        maxWidth: '632px',
+                        maxWidth: '650px',
                         margin: '33px auto 0 auto',
                         padding: '0 20px'
                       }}
@@ -707,11 +707,11 @@ function WordPressBlockEditor({
                     {/* Editor Content using WordPress's official components */}
                     <div 
                       className="is-root-container is-desktop-preview is-layout-constrained wp-block-post-content-is-layout-constrained has-global-padding wp-block-post-content has-global-padding block-editor-block-list__layout"
-                      style={{
-                        maxWidth: '650px',
-                        margin: '0 auto',
-                        padding: '0 20px'
-                      }}
+                        style={{
+                          maxWidth: '654px',
+                          margin: '0 auto',
+                          padding: '0 20px'
+                        }}
                     >
                       {/* Custom block list with insertion points */}
                       <div className="block-editor-block-list__layout" data-is-drop-zone="true">
@@ -738,7 +738,7 @@ function WordPressBlockEditor({
                                 />
                                 
                                 {/* Block content */}
-                                <div style={{ marginBottom: '1rem' }}>
+                                <div style={{ marginBottom: '4px' }}>
                                   {block.name === 'core/paragraph' && (
                                     <div
                                       key={`paragraph-${block.clientId}`}
@@ -767,10 +767,11 @@ function WordPressBlockEditor({
                                         width: '100%',
                                         fontSize: 'var(--wp--preset--font-size--medium)',
                                         lineHeight: '1.5',
-                                        padding: '8px',
-                                        borderRadius: '4px',
+                                        padding: '0px 0px',
+                                        borderRadius: '2px',
                                         direction: 'ltr',
-                                        unicodeBidi: 'normal'
+                                        unicodeBidi: 'normal',
+                                        margin: '0'
                                       }}
                                     >
                                       {block.attributes.content || 'Start writing...'}
@@ -818,12 +819,12 @@ function WordPressBlockEditor({
                                   )}
 
                                   {block.name === 'core/image' && (
-                                    <div style={{ textAlign: 'center', padding: '8px', border: '1px solid transparent', borderRadius: '4px' }}>
+                                    <figure style={{ textAlign: 'center', padding: '2px', border: '1px solid transparent', borderRadius: '2px', margin: '0' }}>
                                       {block.attributes.url ? (
                                         <img 
                                           src={block.attributes.url} 
                                           alt={block.attributes.alt || ''} 
-                                          style={{ maxWidth: '100%', height: 'auto' }}
+                                          style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '0 auto' }}
                                         />
                                       ) : (
                                         <div style={{ 
@@ -836,17 +837,45 @@ function WordPressBlockEditor({
                                           No image selected
                                         </div>
                                       )}
-                                      {block.attributes.caption && (
-                                        <figcaption style={{ 
+                                      <figcaption 
+                                        contentEditable
+                                        suppressContentEditableWarning
+                                        onInput={(e) => {
+                                          const newCaption = e.currentTarget.textContent || '';
+                                          updateBlock(block.clientId, { caption: newCaption });
+                                        }}
+                                        onBlur={(e) => {
+                                          const newCaption = e.currentTarget.textContent || '';
+                                          updateBlock(block.clientId, { caption: newCaption });
+                                        }}
+                                        style={{ 
                                           fontSize: 'var(--wp--preset--font-size--x-small)',
                                           color: 'var(--wp--preset--color--contrast)',
                                           marginTop: 'var(--wp--preset--spacing--30)',
-                                          textAlign: 'center'
-                                        }}>
-                                          {block.attributes.caption}
-                                        </figcaption>
-                                      )}
-                                  </div>
+                                          textAlign: 'center',
+                                          outline: 'none',
+                                          border: '1px solid transparent',
+                                          borderRadius: '2px',
+                                          padding: '4px 8px',
+                                          minHeight: '20px',
+                                          cursor: 'text',
+                                          backgroundColor: 'transparent',
+                                          transition: 'border-color 0.2s ease'
+                                        }}
+                                        onFocus={(e) => {
+                                          e.currentTarget.style.borderColor = '#007cba';
+                                          e.currentTarget.style.backgroundColor = '#f0f8ff';
+                                        }}
+                                        onBlur={(e) => {
+                                          e.currentTarget.style.borderColor = 'transparent';
+                                          e.currentTarget.style.backgroundColor = 'transparent';
+                                        }}
+                                        placeholder="Add caption..."
+                                        data-placeholder="Add caption..."
+                                      >
+                                        {block.attributes.caption || ''}
+                                      </figcaption>
+                                    </figure>
                                   )}
 
                                   {block.name === 'core/list' && (

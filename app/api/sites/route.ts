@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserSites, addUserSite, deleteUserSite } from '@/lib/auth';
+import { getUserSites, addUserSite, deleteUserSite } from '@/lib/database';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';

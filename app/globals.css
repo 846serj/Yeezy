@@ -112,7 +112,7 @@ body {
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
   padding: 1rem 0;
-  max-width: 592px;
+  max-width: 620px !important;
   margin: 0 auto;
   width: 100%;
 }
@@ -122,14 +122,14 @@ body {
   top: 0;
   z-index: 50;
   background: #fff;
-  max-width: 592px;
+  max-width: 650px;
   margin: 0 auto;
   width: 100%;
 }
 
 .MhStickyHeader__menubar {
   width: 100%;
-  max-width: 592px;
+  max-width: 650px;
   margin: 0 auto;
 }
 
@@ -234,7 +234,7 @@ body {
 
 /* Editor header width constraint */
 .interface-interface-skeleton__header {
-    max-width: 592px;
+    max-width: 650px;
     margin: 0 auto;
     width: 100%;
 }

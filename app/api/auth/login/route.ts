@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByEmail, verifyPassword } from '@/lib/auth';
+import { getUserByEmail, verifyPassword } from '@/lib/database';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    const isValidPassword = verifyPassword(password, user.password);
+    const isValidPassword = verifyPassword(password, user.password_hash);
     if (!isValidPassword) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }

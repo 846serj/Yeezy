@@ -36,7 +36,7 @@
   background: white;
   border-bottom: 1px solid #ddd;
   z-index: 100;
-  max-width: 592px;
+  max-width: 650px;
   margin: 0 auto;
   width: 100%;
 }
@@ -1146,6 +1146,165 @@
 
 .block-editor-block-list__layout .block-editor-block-list__insertion-point:hover::before {
   opacity: 1 !important;
+}
+
+/* Enhanced insertion point with blue lines extending from center */
+.block-editor-block-list__layout .block-editor-block-list__insertion-point {
+  position: relative !important;
+  height: 20px !important;
+  margin: 8px 0 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Center button */
+.block-editor-block-list__layout .block-editor-block-list__insertion-point::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 30px !important;
+  height: 30px !important;
+  background: #007cba !important;
+  border: none !important;
+  border-radius: 50% !important;
+  color: white !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  opacity: 0 !important;
+  transition: all 0.2s ease !important;
+  z-index: 9999 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+}
+
+/* Plus icon inside button */
+.block-editor-block-list__layout .block-editor-block-list__insertion-point::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 30px !important;
+  height: 30px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24' aria-hidden='true' focusable='false'%3E%3Cpath d='M11 12.5V17.5H12.5V12.5H17.5V11H12.5V6H11V11H6V12.5H11Z' fill='white'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 16px 16px !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+}
+
+/* Hover effects - show button and icon */
+.block-editor-block-list__layout .block-editor-block-list__insertion-point:hover::after {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1.1) !important;
+}
+
+.block-editor-block-list__layout .block-editor-block-list__insertion-point:hover::before {
+  opacity: 1 !important;
+}
+
+/* Blue bar that fills the section width on hover */
+.block-editor-block-list__layout .block-editor-block-list__insertion-point {
+  height: 2px !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  position: relative !important;
+}
+
+.block-editor-block-list__layout .block-editor-block-list__insertion-point:hover {
+  background: #007cba !important;
+}
+
+/* Editable caption styles */
+figcaption[contenteditable="true"]:empty:before {
+  content: attr(data-placeholder);
+  color: #999;
+  font-style: italic;
+  pointer-events: none;
+}
+
+figcaption[contenteditable="true"]:focus:empty:before {
+  content: attr(data-placeholder);
+  color: #999;
+  font-style: italic;
+}
+
+/* Caption hover effects */
+figcaption[contenteditable="true"]:hover {
+  border-color: #ddd !important;
+  background-color: #f9f9f9 !important;
+}
+
+/* Minimal spacing between blocks */
+.block-editor-block-list__layout {
+  gap: 8px !important;
+}
+
+.block-editor-block-list__layout > * {
+  margin-bottom: 8px !important;
+}
+
+/* Minimal padding in blocks */
+.block-editor-block-list__layout .wp-block {
+  padding: 4px !important;
+  margin: 0 !important;
+}
+
+/* Reduce paragraph spacing */
+.block-editor-block-list__layout p {
+  margin: 0 0 8px 0 !important;
+  padding: 0 !important;
+}
+
+/* Reduce heading spacing */
+.block-editor-block-list__layout h1,
+.block-editor-block-list__layout h2,
+.block-editor-block-list__layout h3,
+.block-editor-block-list__layout h4,
+.block-editor-block-list__layout h5,
+.block-editor-block-list__layout h6 {
+  margin: 0 0 8px 0 !important;
+  padding: 0 !important;
+}
+
+/* Reduce image block spacing */
+.block-editor-block-list__layout figure {
+  margin: 0 0 8px 0 !important;
+  padding: 0 !important;
+}
+
+/* Reduce list spacing */
+.block-editor-block-list__layout ul,
+.block-editor-block-list__layout ol {
+  margin: 0 0 8px 0 !important;
+  padding: 0 0 0 1.5em !important;
+}
+
+/* Reduce quote spacing */
+.block-editor-block-list__layout blockquote {
+  margin: 0 0 8px 0 !important;
+  padding: 8px 16px !important;
+}
+
+/* Minimal insertion point spacing */
+.block-editor-block-list__insertion-point {
+  margin: 4px 0 !important;
+  height: 8px !important;
 }
 
 /* WordPress-style inserter toggle button */
