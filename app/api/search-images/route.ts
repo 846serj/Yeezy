@@ -131,7 +131,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
   // Get the actual image URLs and metadata for the search results
   const titles = searchResults.map((result: any) => result.title).join('|');
   const imageResponse = await fetch(
-    `https://commons.wikimedia.org/w/api.php?action=query&format=json&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url|size|mime|extmetadata&iilimit=1`
+    `https://commons.wikimedia.org/w/api.php?action=query&format=json&titles=${encodeURIComponent(titles)}&prop=imageinfo&iiprop=url|size|mime|extmetadata|thumbmime&iilimit=1&iiurlwidth=300`
   );
 
   if (!imageResponse.ok) return [];
@@ -148,6 +148,9 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
     // Use the actual image URL if available, otherwise fallback to the page URL
     const imageUrl = imageInfo?.url || `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(result.title)}`;
     
+    // Get thumbnail URL (300px width) for faster loading in search results
+    const thumbnailUrl = imageInfo?.thumburl || imageUrl;
+    
     // Extract author/creator information
     const author = metadata.Artist?.value || metadata.Creator?.value || 'Unknown author';
     const license = metadata.LicenseShortName?.value || metadata.License?.value || 'Unknown license';
@@ -163,7 +166,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
       full: imageUrl,
       caption: result.title.replace('File:', ''),
       source: 'wikiCommons',
-      thumbnail: imageUrl,
+      thumbnail: thumbnailUrl,
       link: `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(result.title)}`,
       width: imageInfo?.width || 0,
       height: imageInfo?.height || 0,

@@ -55,12 +55,57 @@ const ImageSearchModal: FC<Props> = ({
 
   console.log('🔍 ImageSearchModal render:', { isOpen, imagesCount: images.length });
 
-  if (!isOpen) return null;
+  // Note: Auto-search is now handled by the parent component
+
+  if (!isOpen) {
+    console.log('🔍 ImageSearchModal not open, returning null');
+    return null;
+  }
+
+  console.log('🔍 ImageSearchModal is open, rendering modal');
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded shadow-lg w-[90vw] max-w-7xl max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-semibold mb-4">Select Image</h3>
+    <div
+      className="components-popover block-editor-inserter__popover"
+      style={{
+        position: 'fixed',
+        top: '100px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 1000000,
+        width: '900px',
+        maxWidth: '90vw',
+        boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
+        borderRadius: '8px',
+        backgroundColor: '#ffffff',
+        border: '1px solid #e0e0e0'
+      }}
+    >
+      <div className="components-popover__content" style={{ 
+        maxHeight: '600px', 
+        overflow: 'auto',
+        borderRadius: '8px'
+      }}>
+        <div className="block-editor-inserter__quick-inserter has-search has-expand">
+          <div className="block-editor-inserter__panel-header">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="block-editor-inserter__panel-title text-lg font-semibold">Select Featured Image</h2>
+              <button
+                onClick={onClose}
+                className="components-button is-tertiary"
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '14px',
+                  color: '#666',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                ×
+              </button>
+            </div>
+          </div>
 
         {/* Sources - Hidden old checkbox interface */}
         <div className="hidden grid-cols-5 gap-2 mb-4">
@@ -77,28 +122,51 @@ const ImageSearchModal: FC<Props> = ({
           ))}
         </div>
 
-        {/* Search */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSearch(query);
-          }}
-          className="mb-4 flex gap-2"
-        >
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search keywords"
-            className="flex-1 border p-2 rounded"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50"
-          >
-            {loading ? "Searching…" : "Search"}
-          </button>
-        </form>
+          <div className="block-editor-inserter__panel-content">
+            {/* Search */}
+            <div className="components-base-control components-input-control components-search-control block-editor-inserter__search">
+              <div className="components-base-control__field">
+                <div className="components-input-control__container">
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search for images..."
+                    className="components-input-control__input"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      fontSize: '14px'
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        onSearch(query);
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => onSearch(query)}
+                    disabled={loading}
+                    className="components-button is-primary"
+                    style={{
+                      marginLeft: '8px',
+                      padding: '8px 16px',
+                      fontSize: '14px',
+                      backgroundColor: '#0073aa',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      opacity: loading ? 0.6 : 1
+                    }}
+                  >
+                    {loading ? "Searching…" : "Search"}
+                  </button>
+                </div>
+              </div>
+            </div>
 
         {/* API Selection Buttons */}
         <div className="block-editor-inserter__block-list" style={{ marginBottom: '8px' }}>
@@ -189,57 +257,95 @@ const ImageSearchModal: FC<Props> = ({
           </div>
         </div>
 
-        {/* Results */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
-          {images.map((img, i) => (
-            <div
-              key={i}
-              onClick={() => onSelect(img)}
-              className="border p-3 rounded shadow cursor-pointer hover:bg-gray-100"
-            >
-              <img
-                src={img.thumbnail ?? img.url}
-                alt={img.caption}
-                className="w-full h-48 object-cover mb-2 rounded"
-                loading="lazy"
-              />
-              <p className="text-xs font-semibold mb-1">{img.caption}</p>
-              {img.attribution && (
-                <p className="text-xs text-gray-600 mb-1">{img.attribution}</p>
-              )}
-              {img.photographer && img.photographerUrl && (
-                <a
-                  href={img.photographerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-600 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View photographer profile
-                </a>
-              )}
+            {/* Images Grid */}
+            <div className="block-editor-inserter__block-list" style={{ marginTop: '16px' }}>
+              <div className="block-editor-block-types-list" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                gap: '12px',
+                padding: '16px'
+              }}>
+                {images.map((img, index) => (
+                  <div
+                    key={index}
+                    className="block-editor-block-types-list__list-item"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                      minHeight: '100px',
+                      gap: '8px',
+                      padding: '12px',
+                      border: '1px solid #e0e0e0',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      backgroundColor: '#ffffff'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#0073aa';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 115, 170, 0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e0e0e0';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                    onClick={() => onSelect(img)}
+                  >
+                    <div style={{ width: '100%', height: '120px', overflow: 'hidden', borderRadius: '4px' }}>
+                      <img
+                        src={img.thumbnail || img.url}
+                        alt={img.caption || "Image"}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        loading="lazy"
+                      />
+                    </div>
+                    <div style={{
+                      fontSize: '11px',
+                      color: '#666',
+                      lineHeight: '1.3',
+                      maxHeight: '32px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical'
+                    }}>
+                      {img.caption || img.title || "No caption"}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
 
-        {hasMore && (
-          <div className="text-center mb-4">
-            <button
-              onClick={loadMore}
-              disabled={loading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50"
-            >
-              {loading ? "Loading…" : "Load More"}
-            </button>
+            {hasMore && (
+              <div className="text-center mb-4" style={{ padding: '0 16px' }}>
+                <button
+                  onClick={loadMore}
+                  disabled={loading}
+                  className="components-button is-secondary"
+                  style={{
+                    padding: '8px 16px',
+                    fontSize: '14px',
+                    backgroundColor: '#f0f0f1',
+                    color: '#1e1e1e',
+                    border: '1px solid #c3c4c7',
+                    borderRadius: '4px',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.6 : 1
+                  }}
+                >
+                  {loading ? "Loading…" : "Load More"}
+                </button>
+              </div>
+            )}
           </div>
-        )}
-
-        <button
-          onClick={onClose}
-          className="px-4 py-2 bg-gray-600 text-white rounded"
-        >
-          Close
-        </button>
+        </div>
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ export interface EditorContent {
   featured_media: number | null;
   categories: number[];
   tags: number[];
+  _embedded?: any; // Include embedded data for featured image
 }
 
 export interface GutenbergBlock {

@@ -2,10 +2,15 @@
 declare global {
   interface Window {
     wordPressUpload?: (file: File) => Promise<{
+      id: number;
       source_url: string;
       alt_text?: string;
       [key: string]: any;
     }>;
+    wordPressUpdateMedia?: (mediaId: number, data: {
+      caption?: string;
+      alt_text?: string;
+    }) => Promise<any>;
   }
 }
 
@@ -57,6 +62,7 @@ export interface WordPressPost {
     'wp:term': Array<{ taxonomy: string; embeddable: boolean; href: string }>;
     curies: Array<{ name: string; href: string; templated: boolean }>;
   };
+  _embedded?: any; // Include embedded data for featured image
 }
 
 export interface WordPressMedia {
@@ -172,6 +178,7 @@ export interface EditorContent {
   featured_media: number | null;
   categories: number[];
   tags: number[];
+  _embedded?: any; // Include embedded data for featured image
 }
 
 // WordPress API Field Types (for proper REST API integration)

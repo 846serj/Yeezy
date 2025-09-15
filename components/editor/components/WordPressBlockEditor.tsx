@@ -48,20 +48,88 @@ function WordPressBlockEditor({
   const [inserterPage, setInserterPage] = useState(1);
   const [inserterHasMore, setInserterHasMore] = useState(false);
   const [inserterLoading, setInserterLoading] = useState(false);
+  // Featured image search state - using same hook as body images
+  const {
+    showImageSearch: showFeaturedImageSearch,
+    setShowImageSearch: setShowFeaturedImageSearch,
+    searchImages: featuredImageSearchImages,
+    searchLoading: featuredImageSearchLoading,
+    selectedSources: featuredImageSelectedSources,
+    hasMoreImages: featuredImageHasMore,
+    lastSearchQuery: featuredImageLastQuery,
+    handleImageSearch: handleFeaturedImageSearch,
+    handleSourceToggle: handleFeaturedImageSourceToggle,
+    openImageSearch: openFeaturedImageSearch,
+    closeImageSearch: closeFeaturedImageSearch
+  } = useImageSearch();
 
   // Block types for inserter
   const blockTypes = [
-    { name: 'core/paragraph', title: 'Paragraph', icon: '📝', description: 'Start with the building block of all narrative.' },
-    { name: 'core/heading', title: 'Heading', icon: '📰', description: 'Introduce new sections and organize content.' },
-    { name: 'core/image', title: 'Image', icon: '🖼️', description: 'Insert an image to make a visual statement.' },
-    { name: 'core/list', title: 'List', icon: '📋', description: 'Create a bulleted or numbered list.' },
-    { name: 'core/quote', title: 'Quote', icon: '💬', description: 'Give quoted text visual emphasis.' },
-    { name: 'core/separator', title: 'Separator', icon: '➖', description: 'Create a break between ideas or sections.' },
+    { 
+      name: 'core/paragraph', 
+      title: 'Paragraph', 
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+          <path d="m9.99609 14v-.2251l.00391.0001v6.225h1.5v-14.5h2.5v14.5h1.5v-14.5h3v-1.5h-8.50391c-2.76142 0-5 2.23858-5 5 0 2.7614 2.23858 5 5 5z"></path>
+        </svg>
+      ), 
+      description: 'Start with the building block of all narrative.' 
+    },
+    { 
+      name: 'core/heading', 
+      title: 'Heading', 
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+          <path d="M6 5V18.5911L12 13.8473L18 18.5911V5H6Z"></path>
+        </svg>
+      ), 
+      description: 'Introduce new sections and organize content.' 
+    },
+    { 
+      name: 'core/image', 
+      title: 'Image', 
+      icon: (
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" focusable="false">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 4.5h14c.3 0 .5.2.5.5v8.4l-3-2.9c-.3-.3-.8-.3-1 0L11.9 14 9 12c-.3-.2-.6-.2-.8 0l-3.6 2.6V5c-.1-.3.1-.5.4-.5zm14 15H5c-.3 0-.5-.2-.5-.5v-2.4l4.1-3 3 1.9c.3.2.7.2.9-.1L16 12l3.5 3.4V19c0 .3-.2.5-.5.5z"></path>
+        </svg>
+      ), 
+      description: 'Insert an image to make a visual statement.' 
+    },
+    { 
+      name: 'core/list', 
+      title: 'List', 
+      icon: (
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" focusable="false">
+          <path d="M4 4v1.5h16V4H4zm8 8.5h8V11h-8v1.5zM4 20h16v-1.5H4V20zm4-8c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2z"></path>
+        </svg>
+      ), 
+      description: 'Create a bulleted or numbered list.' 
+    },
+    { 
+      name: 'core/quote', 
+      title: 'Quote', 
+      icon: (
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" focusable="false">
+          <path d="M13 6v6h5.2v4c0 .8-.2 1.4-.5 1.7-.6.6-1.6.6-2.5.5h-.3v1.5h.5c1 0 2.3-.1 3.3-1 .6-.6 1-1.6 1-2.8V6H13zm-9 6h5.2v4c0 .8-.2 1.4-.5 1.7-.6.6-1.6.6-2.5.5h-.3v1.5h.5c1 0 2.3-.1 3.3-1 .6-.6 1-1.6 1-2.8V6H4v6z"></path>
+        </svg>
+      ), 
+      description: 'Give quoted text visual emphasis.' 
+    },
+    { 
+      name: 'core/separator', 
+      title: 'Separator', 
+      icon: (
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" focusable="false">
+          <path d="M4 12h16v-1.5H4V12zm0 4h16v-1.5H4V16z"></path>
+        </svg>
+      ), 
+      description: 'Create a break between ideas or sections.' 
+    },
   ];
 
   // Position popup at the top of the content container
   const calculatePopupPosition = () => {
-    const popupWidth = 650;
+    const popupWidth = 900;
     const margin = 20;
     
     // Get viewport dimensions
@@ -197,10 +265,12 @@ function WordPressBlockEditor({
     // BlockAppender
   } = WordPressComponents || {};
   const {
-    blocks, 
+    blocks,
     setBlocks, 
     title, 
     setTitle, 
+    featuredImage,
+    setFeaturedImage,
     handleSave, 
     addBlock,
     updateBlock
@@ -338,6 +408,29 @@ function WordPressBlockEditor({
       console.log('📝 Initializing editor with post data');
       setTitle(post.title || '');
       
+      // Load existing featured image if available
+      const postWithEmbedded = post as any; // Type assertion for embedded data
+      console.log('🔍 Post object for featured image check:', postWithEmbedded);
+      console.log('🔍 Post _embedded property:', postWithEmbedded._embedded);
+      console.log('🔍 Post featured_media property:', postWithEmbedded.featured_media);
+      console.log('🔍 Featured media check:', postWithEmbedded._embedded?.['wp:featuredmedia']?.[0]);
+      
+      if (postWithEmbedded._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
+        const featuredMedia = postWithEmbedded._embedded['wp:featuredmedia'][0];
+        setFeaturedImage({
+          url: featuredMedia.source_url,
+          alt: featuredMedia.alt_text || '',
+          caption: featuredMedia.caption?.rendered || '',
+          id: featuredMedia.id // Include the WordPress media ID
+        });
+        console.log('🖼️ Loaded existing featured image:', featuredMedia.source_url, 'with ID:', featuredMedia.id);
+      } else if (postWithEmbedded.featured_media && postWithEmbedded.featured_media > 0) {
+        console.log('🔍 Post has featured_media ID but no embedded data:', postWithEmbedded.featured_media);
+        console.log('⚠️ Featured image data not available in embedded response');
+      } else {
+        console.log('🔍 No featured image found in post');
+      }
+      
       if (post.content) {
         try {
           console.log('🔍 Parsing post content...');
@@ -413,6 +506,15 @@ function WordPressBlockEditor({
     setShowCropModal(true);
   };
 
+  // Featured image handling functions
+  const handleFeaturedImageSelect = (image: any) => {
+    console.log('🖼️ Featured image selected:', image);
+    setCurrentImageToCrop(image);
+    setCurrentBlockId('featured-image'); // Special ID for featured image
+    setShowFeaturedImageSearch(false);
+    setShowCropModal(true);
+  };
+
   const handleCropConfirm = async (croppedImageUrl: string) => {
     if (!currentImageToCrop || !currentBlockId) return;
     
@@ -426,10 +528,13 @@ function WordPressBlockEditor({
       let finalUrl = croppedImageUrl;
       
       // Try to upload to WordPress if available
+      let mediaId = undefined;
       if (window.wordPressUpload) {
         try {
           const media = await window.wordPressUpload(file);
           finalUrl = media.source_url;
+          mediaId = media.id;
+          console.log('✅ Image uploaded to WordPress with media ID:', mediaId);
         } catch (error) {
           console.error('WordPress upload failed, using local URL:', error);
         }
@@ -459,37 +564,62 @@ function WordPressBlockEditor({
         imageCaption = currentImageToCrop.attribution; // Show photographer attribution in caption
       }
 
-      // Check if this is a new block insertion or updating an existing block
-      const existingBlock = blocks.find(block => block.clientId === currentBlockId);
-      
-      if (existingBlock) {
-        // Update existing block
-      setBlocks(prevBlocks => 
-        prevBlocks.map(block => 
-          block.clientId === currentBlockId 
-            ? { ...block, attributes: { ...block.attributes, url: finalUrl, alt: imageAlt, caption: imageCaption } }
-            : block
-        )
-      );
+      // Update the media item with caption and alt text if we have a media ID
+      if (mediaId && window.wordPressUpdateMedia) {
+        try {
+          await window.wordPressUpdateMedia(mediaId, {
+            caption: imageCaption,
+            alt_text: imageAlt
+          });
+          console.log('✅ Media item updated with caption and alt text');
+        } catch (error) {
+          console.error('❌ Failed to update media item:', error);
+        }
+      }
+
+      // Handle featured image vs body image
+      if (currentBlockId === 'featured-image') {
+        // Set as featured image
+        setFeaturedImage({
+          url: finalUrl,
+          alt: imageAlt,
+          caption: imageCaption,
+          id: mediaId // Use the media ID from WordPress upload
+        });
+        console.log('✅ Featured image uploaded and set:', finalUrl, 'with media ID:', mediaId);
       } else {
-        // Insert new image block
-        const imageBlock = {
-          clientId: currentBlockId,
-          name: 'core/image',
-          isValid: true,
-          attributes: {
-            url: finalUrl,
-            alt: imageAlt,
-            caption: imageCaption
-          },
-          innerBlocks: []
-        };
+        // Check if this is a new block insertion or updating an existing block
+        const existingBlock = blocks.find(block => block.clientId === currentBlockId);
         
-        // Use the pending insertion position or default to end
-        const insertionIndex = pendingImageInsertion?.index ?? blocks.length;
-        const newBlocks = [...blocks];
-        newBlocks.splice(insertionIndex, 0, imageBlock);
-        setBlocks(newBlocks);
+        if (existingBlock) {
+          // Update existing block
+        setBlocks(prevBlocks => 
+          prevBlocks.map(block => 
+            block.clientId === currentBlockId 
+              ? { ...block, attributes: { ...block.attributes, url: finalUrl, alt: imageAlt, caption: imageCaption } }
+              : block
+          )
+        );
+        } else {
+          // Insert new image block
+          const imageBlock = {
+            clientId: currentBlockId,
+            name: 'core/image',
+            isValid: true,
+            attributes: {
+              url: finalUrl,
+              alt: imageAlt,
+              caption: imageCaption
+            },
+            innerBlocks: []
+          };
+          
+          // Use the pending insertion position or default to end
+          const insertionIndex = pendingImageInsertion?.index ?? blocks.length;
+          const newBlocks = [...blocks];
+          newBlocks.splice(insertionIndex, 0, imageBlock);
+          setBlocks(newBlocks);
+        }
       }
       
       setShowCropModal(false);
@@ -683,6 +813,157 @@ function WordPressBlockEditor({
                       />
                     </div>
 
+                    {/* Featured Image Section */}
+                    <div 
+                      className="editor-visual-editor__featured-image-wrapper"
+                      style={{
+                        maxWidth: '650px',
+                        margin: '20px auto 0 auto',
+                        padding: '0 20px'
+                      }}
+                    >
+                      {featuredImage ? (
+                        <div className="wp-block-image">
+                          <figure className="wp-block-image__figure">
+                            <img 
+                              src={featuredImage.url} 
+                              alt={featuredImage.alt}
+                              style={{
+                                width: '100%',
+                                height: 'auto',
+                                borderRadius: '4px',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                              }}
+                            />
+                            <figcaption 
+                              contentEditable
+                              suppressContentEditableWarning
+                              onInput={(e) => setFeaturedImage(prev => prev ? {
+                                ...prev,
+                                caption: e.currentTarget.textContent || ''
+                              } : null)}
+                              style={{ 
+                                fontSize: '0.579rem',
+                                color: 'var(--wp--preset--color--contrast)',
+                                marginTop: 'var(--wp--preset--spacing--30)',
+                                textAlign: 'center',
+                                outline: 'none',
+                                border: '1px solid transparent',
+                                borderRadius: '2px',
+                                padding: '4px 8px',
+                                minHeight: '20px',
+                                cursor: 'text',
+                                backgroundColor: 'transparent',
+                                transition: 'border-color 0.2s ease',
+                                width: '100%'
+                              }}
+                              data-placeholder="Add caption..."
+                            >
+                              {featuredImage.caption}
+                            </figcaption>
+                          </figure>
+                          <div style={{ 
+                            display: 'flex', 
+                            gap: '8px', 
+                            marginTop: '12px',
+                            justifyContent: 'center'
+                          }}>
+                            <button
+                              onClick={() => {
+                                console.log('🖼️ Opening featured image search...');
+                                openFeaturedImageSearch('featured-image');
+                                // Auto-search for images
+                                handleFeaturedImageSearch('nature');
+                              }}
+                              style={{
+                                padding: '6px 12px',
+                                fontSize: '12px',
+                                backgroundColor: '#0073aa',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '3px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Change Image
+                            </button>
+                            <button
+                              onClick={() => setFeaturedImage(null)}
+                              style={{
+                                padding: '6px 12px',
+                                fontSize: '12px',
+                                backgroundColor: '#dc3232',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '3px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{
+                          border: '2px dashed #ddd',
+                          borderRadius: '8px',
+                          padding: '40px 20px',
+                          textAlign: 'center',
+                          backgroundColor: '#f9f9f9'
+                        }}>
+                          <div style={{ marginBottom: '16px' }}>
+                            <svg 
+                              width="48" 
+                              height="48" 
+                              viewBox="0 0 24 24" 
+                              fill="none" 
+                              style={{ margin: '0 auto', color: '#999' }}
+                            >
+                              <path 
+                                d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 4.5h14c.3 0 .5.2.5.5v8.4l-3-2.9c-.3-.3-.8-.3-1 0L11.9 14 9 12c-.3-.2-.6-.2-.8 0l-3.6 2.6V5c-.1-.3.1-.5.4-.5zm14 15H5c-.3 0-.5-.2-.5-.5v-2.4l4.1-3 3 1.9c.3.2.7.2.9-.1L16 12l3.5 3.4V19c0 .3-.2.5-.5.5z" 
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </div>
+                          <h3 style={{ 
+                            margin: '0 0 8px 0', 
+                            fontSize: '16px', 
+                            fontWeight: '500',
+                            color: '#333'
+                          }}>
+                            Set featured image
+                          </h3>
+                          <p style={{ 
+                            margin: '0 0 16px 0', 
+                            fontSize: '14px', 
+                            color: '#666' 
+                          }}>
+                            Choose an image that represents your content
+                          </p>
+                          <button
+                            onClick={() => {
+                              console.log('🖼️ Opening featured image search...');
+                              openFeaturedImageSearch('featured-image');
+                              // Auto-search for images
+                              handleFeaturedImageSearch('nature');
+                            }}
+                            style={{
+                              padding: '10px 20px',
+                              fontSize: '14px',
+                              backgroundColor: '#0073aa',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontWeight: '500'
+                            }}
+                          >
+                            Add Featured Image
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                     {/* Editor Content using WordPress's official components */}
                     <div 
                       className="is-root-container is-desktop-preview is-layout-constrained wp-block-post-content-is-layout-constrained has-global-padding wp-block-post-content has-global-padding block-editor-block-list__layout"
@@ -824,7 +1105,7 @@ function WordPressBlockEditor({
                                         }}
                                         placeholder="Add caption..."
                                         style={{ 
-                                          fontSize: 'var(--wp--preset--font-size--x-small)',
+                                          fontSize: '0.579rem',
                                           color: 'var(--wp--preset--color--contrast)',
                                           marginTop: 'var(--wp--preset--spacing--30)',
                                           textAlign: 'center',
@@ -967,7 +1248,7 @@ function WordPressBlockEditor({
             top: inserterPosition.popupY,
             left: inserterPosition.popupX,
             zIndex: 1000000,
-            width: '650px',
+            width: '900px',
             maxWidth: '90vw',
             boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
             borderRadius: '8px',
@@ -1101,9 +1382,9 @@ function WordPressBlockEditor({
                   </div>
                   <div style={{ 
                     display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', 
-                    gap: '8px',
-                    maxHeight: '300px',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+                    gap: '12px',
+                    maxHeight: '400px',
                     overflowY: 'auto'
                   }}>
                     {inserterImages.map((image, index) => (
@@ -1131,7 +1412,7 @@ function WordPressBlockEditor({
                           alt={image.caption || 'Image'}
                           style={{
                             width: '100%',
-                            height: '80px',
+                            height: '160px',
                             objectFit: 'cover',
                             display: 'block'
                           }}
@@ -1206,7 +1487,12 @@ function WordPressBlockEditor({
                   No images found for "{inserterSearchQuery}"
                 </div>
               ) : (
-                <div className="block-editor-block-types-list">
+                <div className="block-editor-block-types-list" style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '8px',
+                  padding: '16px'
+                }}>
                   {blockTypes.map((blockType) => (
                     <div
                       key={blockType.name}
@@ -1214,13 +1500,16 @@ function WordPressBlockEditor({
                       onClick={() => handleInsertBlock(blockType.name, inserterPosition.index)}
                       style={{
                         display: 'flex',
+                        flexDirection: 'column',
                         alignItems: 'center',
-                        padding: '12px 16px',
+                        padding: '16px 12px',
                         cursor: 'pointer',
                         border: '1px solid transparent',
                         borderRadius: '4px',
-                        marginBottom: '4px',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        textAlign: 'center',
+                        minHeight: '100px',
+                        gap: '8px'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = '#f0f0f0';
@@ -1231,27 +1520,39 @@ function WordPressBlockEditor({
                         e.currentTarget.style.borderColor = 'transparent';
                       }}
                     >
-                      <div style={{ 
-                        fontSize: '20px', 
-                        marginRight: '12px', 
-                        width: '24px', 
-                        textAlign: 'center' 
+                      <span className="block-editor-block-types-list__item-icon" style={{
+                        width: '32px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}>
-                        {blockType.icon}
-                      </div>
-                      <div style={{ flex: 1 }}>
+                        <span className="block-editor-block-icon has-colors">
+                          {blockType.icon}
+                        </span>
+                      </span>
+                      <div style={{ 
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        width: '100%'
+                      }}>
                         <div style={{ 
                           fontWeight: '600', 
-                          fontSize: '14px', 
+                          fontSize: '13px', 
                           color: '#1e1e1e',
-                          marginBottom: '2px'
+                          textAlign: 'center'
                         }}>
                           {blockType.title}
                         </div>
                         <div style={{ 
-                          fontSize: '12px', 
+                          fontSize: '11px', 
                           color: '#757575',
-                          lineHeight: '1.4'
+                          lineHeight: '1.3',
+                          textAlign: 'center',
+                          maxWidth: '100%',
+                          wordWrap: 'break-word'
                         }}>
                           {blockType.description}
                         </div>
@@ -1294,6 +1595,20 @@ function WordPressBlockEditor({
         }}
         onConfirm={handleCropConfirm}
         loading={cropLoading}
+      />
+
+      {/* Featured Image Search Modal */}
+      <ImageSearchModal
+        isOpen={showFeaturedImageSearch}
+        onClose={closeFeaturedImageSearch}
+        onSelect={handleFeaturedImageSelect}
+        selectedSources={featuredImageSelectedSources}
+        onSourceToggle={handleFeaturedImageSourceToggle}
+        onSearch={handleFeaturedImageSearch}
+        images={featuredImageSearchImages}
+        loading={featuredImageSearchLoading}
+        hasMore={featuredImageHasMore}
+        loadMore={() => handleFeaturedImageSearch(featuredImageLastQuery, true)}
       />
     </div>
   );

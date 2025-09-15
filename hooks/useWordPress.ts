@@ -301,6 +301,30 @@ export const useWordPress = () => {
     }
   }, [api]);
 
+  // Update media
+  const updateMedia = useCallback(async (id: number, data: {
+    caption?: string;
+    alt_text?: string;
+  }) => {
+    if (!api) {
+      throw new Error('Not connected to WordPress site');
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const media = await api.updateMedia(id, data);
+      return media;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update media';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [api]);
+
   // Get categories
   const getCategories = useCallback(async () => {
     if (!api) {
@@ -595,6 +619,7 @@ export const useWordPress = () => {
     deletePost,
     getMedia,
     uploadMedia,
+    updateMedia,
     getCategories,
     getTags,
     processShortcodes,

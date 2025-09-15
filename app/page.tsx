@@ -14,7 +14,7 @@ import { Plus } from 'lucide-react';
 
 export default function Home() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
-  const { isConnected, connect, getPosts, site, disconnect, updatePost, createPost, uploadMedia } = useWordPress();
+  const { isConnected, connect, getPosts, site, disconnect, updatePost, createPost, uploadMedia, updateMedia } = useWordPress();
   const [currentView, setCurrentView] = useState<'sites' | 'add-site' | 'list' | 'editor'>('sites');
   const [selectedArticle, setSelectedArticle] = useState<WordPressPost | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -182,7 +182,12 @@ export default function Home() {
                     </label>
                   </div>
                   
-                  {typeof window !== 'undefined' && (window.wordPressUpload = uploadMedia)}
+                  {typeof window !== 'undefined' && (
+                    <>
+                      {window.wordPressUpload = uploadMedia}
+                      {window.wordPressUpdateMedia = updateMedia}
+                    </>
+                  )}
                   {useSmartEditor ? (
                     <SmartGutenbergEditor
                       post={selectedArticle ? {
@@ -192,7 +197,8 @@ export default function Home() {
                         status: selectedArticle.status as 'publish' | 'draft' | 'private' | 'pending',
                         featured_media: selectedArticle.featured_media,
                         categories: selectedArticle.categories || [],
-                        tags: selectedArticle.tags || []
+                        tags: selectedArticle.tags || [],
+                        _embedded: (selectedArticle as any)._embedded // Include embedded data for featured image
                       } : null}
                       onSave={async (post: EditorContent) => {
                         try {

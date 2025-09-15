@@ -36,7 +36,7 @@
   background: white;
   border-bottom: 1px solid #ddd;
   z-index: 100;
-  max-width: 650px;
+  max-width: 610px !important;
   margin: 0 auto;
   width: 100%;
 }
@@ -68,33 +68,47 @@
 }
 
 /* ========================================
-   3. EDITOR HEADER (WordPress Style)
+   3. EDITOR HEADER (Clean Industry Standard)
    ======================================== */
 .editor-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 16px 20px;
   min-height: 60px;
+  max-width: 610px !important;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .editor-header__toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .editor-header__center {
   flex: 1;
   display: flex;
   justify-content: center;
-  margin: 0 16px;
+  margin: 0 20px;
 }
 
 .editor-header__settings {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0;
+}
+
+/* Ensure proper button order - Cancel left, Save right */
+.editor-header__settings .components-button:not(.editor-post-publish-button__button) {
+  order: 1; /* Cancel button first (left) */
+}
+
+.editor-header__settings .editor-post-publish-button__button {
+  order: 2; /* Save button second (right) */
 }
 
 .editor-document-tools {
@@ -260,6 +274,7 @@
   height: auto;
   display: block;
   margin: 0 auto;
+  border-radius: 0 !important;
 }
 
 /* ========================================
@@ -506,12 +521,12 @@
   box-shadow: 0 3px 30px rgba(25, 30, 35, 0.2);
   margin: 0;
   max-width: 90vw;
-  width: 650px;
+  width: 900px;
   z-index: 1000000;
 }
 
 .block-editor-inserter__popover.is-quick {
-  width: 650px;
+  width: 900px;
 }
 
 .block-editor-inserter__popover.is-positioned {
@@ -829,15 +844,86 @@
   word-wrap: break-word !important;
 }
 
-.gutenberg-editor .block-editor-block-list__block textarea {
+/* ========================================
+   GENERAL TEXTAREA FONT OVERRIDE
+   ======================================== */
+/* Override user agent monospace font for all editor textareas */
+.gutenberg-editor textarea,
+.block-editor-block-list__layout textarea {
+  font-family: var(--wp--preset--font-family--manrope) !important;
+}
+
+/* ========================================
+   IMAGE STYLING OVERRIDE
+   ======================================== */
+/* Remove rounded corners from all images in the editor */
+.gutenberg-editor img,
+.block-editor-block-list__layout img,
+.wp-block-image img,
+.editor-styles-wrapper img {
+  border-radius: 0 !important;
+}
+
+/* ========================================
+   HEADER BUTTONS - CLEAN LAYOUT
+   ======================================== */
+/* Simple button positioning - Cancel left, Save right */
+.editor-header__settings .components-button {
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* Cancel button - left side */
+.editor-header__settings .components-button:not(.editor-post-publish-button__button) {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  font-size: 0; /* Hide original text */
+}
+
+/* Replace Cancel text with '<' */
+.editor-header__settings .components-button:not(.editor-post-publish-button__button)::before {
+  content: '<';
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.editor-header__settings .components-button:not(.editor-post-publish-button__button):hover {
+  background: #e5e5e5;
+  border-color: #bbb;
+}
+
+/* Save button - right side */
+.editor-header__settings .editor-post-publish-button__button {
+  background: var(--wp--preset--color--primary);
+  color: white;
+  border: 1px solid var(--wp--preset--color--primary);
+}
+
+.editor-header__settings .editor-post-publish-button__button:hover {
+  background: #1e5bb8;
+  border-color: #1e5bb8;
+}
+
+/* ========================================
+   PARAGRAPH STYLES - EDITOR INPUTS ONLY
+   ======================================== */
+/* Paragraph block editor inputs - specific to paragraph blocks only */
+.gutenberg-editor .block-editor-block-list__block[data-type="core/paragraph"] textarea,
+.gutenberg-editor .block-editor-block-list__block[data-type="core/paragraph"] input {
   all: unset !important;
   display: block !important;
   width: 100% !important;
   min-height: 32px !important;
   height: auto !important;
-  font-family: inherit !important;
-  font-size: 19px !important;
-  line-height: 1.5 !important;
+  font-family: var(--wp--preset--font-family--manrope) !important;
+  font-size: var(--wp--preset--font-size--medium) !important;
+  font-weight: 500 !important;
+  font-style: normal !important;
+  line-height: calc(1em + 0.75rem) !important;
   color: inherit !important;
   background: transparent !important;
   border: none !important;
@@ -850,23 +936,73 @@
   box-sizing: border-box !important;
   margin: 0 !important;
   padding: 0 !important;
+  text-indent: 0 !important;
   overflow-wrap: break-word !important;
   hyphens: auto !important;
 }
 
 /* ========================================
-   5. HEADING STYLES
+   HEADING STYLES - EDITOR INPUTS ONLY
    ======================================== */
-.gutenberg-editor [data-type="core/heading"] textarea {
+/* Heading block editor inputs - specific to heading blocks only */
+.gutenberg-editor [data-type="core/heading"] textarea,
+.gutenberg-editor [data-type="core/heading"] input {
+  all: unset !important;
+  display: block !important;
+  width: 100% !important;
   min-height: 28px !important;
+  height: auto !important;
+  font-family: var(--wp--preset--font-family--manrope) !important;
+  font-weight: 800 !important;
+  font-style: normal !important;
   line-height: 1.2 !important;
-  padding-top: 2px !important;
-  padding-bottom: 2px !important;
+  color: inherit !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+  overflow: hidden !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-indent: 0 !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
 }
 
-.gutenberg-editor [data-type="core/heading"] textarea:not([data-multiline="true"]) {
-  height: 32px !important;
-  line-height: 1.1 !important;
+/* Specific heading level styles for editor inputs */
+.gutenberg-editor [data-type="core/heading"][data-level="1"] textarea,
+.gutenberg-editor [data-type="core/heading"][data-level="1"] input {
+  font-size: var(--wp--preset--font-size--x-large) !important;
+}
+
+.gutenberg-editor [data-type="core/heading"][data-level="2"] textarea,
+.gutenberg-editor [data-type="core/heading"][data-level="2"] input {
+  font-size: var(--wp--preset--font-size--large) !important;
+}
+
+.gutenberg-editor [data-type="core/heading"][data-level="3"] textarea,
+.gutenberg-editor [data-type="core/heading"][data-level="3"] input {
+  font-size: var(--wp--preset--font-size--medium) !important;
+}
+
+.gutenberg-editor [data-type="core/heading"][data-level="4"] textarea,
+.gutenberg-editor [data-type="core/heading"][data-level="4"] input {
+  font-size: var(--wp--preset--font-size--small) !important;
+}
+
+.gutenberg-editor [data-type="core/heading"][data-level="5"] textarea,
+.gutenberg-editor [data-type="core/heading"][data-level="5"] input {
+  font-size: var(--wp--preset--font-size--x-small) !important;
+  text-transform: uppercase !important;
+}
+
+.gutenberg-editor [data-type="core/heading"][data-level="6"] textarea,
+.gutenberg-editor [data-type="core/heading"][data-level="6"] input {
+  font-size: var(--wp--preset--font-size--x-small) !important;
 }
 
 /* ========================================
@@ -1250,6 +1386,56 @@ figcaption[contenteditable="true"]:hover {
   background-color: #f9f9f9 !important;
 }
 
+/* ========================================
+   CAPTION INPUT STYLES - ISOLATED
+   ======================================== */
+/* Caption input fields - specific styling, not affected by heading styles */
+input[placeholder*="caption"],
+input[placeholder*="Caption"],
+input[placeholder="Add caption..."],
+.block-editor-block-list__layout input[placeholder*="caption"],
+.block-editor-block-list__layout input[placeholder*="Caption"],
+.wp-block-image input[placeholder*="caption"],
+.wp-block-image input[placeholder*="Caption"] {
+  all: unset !important;
+  display: block !important;
+  width: 100% !important;
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  color: var(--wp--preset--color--contrast) !important;
+  margin-top: var(--wp--preset--spacing--30) !important;
+  text-align: center !important;
+  outline: none !important;
+  border: 1px solid transparent !important;
+  border-radius: 2px !important;
+  padding: 4px 8px !important;
+  min-height: 20px !important;
+  cursor: text !important;
+  background-color: transparent !important;
+  transition: border-color 0.2s !important;
+  line-height: 1.2 !important;
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
+
+/* Caption input focus state */
+input[placeholder*="caption"]:focus,
+input[placeholder*="Caption"]:focus,
+input[placeholder="Add caption..."]:focus,
+.block-editor-block-list__layout input[placeholder*="caption"]:focus,
+.block-editor-block-list__layout input[placeholder*="Caption"]:focus,
+.wp-block-image input[placeholder*="caption"]:focus,
+.wp-block-image input[placeholder*="Caption"]:focus {
+  border-color: var(--wp--preset--color--primary) !important;
+  background-color: rgba(41, 109, 235, 0.05) !important;
+}
+
 /* Minimal spacing between blocks */
 .block-editor-block-list__layout {
   gap: 8px !important;
@@ -1359,4 +1545,22 @@ figcaption[contenteditable="true"]:hover {
   align-items: center !important;
   justify-content: center !important;
   margin: 3px 0 !important;
+}
+
+/* Override inline styles for heading inputs */
+.block-editor-block-list__layout input[type="text"][placeholder="Heading"] {
+  padding: 0 !important;
+  margin: 0 !important;
+  text-indent: 0 !important;
+  border: 1px solid transparent !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  width: 100% !important;
+  font-size: var(--wp--preset--font-size--large) !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  outline: none !important;
+  min-height: 1.2em !important;
 }

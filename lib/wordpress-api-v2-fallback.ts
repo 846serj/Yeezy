@@ -127,6 +127,7 @@ export class WordPressAPIV2Fallback {
     }
     if (postData.featured_media !== undefined) {
       updateData.featured_media = postData.featured_media;
+      console.log('🖼️ Setting featured_media to:', postData.featured_media);
     }
     if (postData.categories !== undefined) {
       updateData.categories = postData.categories;
@@ -135,7 +136,9 @@ export class WordPressAPIV2Fallback {
       updateData.tags = postData.tags;
     }
 
-    const response = await this.client.put(`/posts/${id}`, updateData);
+    console.log('📤 Sending update data to WordPress:', updateData);
+    const response = await this.client.post(`/posts/${id}`, updateData);
+    console.log('✅ WordPress API response:', response.data);
     return response.data;
   }
 
@@ -193,6 +196,16 @@ export class WordPressAPIV2Fallback {
       params: { force: true },
     });
     return response.status === 200;
+  }
+
+  async updateMedia(id: number, data: {
+    caption?: string;
+    alt_text?: string;
+  }): Promise<WordPressMedia> {
+    console.log('📝 Updating media item', id, 'with data:', data);
+    const response = await this.client.post(`/media/${id}`, data);
+    console.log('✅ Media item updated successfully:', response.data);
+    return response.data;
   }
 
   // Categories API
