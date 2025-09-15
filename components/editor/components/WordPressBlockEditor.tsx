@@ -219,6 +219,39 @@ function WordPressBlockEditor({
     closeImageSearch
   } = useImageSearch();
 
+  // Debounced image search function
+  const debouncedImageSearch = useMemo(
+    () => debounce(async (query: string, page: number = 1, append: boolean = false) => {
+      if (!query.trim()) {
+        setShowImageResults(false);
+        setInserterImages([]);
+        return;
+      }
+      
+      setShowImageResults(true);
+      setInserterLoading(true);
+      
+      try {
+        const response = await fetch(`/api/search-images?query=${encodeURIComponent(query)}&sources=${selectedSources.join(',')}&page=${page}&perPage=20`);
+        const data = await response.json();
+        
+        if (append) {
+          setInserterImages(prev => [...prev, ...data.images]);
+        } else {
+          setInserterImages(data.images);
+        }
+        
+        setInserterHasMore(data.hasMore);
+        setInserterPage(page);
+      } catch (error) {
+        console.error('Image search error:', error);
+      } finally {
+        setInserterLoading(false);
+      }
+    }, 300), // 300ms debounce delay
+    [selectedSources]
+  );
+
   // Handle image search from inserter
   const handleInserterImageSearch = async (query: string, page: number = 1, append: boolean = false) => {
     if (!query.trim()) {
@@ -257,13 +290,35 @@ function WordPressBlockEditor({
     }
   };
 
+  // Memoized search input handler
+  const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setInserterSearchQuery(query);
+    if (query.trim()) {
+      debouncedImageSearch(query);
+    } else {
+      setShowImageResults(false);
+      setInserterImages([]);
+    }
+  }, [debouncedImageSearch]);
+
   // Re-search when selectedSources changes and there's an active search
   useEffect(() => {
     if (inserterSearchQuery.trim() && showImageResults) {
       setInserterPage(1);
-      handleInserterImageSearch(inserterSearchQuery, 1, false);
+      debouncedImageSearch(inserterSearchQuery, 1, false);
     }
-  }, [selectedSources, inserterSearchQuery, showImageResults]);
+  }, [selectedSources, debouncedImageSearch]);
+
+  // Auto-resize textareas on mount and when content changes
+  useEffect(() => {
+    const textareas = document.querySelectorAll('textarea[data-auto-resize]');
+    textareas.forEach((textarea) => {
+      const element = textarea as HTMLTextAreaElement;
+      element.style.height = 'auto';
+      element.style.height = element.scrollHeight + 'px';
+    });
+  }, [blocks]);
 
   // Ensure we're on the client side
   useEffect(() => {
@@ -471,112 +526,36 @@ function WordPressBlockEditor({
     setBlocks(newBlocks as GutenbergBlock[]);
   }, [setBlocks]);
 
-  // Refs for tracking cursor position and preventing re-renders
-  const cursorPositionRef = useRef<{ [key: string]: number }>({});
-  const isUpdatingRef = useRef<{ [key: string]: boolean }>({});
-
-  // Handle paragraph input changes with optimized cursor preservation
-  const handleParagraphInput = useCallback((blockId: string, newContent: string, element: HTMLElement) => {
-    // Prevent updates during React re-renders
-    if (isUpdatingRef.current[blockId]) return;
-    
-    // Save cursor position
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      cursorPositionRef.current[blockId] = range.startOffset;
-    }
-
-    // Update blocks state
-    setBlocks(prevBlocks =>
-      prevBlocks.map(b =>
-        b.clientId === blockId ? { ...b, attributes: { ...b.attributes, content: newContent } } : b
-      )
-    );
-  }, [setBlocks]);
-
-  // Handle heading input changes with optimized cursor preservation
-  const handleHeadingInput = useCallback((blockId: string, newContent: string, element: HTMLElement) => {
-    // Prevent updates during React re-renders
-    if (isUpdatingRef.current[blockId]) return;
-    
-    // Save cursor position
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      cursorPositionRef.current[blockId] = range.startOffset;
-    }
-
-    // Update blocks state
-    setBlocks(prevBlocks =>
-      prevBlocks.map(b =>
-        b.clientId === blockId ? { ...b, attributes: { ...b.attributes, content: newContent } } : b
-      )
-    );
-  }, [setBlocks]);
-
-  // Restore cursor position after re-render
-  const restoreCursorPosition = useCallback((blockId: string, element: HTMLElement) => {
-    const savedPosition = cursorPositionRef.current[blockId];
-    if (savedPosition !== undefined) {
-      isUpdatingRef.current[blockId] = true;
-      
-      setTimeout(() => {
-        try {
-          const selection = window.getSelection();
-          if (selection) {
-            const range = document.createRange();
-            const textNode = element.childNodes[0] || element;
-            const maxPosition = textNode.textContent?.length || 0;
-            const position = Math.min(savedPosition, maxPosition);
-            
-            range.setStart(textNode, position);
-            range.setEnd(textNode, position);
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
-        } catch (error) {
-          console.error('Failed to restore cursor position:', error);
-        } finally {
-          isUpdatingRef.current[blockId] = false;
-        }
-      }, 0);
-    }
+  // Auto-resize textareas to match contentEditable behavior
+  const autoResizeTextarea = useCallback((textarea: HTMLTextAreaElement) => {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
   }, []);
 
-  // Clean up cursor position tracking when blocks change
-  useEffect(() => {
-    const currentBlockIds = new Set(blocks.map(block => block.clientId));
-    
-    // Remove cursor positions for blocks that no longer exist
-    Object.keys(cursorPositionRef.current).forEach(blockId => {
-      if (!currentBlockIds.has(blockId)) {
-        delete cursorPositionRef.current[blockId];
-        delete isUpdatingRef.current[blockId];
+  // Handle textarea change with auto-resize
+  const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>, blockId: string, attribute: string) => {
+    try {
+      const target = e.target;
+      if (!target || target.value === undefined) {
+        console.error('Invalid textarea target:', target);
+        return;
       }
-    });
-  }, [blocks]);
-
-  // Handle list input changes
-  const handleListInput = useCallback((blockId: string, newContent: string) => {
-    setBlocks(prevBlocks => 
-      prevBlocks.map(b => 
-        b.clientId === blockId 
-          ? { ...b, attributes: { ...b.attributes, values: newContent } }
-          : b
-      )
-    );
-  }, []);
-
-  // Handle quote input changes
-  const handleQuoteInput = useCallback((blockId: string, newContent: string) => {
-    setBlocks(prevBlocks => 
-      prevBlocks.map(b => 
-        b.clientId === blockId 
-          ? { ...b, attributes: { ...b.attributes, value: newContent } }
-          : b
-      )
-    );
+      
+      // Auto-resize the textarea
+      target.style.height = 'auto';
+      target.style.height = target.scrollHeight + 'px';
+      
+      // Update the block
+      setBlocks(prevBlocks =>
+        prevBlocks.map(b =>
+          b.clientId === blockId 
+            ? { ...b, attributes: { ...b.attributes, [attribute]: target.value } }
+            : b
+        )
+      );
+    } catch (error) {
+      console.error('Error in handleTextareaChange:', error);
+    }
   }, []);
 
 
@@ -681,12 +660,13 @@ function WordPressBlockEditor({
                         padding: '0 20px'
                       }}
                     >
-                      <h1 
-                        contentEditable
-                        suppressContentEditableWarning
+                      <input
+                        type="text"
+                        value={title || ''}
+                        onChange={(e) => setTitle(e.target.value)}
                         className="wp-block wp-block-post-title block-editor-block-list__block editor-post-title editor-post-title__input rich-text"
                         aria-label="Add title"
-                        onInput={(e) => setTitle(e.currentTarget.textContent || '')}
+                        placeholder="Add title"
                         style={{ 
                           fontSize: 'var(--wp--preset--font-size--x-large)',
                           fontWeight: 'bold',
@@ -698,11 +678,9 @@ function WordPressBlockEditor({
                           backgroundColor: 'transparent',
                           textAlign: 'left',
                           minHeight: '1.2em',
-                          whiteSpace: 'pre-wrap'
+                          width: '100%'
                         }}
-                      >
-                        {title || 'Add title'}
-                      </h1>
+                      />
                     </div>
 
                     {/* Editor Content using WordPress's official components */}
@@ -741,25 +719,18 @@ function WordPressBlockEditor({
                                 {/* Block content */}
                                 <div style={{ marginBottom: '4px' }}>
                                   {block.name === 'core/paragraph' && (
-                                    <div
+                                    <textarea
                                       key={`paragraph-${block.clientId}`}
-                                      contentEditable
-                                      suppressContentEditableWarning
-                                      onInput={(e) => {
-                                        const newContent = e.currentTarget.textContent || '';
-                                        handleParagraphInput(block.clientId, newContent, e.currentTarget);
-                                      }}
+                                      value={block.attributes.content || ''}
+                                      onChange={(e) => handleTextareaChange(e, block.clientId, 'content')}
+                                      data-auto-resize
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
                                       }}
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
-                                      ref={(el) => {
-                                        if (el) {
-                                          restoreCursorPosition(block.clientId, el);
-                                        }
-                                      }}
+                                      placeholder="Start writing..."
                                       style={{
                                         minHeight: '1.5em',
                                         outline: 'none',
@@ -772,21 +743,26 @@ function WordPressBlockEditor({
                                         borderRadius: '2px',
                                         direction: 'ltr',
                                         unicodeBidi: 'normal',
-                                        margin: '0'
+                                        margin: '0',
+                                        resize: 'none',
+                                        overflow: 'hidden'
                                       }}
-                                    >
-                                      {block.attributes.content || 'Start writing...'}
-                                    </div>
+                                    />
                                   )}
 
                                   {block.name === 'core/heading' && (
-                                    <h2
+                                    <input
                                       key={`heading-${block.clientId}`}
-                                      contentEditable
-                                      suppressContentEditableWarning
-                                      onInput={(e) => {
-                                        const newContent = e.currentTarget.textContent || '';
-                                        handleHeadingInput(block.clientId, newContent, e.currentTarget);
+                                      type="text"
+                                      value={block.attributes.content || ''}
+                                      onChange={(e) => {
+                                        setBlocks(prevBlocks =>
+                                          prevBlocks.map(b =>
+                                            b.clientId === block.clientId 
+                                              ? { ...b, attributes: { ...b.attributes, content: e.target.value } }
+                                              : b
+                                          )
+                                        );
                                       }}
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
@@ -794,11 +770,7 @@ function WordPressBlockEditor({
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
-                                      ref={(el) => {
-                                        if (el) {
-                                          restoreCursorPosition(block.clientId, el);
-                                        }
-                                      }}
+                                      placeholder="Heading"
                                       style={{
                                         minHeight: '1.2em',
                                         outline: 'none',
@@ -814,9 +786,7 @@ function WordPressBlockEditor({
                                         direction: 'ltr',
                                         unicodeBidi: 'normal'
                                       }}
-                                    >
-                                      {block.attributes.content || 'Heading'}
-                                    </h2>
+                                    />
                                   )}
 
                                   {block.name === 'core/image' && (
@@ -838,19 +808,21 @@ function WordPressBlockEditor({
                                           No image selected
                                         </div>
                                       )}
-                                      <figcaption 
-                                        contentEditable
-                                        suppressContentEditableWarning
-                                        onInput={(e) => {
-                                          const newCaption = e.currentTarget.textContent || '';
-                                          updateBlock(block.clientId, { caption: newCaption });
+                                      <input
+                                        type="text"
+                                        value={block.attributes.caption || ''}
+                                        onChange={(e) => {
+                                          updateBlock(block.clientId, { caption: e.target.value });
+                                        }}
+                                        onFocus={(e) => {
+                                          e.currentTarget.style.borderColor = '#007cba';
+                                          e.currentTarget.style.backgroundColor = '#f0f8ff';
                                         }}
                                         onBlur={(e) => {
-                                          const newCaption = e.currentTarget.textContent || '';
-                                          updateBlock(block.clientId, { caption: newCaption });
                                           e.currentTarget.style.borderColor = 'transparent';
                                           e.currentTarget.style.backgroundColor = 'transparent';
                                         }}
+                                        placeholder="Add caption..."
                                         style={{ 
                                           fontSize: 'var(--wp--preset--font-size--x-small)',
                                           color: 'var(--wp--preset--color--contrast)',
@@ -863,27 +835,18 @@ function WordPressBlockEditor({
                                           minHeight: '20px',
                                           cursor: 'text',
                                           backgroundColor: 'transparent',
-                                          transition: 'border-color 0.2s ease'
+                                          transition: 'border-color 0.2s ease',
+                                          width: '100%'
                                         }}
-                                        onFocus={(e) => {
-                                          e.currentTarget.style.borderColor = '#007cba';
-                                          e.currentTarget.style.backgroundColor = '#f0f8ff';
-                                        }}
-                                        data-placeholder="Add caption..."
-                                      >
-                                        {block.attributes.caption || ''}
-                                      </figcaption>
+                                      />
                                     </figure>
                                   )}
 
                                   {block.name === 'core/list' && (
-                                    <div
-                                      contentEditable
-                                      suppressContentEditableWarning
-                                      onInput={(e) => {
-                                        const newContent = e.currentTarget.innerHTML;
-                                        handleListInput(block.clientId, newContent);
-                                      }}
+                                    <textarea
+                                      value={block.attributes.values || '<li>List item</li>'}
+                                      onChange={(e) => handleTextareaChange(e, block.clientId, 'values')}
+                                      data-auto-resize
                                       style={{
                                         outline: 'none',
                                         border: '1px solid transparent',
@@ -892,7 +855,10 @@ function WordPressBlockEditor({
                                         fontSize: 'var(--wp--preset--font-size--medium)',
                                         lineHeight: '1.5',
                                         padding: '8px 8px 8px 1.5em',
-                                        borderRadius: '4px'
+                                        borderRadius: '4px',
+                                        resize: 'none',
+                                        overflow: 'hidden',
+                                        minHeight: '2em'
                                       }}
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
@@ -900,7 +866,7 @@ function WordPressBlockEditor({
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
-                                      dangerouslySetInnerHTML={{ __html: block.attributes.values || '<li>List item</li>' }}
+                                      placeholder="<li>List item</li>"
                                     />
                                   )}
 
@@ -916,19 +882,19 @@ function WordPressBlockEditor({
                                       border: '1px solid transparent',
                                       borderRadius: '4px'
                                     }}>
-                                      <div
-                                        contentEditable
-                                        suppressContentEditableWarning
-                                        onInput={(e) => {
-                                          const newContent = e.currentTarget.innerHTML;
-                                          handleQuoteInput(block.clientId, newContent);
-                                        }}
+                                      <textarea
+                                        value={block.attributes.value || '<p>Quote text</p>'}
+                                        onChange={(e) => handleTextareaChange(e, block.clientId, 'value')}
+                                        data-auto-resize
                                         style={{
                                           outline: 'none',
                                           border: 'none',
                                           background: 'transparent',
                                           width: '100%',
-                                          margin: '0'
+                                          margin: '0',
+                                          resize: 'none',
+                                          overflow: 'hidden',
+                                          minHeight: '2em'
                                         }}
                                         onFocus={(e) => {
                                           e.currentTarget.parentElement!.style.border = '1px solid #007cba';
@@ -936,7 +902,7 @@ function WordPressBlockEditor({
                                         onBlur={(e) => {
                                           e.currentTarget.parentElement!.style.border = '1px solid transparent';
                                         }}
-                                        dangerouslySetInnerHTML={{ __html: block.attributes.value || '<p>Quote text</p>' }}
+                                        placeholder="<p>Quote text</p>"
                                       />
                                       {block.attributes.citation && (
                                         <cite style={{ 
@@ -1017,15 +983,7 @@ function WordPressBlockEditor({
                 type="text"
                 placeholder="Search for a block or image..."
                 value={inserterSearchQuery}
-                onChange={(e) => {
-                  const query = e.target.value;
-                  setInserterSearchQuery(query);
-                  if (query.trim()) {
-                    handleInserterImageSearch(query);
-                  } else {
-                    setShowImageResults(false);
-                  }
-                }}
+                onChange={handleSearchInputChange}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
