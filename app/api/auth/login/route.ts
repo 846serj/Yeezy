@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addCorsHeaders } from '../middleware';
 import { getUserByEmail, verifyPassword } from '@/lib/database';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 // Define allowed methods
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
 export const preferredRegion = 'iad1';
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+);
 
 // Add OPTIONS method handler
 export async function OPTIONS() {
@@ -19,19 +23,7 @@ export async function OPTIONS() {
   }));
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
 export async function POST(request: NextRequest) {
-  // Handle preflight requests
-  if (request.method === 'OPTIONS') {
-    return new NextResponse(null, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
-  }
   try {
     const { email, password } = await request.json();
 
@@ -49,11 +41,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = await new jose.SignJWT({ userId: user.id, email: user.email })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('7d')
+      .sign(JWT_SECRET);
 
     const response = NextResponse.json({ 
       message: 'Login successful',
