@@ -98,8 +98,8 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         .crop-close {
           background: none;
           border: none;
-          font-size: 24px;
-          color: var(--muted);
+          font-size: 18px;
+          color: #666;
           cursor: pointer;
           padding: 4px;
           border-radius: 50%;
@@ -112,8 +112,8 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         }
         
         .crop-close:hover {
-          background: var(--bg);
-          color: var(--text);
+          background: rgba(0, 0, 0, 0.05);
+          color: #333;
         }
         
         .crop-area {
@@ -132,13 +132,14 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
           background: rgba(255, 255, 255, 0.98);
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: 12px;
+          justify-content: center;
+          gap: 24px;
+          flex-direction: column;
         }
         
         .crop-actions {
           display: flex;
-          gap: 8px;
+          gap: 16px;
           align-items: center;
         }
         
@@ -171,14 +172,14 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         }
         
         .btn-primary {
-          background: var(--primary);
+          background: #0073aa;
           color: white;
-          border-color: var(--primary);
+          border-color: #0073aa;
         }
         
         .btn-primary:hover {
-          background: var(--primary-hover);
-          border-color: var(--primary-hover);
+          background: #005a87;
+          border-color: #005a87;
         }
         
         .btn-primary:disabled {
@@ -189,12 +190,14 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         }
         
         .btn-secondary {
-          background: var(--btn-bg);
-          color: var(--text);
+          background: #dc3232;
+          color: white;
+          border-color: #dc3232;
         }
         
         .btn-secondary:hover {
-          background: var(--bg);
+          background: #b32d2e;
+          border-color: #b32d2e;
         }
         
         .zoom-controls {
@@ -236,10 +239,11 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
       <div className="crop-overlay">
         <div className="crop-container">
           <div className="crop-header">
-            <h2 className="crop-title">Crop Image</h2>
-            <button className="crop-close" onClick={onCancel} title="Close">
-              ×
+            <button className="crop-close" onClick={onCancel} title="Back">
+              &lt;
             </button>
+            <h2 className="crop-title">Crop Image</h2>
+            <div style={{ width: '32px' }}></div>
           </div>
           
           <div className="crop-area">
