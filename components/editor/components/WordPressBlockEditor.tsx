@@ -48,6 +48,8 @@ function WordPressBlockEditor({
   const [inserterPage, setInserterPage] = useState(1);
   const [inserterHasMore, setInserterHasMore] = useState(false);
   const [inserterLoading, setInserterLoading] = useState(false);
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+  const [selectedFeaturedImage, setSelectedFeaturedImage] = useState<boolean>(false);
   // Featured image search state - using same hook as body images
   const {
     showImageSearch: showFeaturedImageSearch,
@@ -275,6 +277,179 @@ function WordPressBlockEditor({
     addBlock,
     updateBlock
   } = useBlockManagement(post, onSave);
+
+  // Handle keyboard events for image deletion and Enter key
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Handle Enter key in text blocks
+      if (event.key === 'Enter' && event.target instanceof HTMLElement) {
+        const target = event.target as HTMLElement;
+        
+        // Check if we're in a text input/textarea
+        if (['INPUT', 'TEXTAREA'].includes(target.tagName)) {
+          // Find the current block by looking for the closest block container with data-block-id
+          const blockContainer = target.closest('[data-block-id]');
+          
+          if (blockContainer) {
+            const currentBlockId = blockContainer.getAttribute('data-block-id');
+            
+            if (currentBlockId) {
+              event.preventDefault();
+              
+              // Create a new paragraph block
+              const newBlock: GutenbergBlock = {
+                clientId: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                name: 'core/paragraph',
+                isValid: true,
+                attributes: {
+                  content: '',
+                  placeholder: 'Start writing...'
+                },
+                innerBlocks: []
+              };
+              
+              // Find the current block index and insert the new block after it
+              const currentIndex = blocks.findIndex(block => block.clientId === currentBlockId);
+              if (currentIndex !== -1) {
+                const newBlocks = [...blocks];
+                newBlocks.splice(currentIndex + 1, 0, newBlock);
+                setBlocks(newBlocks);
+                console.log('📝 New paragraph block created after:', currentBlockId);
+                
+                // Focus the new textarea after a short delay
+                setTimeout(() => {
+                  const newTextarea = document.querySelector(`[data-block-id="${newBlock.clientId}"] textarea`) as HTMLTextAreaElement;
+                  if (newTextarea) {
+                    newTextarea.focus();
+                  }
+                }, 50);
+              }
+            }
+          }
+        }
+      }
+      
+      // Handle Backspace in empty text blocks
+      if (event.key === 'Backspace' && event.target instanceof HTMLElement) {
+        const target = event.target as HTMLElement;
+        
+        // Check if we're in a text input/textarea
+        if (['INPUT', 'TEXTAREA'].includes(target.tagName)) {
+          // Find the current block by looking for the closest block container with data-block-id
+          const blockContainer = target.closest('[data-block-id]');
+          
+          if (blockContainer) {
+            const currentBlockId = blockContainer.getAttribute('data-block-id');
+            
+            if (currentBlockId) {
+              // Get the current block
+              const currentBlock = blocks.find(block => block.clientId === currentBlockId);
+              
+              if (currentBlock) {
+                // Check if the block is empty (no content or only whitespace)
+                const isEmpty = !currentBlock.attributes.content || 
+                               currentBlock.attributes.content.trim() === '';
+                
+                // Only delete if block is empty and there are other blocks
+                if (isEmpty && blocks.length > 1) {
+                  event.preventDefault();
+                  
+                  // Find the current block index
+                  const currentIndex = blocks.findIndex(block => block.clientId === currentBlockId);
+                  
+                  if (currentIndex !== -1) {
+                    // Remove the empty block
+                    const newBlocks = blocks.filter(block => block.clientId !== currentBlockId);
+                    setBlocks(newBlocks);
+                    console.log('🗑️ Empty block deleted:', currentBlockId);
+                    
+                    // Focus the previous block if it exists, otherwise focus the next block
+                    setTimeout(() => {
+                      let blockToFocus = null;
+                      
+                      if (currentIndex > 0) {
+                        // Focus previous block
+                        const prevBlock = newBlocks[currentIndex - 1];
+                        blockToFocus = document.querySelector(`[data-block-id="${prevBlock.clientId}"] textarea, [data-block-id="${prevBlock.clientId}"] input`) as HTMLElement;
+                      } else if (newBlocks.length > 0) {
+                        // Focus next block (now at currentIndex)
+                        const nextBlock = newBlocks[currentIndex];
+                        blockToFocus = document.querySelector(`[data-block-id="${nextBlock.clientId}"] textarea, [data-block-id="${nextBlock.clientId}"] input`) as HTMLElement;
+                      }
+                      
+                      if (blockToFocus) {
+                        blockToFocus.focus();
+                        // Move cursor to end of text
+                        if (blockToFocus instanceof HTMLTextAreaElement || blockToFocus instanceof HTMLInputElement) {
+                          const length = blockToFocus.value.length;
+                          blockToFocus.setSelectionRange(length, length);
+                        }
+                      }
+                    }, 50);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // Handle image deletion
+      if ((selectedImageId || selectedFeaturedImage) && 
+          event.target instanceof HTMLElement && 
+          !['INPUT', 'TEXTAREA'].includes(event.target.tagName)) {
+        
+        if (event.key === 'Backspace' || event.key === 'Delete') {
+          event.preventDefault();
+          
+          if (selectedFeaturedImage) {
+            // Delete featured image
+            setFeaturedImage(null);
+            setSelectedFeaturedImage(false);
+            console.log('🗑️ Featured image deleted');
+          } else if (selectedImageId) {
+            // Delete content image block
+            const blockToDelete = blocks.find(block => block.clientId === selectedImageId);
+            if (blockToDelete) {
+              const updatedBlocks = blocks.filter(block => block.clientId !== selectedImageId);
+              setBlocks(updatedBlocks);
+              setSelectedImageId(null);
+              console.log('🗑️ Image block deleted:', selectedImageId);
+            }
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImageId, selectedFeaturedImage, blocks, setBlocks, setFeaturedImage]);
+
+  // Handle click outside to deselect images
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (event.target instanceof HTMLElement) {
+        // Check if click is on an image figure element
+        const clickedFigure = event.target.closest('figure');
+        const isImageClick = clickedFigure && (
+          clickedFigure.classList.contains('wp-block-image__figure') || 
+          clickedFigure.style.border.includes('#296DEB') ||
+          clickedFigure.style.border.includes('2px solid')
+        );
+        
+        // If click is not on an image figure and we have a selected image, deselect it
+        if (!isImageClick && (selectedImageId || selectedFeaturedImage)) {
+          setSelectedImageId(null);
+          setSelectedFeaturedImage(false);
+          console.log('🖱️ Image deselected by clicking outside');
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [selectedImageId, selectedFeaturedImage]);
+
   const {
     showImageSearch,
     setShowImageSearch,
@@ -824,7 +999,17 @@ function WordPressBlockEditor({
                     >
                       {featuredImage ? (
                         <div className="wp-block-image">
-                          <figure className="wp-block-image__figure">
+                          <figure 
+                            className="wp-block-image__figure"
+                            style={{
+                              border: selectedFeaturedImage ? '2px solid #296DEB' : '1px solid transparent',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              transition: 'border-color 0.2s ease',
+                              padding: '2px'
+                            }}
+                            onClick={() => setSelectedFeaturedImage(!selectedFeaturedImage)}
+                          >
                             <img 
                               src={featuredImage.url} 
                               alt={featuredImage.alt}
@@ -998,7 +1183,7 @@ function WordPressBlockEditor({
                                 />
                                 
                                 {/* Block content */}
-                                <div style={{ marginBottom: '4px' }}>
+                                <div style={{ marginBottom: '4px' }} data-block-id={block.clientId}>
                                   {block.name === 'core/paragraph' && (
                                     <textarea
                                       key={`paragraph-${block.clientId}`}
@@ -1071,12 +1256,28 @@ function WordPressBlockEditor({
                                   )}
 
                                   {block.name === 'core/image' && (
-                                    <figure style={{ textAlign: 'center', padding: '2px', border: '1px solid transparent', borderRadius: '2px', margin: '0' }}>
+                                    <figure 
+                                      style={{ 
+                                        textAlign: 'center', 
+                                        padding: '2px', 
+                                        border: selectedImageId === block.clientId ? '2px solid #296DEB' : '1px solid transparent', 
+                                        borderRadius: '4px', 
+                                        margin: '0',
+                                        cursor: 'pointer',
+                                        transition: 'border-color 0.2s ease'
+                                      }}
+                                      onClick={() => setSelectedImageId(selectedImageId === block.clientId ? null : block.clientId)}
+                                    >
                                       {block.attributes.url ? (
                                         <img 
                                           src={block.attributes.url} 
                                           alt={block.attributes.alt || ''} 
-                                          style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '0 auto' }}
+                                          style={{ 
+                                            maxWidth: '100%', 
+                                            height: 'auto', 
+                                            display: 'block', 
+                                            margin: '0 auto'
+                                          }}
                                         />
                                       ) : (
                                         <div style={{ 

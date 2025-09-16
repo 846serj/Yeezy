@@ -865,6 +865,13 @@
 }
 
 /* ========================================
+   IMAGE SELECTION STYLING - REMOVED
+   ======================================== */
+/* Image selection is now handled by React component state */
+
+/* Hover effects removed - selection handled by React component */
+
+/* ========================================
    HEADER BUTTONS - CLEAN LAYOUT
    ======================================== */
 /* Simple button positioning - Cancel left, Save right */
