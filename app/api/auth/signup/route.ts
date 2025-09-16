@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { addCorsHeaders } from '../middleware';
 import { createUser } from '@/lib/database';
 
+// Define allowed methods
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
+// Add OPTIONS method handler
+export async function OPTIONS() {
+  return addCorsHeaders(new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  }));
+}
+
 export async function POST(request: NextRequest) {
   // Handle preflight requests
   if (request.method === 'OPTIONS') {
