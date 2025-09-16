@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 // Define allowed methods
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
+export const preferredRegion = 'iad1';
 
 // Add OPTIONS method handler
 export async function OPTIONS() {
