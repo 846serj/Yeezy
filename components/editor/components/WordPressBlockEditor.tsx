@@ -703,44 +703,7 @@ function WordPressBlockEditor({
   const handleCropConfirm = async (croppedImageUrl: string) => {
     if (!currentImageToCrop || !currentBlockId) return;
     
-    setCropLoading(true);
     try {
-      // Upload the cropped image
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
-      
-      let finalUrl = croppedImageUrl;
-      
-      // Try to upload to WordPress if available
-      let mediaId = undefined;
-      if (window.wordPressUpload) {
-        try {
-          const media = await window.wordPressUpload(file);
-          finalUrl = media.source_url;
-          mediaId = media.id;
-          console.log('✅ Image uploaded to WordPress with media ID:', mediaId);
-        } catch (error) {
-          console.error('WordPress upload failed, using local URL:', error);
-        }
-      } else {
-        // Fallback to local upload
-        try {
-          const formData = new FormData();
-          formData.append('image', file);
-          const uploadResponse = await fetch('/api/upload-image', {
-            method: 'POST',
-            body: formData,
-          });
-          if (uploadResponse.ok) {
-            const result = await uploadResponse.json();
-            finalUrl = result.url;
-          }
-        } catch (error) {
-          console.error('Local upload failed:', error);
-        }
-      }
-      
       // Create caption with attribution for Unsplash, Pexels, and Wikimedia Commons images
       let imageCaption = '';
       let imageAlt = currentImageToCrop.caption; // Use original caption for alt text
@@ -749,50 +712,37 @@ function WordPressBlockEditor({
         imageCaption = currentImageToCrop.attribution; // Show photographer attribution in caption
       }
 
-      // Update the media item with caption and alt text if we have a media ID
-      if (mediaId && window.wordPressUpdateMedia) {
-        try {
-          await window.wordPressUpdateMedia(mediaId, {
-            caption: imageCaption,
-            alt_text: imageAlt
-          });
-          console.log('✅ Media item updated with caption and alt text');
-        } catch (error) {
-          console.error('❌ Failed to update media item:', error);
-        }
-      }
-
-      // Handle featured image vs body image
+      // OPTIMISTIC UI: Handle featured image vs body image immediately
       if (currentBlockId === 'featured-image') {
-        // Set as featured image
+        // Set as featured image immediately with blob URL
         setFeaturedImage({
-          url: finalUrl,
+          url: croppedImageUrl,
           alt: imageAlt,
           caption: imageCaption,
-          id: mediaId // Use the media ID from WordPress upload
+          id: undefined // Will be updated after background upload
         });
-        console.log('✅ Featured image uploaded and set:', finalUrl, 'with media ID:', mediaId);
+        console.log('✅ Featured image set immediately with blob URL');
       } else {
         // Check if this is a new block insertion or updating an existing block
         const existingBlock = blocks.find(block => block.clientId === currentBlockId);
         
         if (existingBlock) {
-          // Update existing block
-        setBlocks(prevBlocks => 
-          prevBlocks.map(block => 
-            block.clientId === currentBlockId 
-              ? { ...block, attributes: { ...block.attributes, url: finalUrl, alt: imageAlt, caption: imageCaption } }
-              : block
-          )
-        );
+          // Update existing block immediately
+          setBlocks(prevBlocks => 
+            prevBlocks.map(block => 
+              block.clientId === currentBlockId 
+                ? { ...block, attributes: { ...block.attributes, url: croppedImageUrl, alt: imageAlt, caption: imageCaption } }
+                : block
+            )
+          );
         } else {
-          // Insert new image block
+          // Insert new image block immediately
           const imageBlock = {
             clientId: currentBlockId,
             name: 'core/image',
             isValid: true,
             attributes: {
-              url: finalUrl,
+              url: croppedImageUrl,
               alt: imageAlt,
               caption: imageCaption
             },
@@ -807,13 +757,99 @@ function WordPressBlockEditor({
         }
       }
       
+      // Close modal immediately - no waiting for upload
       setShowCropModal(false);
       setCurrentImageToCrop(null);
+      const blockIdForUpload = currentBlockId; // Store for background upload
       setCurrentBlockId(null);
       setPendingImageInsertion(null);
+
+      // Background upload process
+      const uploadInBackground = async () => {
+        setCropLoading(true);
+        try {
+          const response = await fetch(croppedImageUrl);
+          const blob = await response.blob();
+          const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+          
+          let finalUrl = croppedImageUrl;
+          let mediaId = undefined;
+          
+          // Try to upload to WordPress if available
+          if (window.wordPressUpload) {
+            try {
+              const media = await window.wordPressUpload(file);
+              finalUrl = media.source_url;
+              mediaId = media.id;
+              console.log('✅ Background upload to WordPress completed with media ID:', mediaId);
+            } catch (error) {
+              console.error('WordPress background upload failed, keeping blob URL:', error);
+            }
+          } else {
+            // Fallback to local upload
+            try {
+              const formData = new FormData();
+              formData.append('image', file);
+              const uploadResponse = await fetch('/api/upload-image', {
+                method: 'POST',
+                body: formData,
+              });
+              if (uploadResponse.ok) {
+                const result = await uploadResponse.json();
+                finalUrl = result.url;
+                console.log('✅ Background upload to local server completed:', finalUrl);
+              }
+            } catch (error) {
+              console.error('Local background upload failed, keeping blob URL:', error);
+            }
+          }
+
+          // Update the media item with caption and alt text if we have a media ID
+          if (mediaId && window.wordPressUpdateMedia) {
+            try {
+              await window.wordPressUpdateMedia(mediaId, {
+                caption: imageCaption,
+                alt_text: imageAlt
+              });
+              console.log('✅ Media item updated with caption and alt text');
+            } catch (error) {
+              console.error('❌ Failed to update media item:', error);
+            }
+          }
+
+          // Update with final URL only if different from blob URL
+          if (finalUrl !== croppedImageUrl) {
+            if (blockIdForUpload === 'featured-image') {
+              // Update featured image
+              setFeaturedImage(prev => prev && prev.url === croppedImageUrl ? {
+                ...prev,
+                url: finalUrl,
+                id: mediaId
+              } : prev);
+            } else {
+              // Update content image block
+              setBlocks(prevBlocks => 
+                prevBlocks.map(block => 
+                  block.clientId === blockIdForUpload && block.attributes.url === croppedImageUrl
+                    ? { ...block, attributes: { ...block.attributes, url: finalUrl } }
+                    : block
+                )
+              );
+            }
+          }
+        } catch (error) {
+          console.error('Background upload error:', error);
+          // Image will remain with blob URL, which still works for display
+        } finally {
+          setCropLoading(false);
+        }
+      };
+
+      // Start background upload without blocking UI
+      uploadInBackground();
+      
     } catch (error) {
       console.error('Error processing cropped image:', error);
-    } finally {
       setCropLoading(false);
     }
   };
@@ -904,6 +940,13 @@ function WordPressBlockEditor({
 
   return (
     <div className="block-editor__container hide-if-no-js">
+      {/* Add CSS animation for spinner */}
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
       <div className="interface-interface-skeleton">
         {/* WordPress-style Header */}
         <div className="interface-interface-skeleton__header">
@@ -1021,16 +1064,46 @@ function WordPressBlockEditor({
                             }}
                             onClick={() => setSelectedFeaturedImage(!selectedFeaturedImage)}
                           >
-                            <img 
-                              src={featuredImage.url} 
-                              alt={featuredImage.alt}
-                              style={{
-                                width: '100%',
-                                height: 'auto',
-                                borderRadius: '4px',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                              }}
-                            />
+                            <div style={{ position: 'relative' }}>
+                              <img 
+                                src={featuredImage.url} 
+                                alt={featuredImage.alt}
+                                style={{
+                                  width: '100%',
+                                  height: 'auto',
+                                  borderRadius: '4px',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                  // Add subtle visual indicator for blob URLs (temporary images)
+                                  opacity: featuredImage.url.startsWith('blob:') ? 0.95 : 1,
+                                  transition: 'opacity 0.3s ease'
+                                }}
+                              />
+                              {/* Subtle upload indicator for blob URLs */}
+                              {featuredImage.url.startsWith('blob:') && cropLoading && (
+                                <div style={{
+                                  position: 'absolute',
+                                  top: '8px',
+                                  right: '8px',
+                                  width: '16px',
+                                  height: '16px',
+                                  backgroundColor: 'rgba(0, 123, 186, 0.8)',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                }}>
+                                  <div style={{
+                                    width: '8px',
+                                    height: '8px',
+                                    border: '1px solid white',
+                                    borderTop: '1px solid transparent',
+                                    borderRadius: '50%',
+                                    animation: 'spin 1s linear infinite'
+                                  }} />
+                                </div>
+                              )}
+                            </div>
                             <input
                               type="text"
                               value={featuredImage.caption || ''}
@@ -1291,16 +1364,46 @@ function WordPressBlockEditor({
                                       onClick={() => setSelectedImageId(selectedImageId === block.clientId ? null : block.clientId)}
                                     >
                                       {block.attributes.url ? (
-                                        <img 
-                                          src={block.attributes.url} 
-                                          alt={block.attributes.alt || ''} 
-                                          style={{ 
-                                            maxWidth: '100%', 
-                                            height: 'auto', 
-                                            display: 'block', 
-                                            margin: '0 auto'
-                                          }}
-                                        />
+                                        <div style={{ position: 'relative' }}>
+                                          <img 
+                                            src={block.attributes.url} 
+                                            alt={block.attributes.alt || ''} 
+                                            style={{ 
+                                              maxWidth: '100%', 
+                                              height: 'auto', 
+                                              display: 'block', 
+                                              margin: '0 auto',
+                                              // Add subtle visual indicator for blob URLs (temporary images)
+                                              opacity: block.attributes.url.startsWith('blob:') ? 0.95 : 1,
+                                              transition: 'opacity 0.3s ease'
+                                            }}
+                                          />
+                                          {/* Subtle upload indicator for blob URLs */}
+                                          {block.attributes.url.startsWith('blob:') && cropLoading && (
+                                            <div style={{
+                                              position: 'absolute',
+                                              top: '8px',
+                                              right: '8px',
+                                              width: '16px',
+                                              height: '16px',
+                                              backgroundColor: 'rgba(0, 123, 186, 0.8)',
+                                              borderRadius: '50%',
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                            }}>
+                                              <div style={{
+                                                width: '8px',
+                                                height: '8px',
+                                                border: '1px solid white',
+                                                borderTop: '1px solid transparent',
+                                                borderRadius: '50%',
+                                                animation: 'spin 1s linear infinite'
+                                              }} />
+                                            </div>
+                                          )}
+                                        </div>
                                       ) : (
                                         <div style={{ 
                                           border: '2px dashed #ccc', 
@@ -1818,7 +1921,7 @@ function WordPressBlockEditor({
           setCropLoading(false);
         }}
         onConfirm={handleCropConfirm}
-        loading={cropLoading}
+        loading={false}
       />
 
       {/* Featured Image Search Modal */}

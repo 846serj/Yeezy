@@ -24,6 +24,7 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
     
     try {
       const croppedImageUrl = await getCroppedImg(imageSrc, croppedAreaPixels);
+      // Immediately show the cropped image - no loading delay
       onConfirm(croppedImageUrl);
     } catch (error) {
       console.error('Error cropping image:', error);
@@ -297,7 +298,7 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
               </button>
               <button
                 onClick={handleConfirm}
-                disabled={loading}
+                disabled={loading || !croppedAreaPixels}
                 className="btn btn-primary"
               >
                 {loading ? "Applying…" : "Apply Crop"}
@@ -339,13 +340,14 @@ const getCroppedImg = (imageSrc: string, croppedAreaPixels: any): Promise<string
         croppedAreaPixels.height
       );
 
+      // Use higher quality for better results, but still compressed for faster uploads
       canvas.toBlob((blob) => {
         if (!blob) {
           reject(new Error('Canvas is empty'));
           return;
         }
         resolve(URL.createObjectURL(blob));
-      }, 'image/jpeg', 0.8);
+      }, 'image/jpeg', 0.92); // Increased quality from 0.8 to 0.92 for better visuals
     };
     image.onerror = () => reject(new Error('Failed to load image'));
     image.src = imageSrc;

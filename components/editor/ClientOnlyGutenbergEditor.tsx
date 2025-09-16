@@ -166,39 +166,6 @@ export default function ClientOnlyGutenbergEditor({
     if (!currentImageToCrop || !currentBlockId) return;
     
     try {
-      // Upload the cropped image
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
-      
-      let finalUrl = croppedImageUrl;
-      
-      // Try to upload to WordPress if available
-      if (window.wordPressUpload) {
-        try {
-          const media = await window.wordPressUpload(file);
-          finalUrl = media.source_url;
-        } catch (error) {
-          console.error('WordPress upload failed, using local URL:', error);
-        }
-      } else {
-        // Fallback to local upload
-        try {
-          const formData = new FormData();
-          formData.append('image', file);
-          const uploadResponse = await fetch('/api/upload-image', {
-            method: 'POST',
-            body: formData,
-          });
-          if (uploadResponse.ok) {
-            const result = await uploadResponse.json();
-            finalUrl = result.url;
-          }
-        } catch (error) {
-          console.error('Local upload failed:', error);
-        }
-      }
-      
       // Create caption with attribution for Unsplash and Pexels images
       let imageCaption = '';
       let imageAlt = currentImageToCrop.caption; // Use original caption for alt text
@@ -207,18 +174,76 @@ export default function ClientOnlyGutenbergEditor({
         imageCaption = currentImageToCrop.attribution; // Only show photographer attribution in caption
       }
 
-      // Update the block with the cropped image
+      // OPTIMISTIC UI: Immediately show the cropped image using the blob URL
       setBlocks(prevBlocks => 
         prevBlocks.map(block => 
           block.clientId === currentBlockId 
-            ? { ...block, attributes: { ...block.attributes, url: finalUrl, alt: imageAlt, caption: imageCaption } }
+            ? { ...block, attributes: { ...block.attributes, url: croppedImageUrl, alt: imageAlt, caption: imageCaption } }
             : block
         )
       );
       
+      // Close modal immediately - no waiting for upload
       setShowCropModal(false);
       setCurrentImageToCrop(null);
       setCurrentBlockId(null);
+
+      // Upload in the background and update URL when ready
+      const uploadInBackground = async () => {
+        try {
+          const response = await fetch(croppedImageUrl);
+          const blob = await response.blob();
+          const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+          
+          let finalUrl = croppedImageUrl; // Keep blob URL as fallback
+          
+          // Try to upload to WordPress if available
+          if (window.wordPressUpload) {
+            try {
+              const media = await window.wordPressUpload(file);
+              finalUrl = media.source_url;
+              console.log('✅ Background upload to WordPress completed:', finalUrl);
+            } catch (error) {
+              console.error('WordPress background upload failed, keeping blob URL:', error);
+            }
+          } else {
+            // Fallback to local upload
+            try {
+              const formData = new FormData();
+              formData.append('image', file);
+              const uploadResponse = await fetch('/api/upload-image', {
+                method: 'POST',
+                body: formData,
+              });
+              if (uploadResponse.ok) {
+                const result = await uploadResponse.json();
+                finalUrl = result.url;
+                console.log('✅ Background upload to local server completed:', finalUrl);
+              }
+            } catch (error) {
+              console.error('Local background upload failed, keeping blob URL:', error);
+            }
+          }
+          
+          // Update with final URL only if different from blob URL
+          if (finalUrl !== croppedImageUrl) {
+            setBlocks(prevBlocks => 
+              prevBlocks.map(block => 
+                block.clientId === currentBlockId && block.attributes.url === croppedImageUrl
+                  ? { ...block, attributes: { ...block.attributes, url: finalUrl } }
+                  : block
+              )
+            );
+          }
+        } catch (error) {
+          console.error('Background upload error:', error);
+          // Image will remain with blob URL, which still works for display
+        }
+      };
+
+      // Start background upload without blocking UI
+      uploadInBackground();
+      
     } catch (error) {
       console.error('Error processing cropped image:', error);
     }
