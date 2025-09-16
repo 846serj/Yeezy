@@ -79,7 +79,8 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
             }
           }
         } else {
-          console.log('📝 No featured image to save');
+          console.log('📝 No featured image to save - removing featured image from WordPress');
+          featuredMediaId = 0; // Set to 0 to remove featured image in WordPress
         }
 
         const updatedPost: EditorContent = {

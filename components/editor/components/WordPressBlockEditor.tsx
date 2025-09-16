@@ -333,8 +333,18 @@ function WordPressBlockEditor({
       if (event.key === 'Backspace' && event.target instanceof HTMLElement) {
         const target = event.target as HTMLElement;
         
-        // Check if we're in a text input/textarea
-        if (['INPUT', 'TEXTAREA'].includes(target.tagName)) {
+        // Check if we're in a text input/textarea or figcaption
+        if (['INPUT', 'TEXTAREA', 'FIGCAPTION'].includes(target.tagName)) {
+        // Don't delete blocks if we're editing a caption (input with placeholder containing "caption")
+        const isCaptionInput = target.getAttribute('placeholder')?.includes('caption') || 
+                              target.getAttribute('data-placeholder')?.includes('caption') ||
+                              target.tagName === 'FIGCAPTION';
+        
+        if (isCaptionInput) {
+          // Let the caption input handle backspace normally
+          return;
+        }
+          
           // Find the current block by looking for the closest block container with data-block-id
           const blockContainer = target.closest('[data-block-id]');
           
@@ -1000,13 +1010,14 @@ function WordPressBlockEditor({
                       {featuredImage ? (
                         <div className="wp-block-image">
                           <figure 
-                            className="wp-block-image__figure"
                             style={{
+                              textAlign: 'center',
+                              padding: '0',
                               border: selectedFeaturedImage ? '2px solid #296DEB' : '1px solid transparent',
                               borderRadius: '4px',
+                              margin: '0',
                               cursor: 'pointer',
-                              transition: 'border-color 0.2s ease',
-                              padding: '2px'
+                              transition: 'border-color 0.2s ease'
                             }}
                             onClick={() => setSelectedFeaturedImage(!selectedFeaturedImage)}
                           >
@@ -1020,13 +1031,27 @@ function WordPressBlockEditor({
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                               }}
                             />
-                            <figcaption 
-                              contentEditable
-                              suppressContentEditableWarning
-                              onInput={(e) => setFeaturedImage(prev => prev ? {
-                                ...prev,
-                                caption: e.currentTarget.textContent || ''
-                              } : null)}
+                            <input
+                              type="text"
+                              value={featuredImage.caption || ''}
+                              onChange={(e) => {
+                                if (featuredImage) {
+                                  setFeaturedImage(prev => prev ? {
+                                    ...prev,
+                                    caption: e.target.value
+                                  } : null);
+                                }
+                              }}
+                              onFocus={(e) => {
+                                e.currentTarget.style.borderColor = '#007cba';
+                                e.currentTarget.style.backgroundColor = '#f0f8ff';
+                              }}
+                              onBlur={(e) => {
+                                e.currentTarget.style.borderColor = 'transparent';
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              placeholder="Add caption..."
                               style={{ 
                                 fontSize: '0.579rem',
                                 color: 'var(--wp--preset--color--contrast)',
@@ -1042,10 +1067,7 @@ function WordPressBlockEditor({
                                 transition: 'border-color 0.2s ease',
                                 width: '100%'
                               }}
-                              data-placeholder="Add caption..."
-                            >
-                              {featuredImage.caption}
-                            </figcaption>
+                            />
                           </figure>
                           <div style={{ 
                             display: 'flex', 
@@ -1259,7 +1281,7 @@ function WordPressBlockEditor({
                                     <figure 
                                       style={{ 
                                         textAlign: 'center', 
-                                        padding: '2px', 
+                                        padding: '0', 
                                         border: selectedImageId === block.clientId ? '2px solid #296DEB' : '1px solid transparent', 
                                         borderRadius: '4px', 
                                         margin: '0',
@@ -1304,6 +1326,7 @@ function WordPressBlockEditor({
                                           e.currentTarget.style.borderColor = 'transparent';
                                           e.currentTarget.style.backgroundColor = 'transparent';
                                         }}
+                                        onClick={(e) => e.stopPropagation()}
                                         placeholder="Add caption..."
                                         style={{ 
                                           fontSize: '0.579rem',
@@ -1463,7 +1486,7 @@ function WordPressBlockEditor({
             <div className="block-editor-inserter__search" style={{ marginBottom: '8px' }}>
               <input
                 type="text"
-                placeholder="Search for a block or image..."
+                placeholder="Search for an image..."
                 value={inserterSearchQuery}
                 onChange={handleSearchInputChange}
                 style={{
