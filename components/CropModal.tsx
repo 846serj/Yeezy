@@ -73,8 +73,9 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
           border: 1px solid var(--border);
           border-radius: var(--radius);
           overflow: hidden;
-          max-width: 1000px;
-          width: 100%;
+          width: 66.666vw;
+          min-width: 600px;
+          max-width: 90vw;
           max-height: 90vh;
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
           display: flex;
