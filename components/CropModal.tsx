@@ -64,31 +64,28 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 20px;
+          padding: 0;
           backdrop-filter: blur(4px);
         }
         
         .crop-container {
           background: var(--card);
           border: 1px solid var(--border);
-          border-radius: var(--radius);
+          border-radius: 0;
           overflow: hidden;
-          width: 66.666vw;
-          min-width: 600px;
-          max-width: 90vw;
-          max-height: 90vh;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+          width: 100vw;
+          height: 100vh;
           display: flex;
           flex-direction: column;
         }
         
         .crop-header {
-          padding: 16px 20px;
+          padding: 16px 32px;
           border-bottom: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.98);
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: var(--card);
         }
         
         .crop-title {
@@ -122,7 +119,7 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         .crop-area {
           position: relative;
           width: 100%;
-          height: 500px;
+          flex: 1;
           background: var(--bg);
           display: flex;
           align-items: center;
@@ -130,13 +127,13 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         }
         
         .crop-controls {
-          padding: 16px 20px;
+          padding: 16px 32px;
           border-top: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.98);
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 12px;
-          background: var(--card);
         }
         
         .crop-actions {
@@ -209,7 +206,7 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         }
         
         .zoom-slider {
-          width: 100px;
+          width: 200px;
           height: 4px;
           background: var(--border);
           border-radius: 2px;
