@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { addCorsHeaders } from '../middleware';
 import { getUserByEmail, verifyPassword } from '@/lib/database';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 export async function POST(request: NextRequest) {
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
   try {
     const { email, password } = await request.json();
 
@@ -40,7 +51,7 @@ export async function POST(request: NextRequest) {
       maxAge: 7 * 24 * 60 * 60 // 7 days
     });
 
-    return response;
+    return addCorsHeaders(response);
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { addCorsHeaders } from '../middleware';
 import { createUser } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
   try {
     const { email, password } = await request.json();
 
@@ -15,10 +26,10 @@ export async function POST(request: NextRequest) {
 
     const user = createUser(email, password);
     
-    return NextResponse.json({ 
+    return addCorsHeaders(NextResponse.json({ 
       message: 'User created successfully',
       user: { id: user.id, email: user.email }
-    });
+    }));
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
