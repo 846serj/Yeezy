@@ -13,6 +13,7 @@ A modern, responsive web application for editing WordPress articles using the of
 - 🏷️ **Categories & Tags** - Full support for WordPress taxonomies
 - ⚡ **Real-time Updates** - Auto-save and live preview
 - 🎨 **Modern UI** - Clean, intuitive interface
+- 🤖 **AI Article Generation** - Generate articles using OpenAI with SERP API integration
 
 ## Tech Stack
 
@@ -23,6 +24,7 @@ A modern, responsive web application for editing WordPress articles using the of
 - **State Management**: Zustand
 - **Icons**: Lucide React
 - **File Upload**: React Dropzone
+- **AI Integration**: OpenAI API, SERP API
 
 ## Getting Started
 
@@ -31,6 +33,8 @@ A modern, responsive web application for editing WordPress articles using the of
 - Node.js 18+ 
 - npm or yarn
 - A WordPress site with REST API enabled
+- OpenAI API key (for article generation)
+- SERP API key (optional, for source links)
 
 ### Installation
 
@@ -44,19 +48,31 @@ cd wordpress-article-editor
 npm install
 ```
 
-3. Start the development server:
+3. Create environment file:
+```bash
+cp .env.local.example .env.local
+```
+
+4. Add your API keys to `.env.local`:
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+SERPAPI_KEY=your_serpapi_key_here
+```
+
+5. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Quick Test
 
 1. **Start the app**: Run `npm run dev` and visit `http://localhost:3000`
 2. **Connect to WordPress**: Enter your WordPress site details
 3. **Edit articles**: Browse and edit your WordPress articles
-4. **Rich text editing**: Use the editor with full formatting capabilities
+4. **Generate articles**: Use the AI generation feature to create new content
+5. **Rich text editing**: Use the editor with full formatting capabilities
 
 ### WordPress Setup
 
@@ -96,10 +112,21 @@ npm run dev
 
 1. **View Articles**: Browse all your articles with search and filter options
 2. **Create New**: Click "New Article" to create a new post
-3. **Edit Existing**: Click on any article to edit it
-4. **Rich Text Editing**: Use the toolbar for formatting, links, images, etc.
-5. **Media Management**: Upload images with drag & drop or select from library
-6. **Save/Publish**: Save as draft or publish immediately
+3. **Generate Article**: Click "Generate Article" to use AI-powered content creation
+4. **Edit Existing**: Click on any article to edit it
+5. **Rich Text Editing**: Use the editor with full formatting capabilities
+6. **Media Management**: Upload images with drag & drop or select from library
+7. **Save/Publish**: Save as draft or publish immediately
+
+### AI Article Generation
+
+1. **Click "Generate Article"** from the articles list
+2. **Choose article type**: Blog post, Listicle, YouTube to blog, or Rewrite
+3. **Enter title** and customize settings
+4. **Configure AI options**: Tone, length, sources, etc.
+5. **Generate content** and review the AI-generated article
+6. **Edit and refine** using the rich text editor
+7. **Save to WordPress** when satisfied
 
 ### Features
 
@@ -108,6 +135,9 @@ npm run dev
 - **Image Optimization**: Large images are automatically optimized
 - **Keyboard Shortcuts**: Use Ctrl+B for bold, Ctrl+I for italic, etc.
 - **Mobile Responsive**: Edit articles on any device
+- **AI Content Creation**: Generate high-quality articles with OpenAI
+- **Source Integration**: Include real sources and links with SERP API
+- **Upload State Management**: Prevents data loss during image uploads
 
 ## API Endpoints Used
 
@@ -129,6 +159,7 @@ The application uses the official WordPress REST API endpoints:
 - All API requests are made over HTTPS
 - No credentials are stored in the browser
 - CORS is properly configured for security
+- API keys are stored securely in environment variables
 
 ## Browser Support
 
@@ -156,9 +187,14 @@ For issues and questions:
 2. Verify your WordPress site is up to date
 3. Ensure Application Passwords are enabled
 4. Check browser console for error messages
+5. Verify OpenAI API key is valid
+6. Check SERP API key if using source links
 
 ## Roadmap
 
+- [x] AI article generation
+- [x] Source integration with SERP API
+- [x] Upload state management
 - [ ] Multi-site support
 - [ ] Bulk operations
 - [ ] Custom post types
