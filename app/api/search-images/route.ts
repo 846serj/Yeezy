@@ -234,7 +234,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
     });
   } catch (error) {
     clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       console.log('⏰ Wiki Commons search timed out, returning mock data');
     } else {
       console.error('❌ Wiki Commons search error:', error);
