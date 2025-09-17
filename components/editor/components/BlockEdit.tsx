@@ -14,7 +14,8 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
   attributes, 
   setAttributes, 
   blockName, 
-  clientId 
+  clientId,
+  onImageClick
 }) => {
   const { content, level, url, alt, caption, values, ordered, value, citation } = attributes;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
