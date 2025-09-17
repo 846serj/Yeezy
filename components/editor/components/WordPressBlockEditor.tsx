@@ -11,6 +11,7 @@ import { getBlockEditorSettings } from '../utils/blockEditorSettings';
 // Import existing components
 import ImageSearchModal from '../../ImageSearchModal';
 import CropModal from '../../CropModal';
+import SimpleImageToolbar from '../../SimpleImageToolbar';
 
 // Debounce utility function
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T & { cancel: () => void } {
@@ -50,6 +51,9 @@ function WordPressBlockEditor({
   const [inserterLoading, setInserterLoading] = useState(false);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [selectedFeaturedImage, setSelectedFeaturedImage] = useState<boolean>(false);
+  const [showImageToolbar, setShowImageToolbar] = useState(false);
+  const [toolbarPosition, setToolbarPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [selectedImageElement, setSelectedImageElement] = useState<HTMLImageElement | null>(null);
   // Featured image search state - using same hook as body images
   const {
     showImageSearch: showFeaturedImageSearch,
@@ -154,6 +158,30 @@ function WordPressBlockEditor({
     return { popupX, popupY };
   };
 
+  // Calculate toolbar position based on click coordinates
+  const calculateToolbarPosition = () => {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const toolbarWidth = 300; // Approximate width of the toolbar
+    const toolbarHeight = 50; // Approximate height of the toolbar
+    
+    // Get the editor container element
+    const editorContainer = document.querySelector('.editor-visual-editor__content');
+    const containerRect = editorContainer?.getBoundingClientRect() || { left: 0, right: window.innerWidth };
+    
+    // Calculate available space
+    const maxX = containerRect.right - toolbarWidth - 20;
+    const minX = containerRect.left + 20;
+    
+    // Default position in the middle of the editor
+    const defaultX = (containerRect.left + containerRect.right) / 2 - toolbarWidth / 2;
+    
+    return {
+      popupX: Math.min(Math.max(defaultX, minX), maxX),
+      popupY: Math.max(50, windowHeight * 0.1) // Keep toolbar in top 10% of screen but at least 50px from top
+    };
+  };
+
   // Handle block insertion
   const handleInsertBlock = (blockType: string, index: number) => {
     console.log('Inserting block:', blockType, 'at index:', index);
@@ -212,9 +240,10 @@ function WordPressBlockEditor({
     console.log('🎬 Crop modal should now be open');
   };
 
-  // Handle click outside to close inserter
+  // Handle click outside to close inserter and image toolbar
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Handle block inserter
       if (showBlockInserter && 
           !(event.target as Element).closest('.block-editor-inserter__popover') && 
           !(event.target as Element).closest('.block-editor-block-list__insertion-point')) {
@@ -227,30 +256,82 @@ function WordPressBlockEditor({
         setInserterPage(1);
         setInserterHasMore(false);
       }
+
+      // Handle image toolbar
+      if (showImageToolbar && 
+          !(event.target as Element).closest('.image-toolbar') && 
+          !(event.target as Element).matches('img')) {
+        setShowImageToolbar(false);
+        // Clear image selection
+        if (selectedImageElement) {
+          selectedImageElement.classList.remove('selected-image');
+          setSelectedImageElement(null);
+        }
+      }
     };
 
-    if (showBlockInserter) {
+    if (showBlockInserter || showImageToolbar) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [showBlockInserter]);
+  }, [showBlockInserter, showImageToolbar]);
 
-  // Handle window resize to reposition popup
+  // Handle scroll to update toolbar position with animation frame
+  useEffect(() => {
+    let animationFrameId: number;
+    
+    const updateToolbarPosition = () => {
+      if (showImageToolbar && selectedImageElement) {
+        const rect = selectedImageElement.getBoundingClientRect();
+        const centerX = rect.left + (rect.width / 2);
+        const topY = rect.top + window.scrollY;
+        
+        setToolbarPosition({ x: centerX, y: topY });
+        
+        // Continue updating on next frame
+        animationFrameId = requestAnimationFrame(updateToolbarPosition);
+      }
+    };
+
+    if (showImageToolbar && selectedImageElement) {
+      console.log('🎯 Starting continuous toolbar position updates');
+      animationFrameId = requestAnimationFrame(updateToolbarPosition);
+      
+      return () => {
+        console.log('🧹 Stopping toolbar position updates');
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+      };
+    }
+  }, [showImageToolbar, selectedImageElement]);
+
+  // Handle window resize to reposition popups
   useEffect(() => {
     const handleResize = () => {
+      // Handle block inserter resize
       if (showBlockInserter && inserterPosition) {
         const { popupX, popupY } = calculatePopupPosition();
         setInserterPosition(prev => prev ? { ...prev, popupX, popupY } : null);
       }
+      
+      // Handle image toolbar resize
+      if (showImageToolbar && selectedImageElement) {
+        const rect = selectedImageElement.getBoundingClientRect();
+        const centerX = rect.left + (rect.width / 2);
+        const topY = rect.top + window.scrollY;
+        
+        setToolbarPosition({ x: centerX, y: topY });
+      }
     };
 
-    if (showBlockInserter) {
+    if (showBlockInserter || showImageToolbar) {
       window.addEventListener('resize', handleResize);
       return () => {
         window.removeEventListener('resize', handleResize);
       };
     }
-  }, [showBlockInserter, inserterPosition]);
+  }, [showBlockInserter, inserterPosition, showImageToolbar, selectedImageElement]);
 
   // Custom hooks
   const { components: WordPressComponents, isLoading: componentsLoading } = useWordPressComponents();
@@ -448,9 +529,15 @@ function WordPressBlockEditor({
         );
         
         // If click is not on an image figure and we have a selected image, deselect it
-        if (!isImageClick && (selectedImageId || selectedFeaturedImage)) {
+        if (!isImageClick && (selectedImageId || selectedFeaturedImage || selectedImageElement)) {
           setSelectedImageId(null);
           setSelectedFeaturedImage(false);
+          // Also close the image toolbar when deselecting
+          setShowImageToolbar(false);
+          if (selectedImageElement) {
+            selectedImageElement.classList.remove('selected-image');
+            setSelectedImageElement(null);
+          }
           console.log('🖱️ Image deselected by clicking outside');
         }
       }
@@ -459,6 +546,103 @@ function WordPressBlockEditor({
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [selectedImageId, selectedFeaturedImage]);
+
+  // Handle image clicks for toolbar
+  useEffect(() => {
+    console.log('🎯 Setting up image click event listener...');
+    
+    const handleImageClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      console.log('👆 Click detected on:', target.tagName, target);
+      
+      // Check if the clicked element is an image
+      if (target.tagName === 'IMG') {
+        console.log('🖼️ Image clicked!', target);
+        
+        // Only target images that are NOT in search results or popups
+        const isInInserterPopup = target.closest('.block-editor-inserter__popover');
+        const isInModal = target.closest('.components-modal__content');
+        const isInSearchResults = target.closest('.block-editor-inserter__search') || 
+                                 target.closest('.block-editor-inserter__block-list');
+        
+        if (isInInserterPopup || isInModal || isInSearchResults) {
+          console.log('🚫 Ignoring popup/modal/search result image click');
+          return;
+        }
+        
+        // Check if it's within the WordPress editor content
+        const isInEditorContent = target.closest('.editor-visual-editor__content') || 
+                                 target.closest('.editor-styles-wrapper') ||
+                                 target.closest('.block-editor-writing-flow');
+        
+        console.log('🔍 Is in editor content:', !!isInEditorContent);
+        console.log('🔍 Available CSS classes on image:', target.className);
+        console.log('🔍 Parent elements:', target.parentElement?.tagName, target.parentElement?.className);
+        
+        if (isInEditorContent) {
+          console.log('✅ Image clicked in WordPress editor!', target);
+          
+          // Clear previous selection
+          if (selectedImageElement) {
+            selectedImageElement.classList.remove('selected-image');
+          }
+          
+          // Add selection class to clicked image
+          const imageElement = target as HTMLImageElement;
+          imageElement.classList.add('selected-image');
+          setSelectedImageElement(imageElement);
+          
+          // Find the matching block for delete functionality
+          const imageUrl = imageElement.src;
+          console.log('🔍 Searching for block with URL:', imageUrl);
+          
+          const imageBlocks = blocks.filter(block => block.name === 'core/image');
+          console.log('🔍 Available image blocks:', imageBlocks.map(b => ({ 
+            clientId: b.clientId, 
+            url: b.attributes.url,
+            urlMatch: b.attributes.url === imageUrl
+          })));
+          
+          const matchingBlock = imageBlocks.find(block => 
+            block.attributes.url === imageUrl ||
+            block.attributes.url?.includes(imageUrl.split('/').pop()) ||
+            imageUrl.includes(block.attributes.url?.split('/').pop())
+          );
+          
+          if (matchingBlock) {
+            setSelectedImageId(matchingBlock.clientId);
+            console.log('🎯 Found matching block for delete functionality:', matchingBlock.clientId);
+          } else {
+            console.log('⚠️ Could not find matching block for delete functionality');
+            // Set a fallback ID so we can still try to delete
+            setSelectedImageId(imageUrl);
+          }
+          
+          // Position toolbar above the image
+          const rect = imageElement.getBoundingClientRect();
+          const centerX = rect.left + (rect.width / 2);
+          const topY = rect.top + window.scrollY;
+          
+          setToolbarPosition({ x: centerX, y: topY });
+          setShowImageToolbar(true);
+          
+          console.log('✅ Image selected and toolbar positioned:', { x: centerX, y: topY });
+          
+          // Prevent event bubbling
+          event.stopPropagation();
+        }
+      }
+    };
+
+    // Add event listener to the document
+    document.addEventListener('click', handleImageClick, true); // Use capture phase
+    console.log('✅ Image click event listener added');
+    
+    return () => {
+      console.log('🧹 Removing image click event listener');
+      document.removeEventListener('click', handleImageClick, true);
+    };
+  }, []);
 
   const {
     showImageSearch,
@@ -1893,6 +2077,51 @@ function WordPressBlockEditor({
         </div>
       )}
 
+
+      {/* Image Toolbar */}
+      <SimpleImageToolbar
+        isVisible={showImageToolbar}
+        position={toolbarPosition}
+        onClose={() => {
+          setShowImageToolbar(false);
+          if (selectedImageElement) {
+            selectedImageElement.classList.remove('selected-image');
+            setSelectedImageElement(null);
+          }
+          setSelectedImageId(null);
+        }}
+        onDelete={() => {
+          if (selectedImageElement && selectedImageId) {
+            // Try to delete by block ID first
+            const blockToDelete = blocks.find(block => block.clientId === selectedImageId);
+            
+            if (blockToDelete) {
+              // Delete by block ID (preferred method)
+              const updatedBlocks = blocks.filter(block => block.clientId !== selectedImageId);
+              setBlocks(updatedBlocks);
+              console.log('🗑️ Image block deleted by ID:', selectedImageId);
+            } else {
+              // Fallback: delete by image URL matching
+              const imageUrl = selectedImageElement.src;
+              const updatedBlocks = blocks.filter(block => 
+                !(block.name === 'core/image' && (
+                  block.attributes.url === imageUrl ||
+                  block.attributes.url?.includes(imageUrl.split('/').pop()) ||
+                  imageUrl.includes(block.attributes.url?.split('/').pop())
+                ))
+              );
+              setBlocks(updatedBlocks);
+              console.log('🗑️ Image block deleted by URL matching:', imageUrl);
+            }
+            
+            // Clear selection and close toolbar
+            selectedImageElement.classList.remove('selected-image');
+            setSelectedImageElement(null);
+            setSelectedImageId(null);
+            setShowImageToolbar(false);
+          }
+        }}
+      />
 
       {/* Image Search Modal */}
       <ImageSearchModal

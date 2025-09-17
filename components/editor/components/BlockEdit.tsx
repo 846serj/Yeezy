@@ -1,11 +1,13 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { autoResize } from '../utils/autoResize';
+import ImageToolbar from '../../ImageToolbar';
 
 interface BlockEditProps {
   attributes: Record<string, any>;
   setAttributes: (attributes: Record<string, any>) => void;
   blockName: string;
   clientId: string;
+  onImageClick?: (x: number, y: number) => void;
 }
 
 export const BlockEdit: React.FC<BlockEditProps> = ({ 
@@ -118,17 +120,28 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
       
     case 'core/image':
       return (
-        <div style={{ margin: '1em 0', padding: '0', border: 'none', backgroundColor: 'transparent' }}>
+        <div style={{ margin: '1em 0', padding: '0', border: 'none', backgroundColor: 'transparent', position: 'relative' }}>
           {url ? (
             <figure style={{ margin: '0', textAlign: 'center' }}>
               <img 
                 src={url} 
                 alt={alt || ''} 
+                onClick={(e) => {
+                  console.log('🖼️ Image clicked!', { onImageClick: !!onImageClick });
+                  if (onImageClick) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const clickX = rect.left + (rect.width / 2);
+                    const clickY = rect.top;
+                    console.log('📍 Image click coordinates:', { clickX, clickY });
+                    onImageClick(clickX, clickY);
+                  }
+                }}
                 style={{ 
                   maxWidth: '100%', 
                   height: 'auto',
                   display: 'block',
-                  margin: '0 auto'
+                  margin: '0 auto',
+                  cursor: 'pointer'
                 }} 
               />
               {caption && (

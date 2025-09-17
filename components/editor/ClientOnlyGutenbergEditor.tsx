@@ -14,6 +14,7 @@ import { BlockInserter } from './components/BlockInserter';
 // Import existing components
 import ImageSearchModal from '../ImageSearchModal';
 import CropModal from '../CropModal';
+import ImageToolbar from '../ImageToolbar';
 
 export default function ClientOnlyGutenbergEditor({ 
   post, 
@@ -27,6 +28,38 @@ export default function ClientOnlyGutenbergEditor({
   const [showCropModal, setShowCropModal] = useState(false);
   const [currentImageToCrop, setCurrentImageToCrop] = useState<any>(null);
   const [currentBlockId, setCurrentBlockId] = useState<string | null>(null);
+  const [showImageToolbar, setShowImageToolbar] = useState(false);
+  const [imageToolbarPosition, setImageToolbarPosition] = useState<{ 
+    blockId: string; 
+    x: number; 
+    y: number; 
+    popupX: number; 
+    popupY: number 
+  } | null>(null);
+
+  // Calculate popup position based on click coordinates
+  const calculateToolbarPosition = () => {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const toolbarWidth = 300; // Approximate width of the toolbar
+    const toolbarHeight = 50; // Approximate height of the toolbar
+    
+    // Get the editor container element
+    const editorContainer = document.querySelector('.editor-visual-editor__content');
+    const containerRect = editorContainer?.getBoundingClientRect() || { left: 0, right: window.innerWidth };
+    
+    // Calculate available space
+    const maxX = containerRect.right - toolbarWidth - 20;
+    const minX = containerRect.left + 20;
+    
+    // Default position in the middle of the editor
+    const defaultX = (containerRect.left + containerRect.right) / 2 - toolbarWidth / 2;
+    
+    return {
+      popupX: Math.min(Math.max(defaultX, minX), maxX),
+      popupY: Math.max(50, windowHeight * 0.1) // Keep toolbar in top 10% of screen but at least 50px from top
+    };
+  };
 
   // Custom hooks
   const { components: WordPressComponents, isLoading: componentsLoading } = useWordPressComponents();
@@ -53,21 +86,30 @@ export default function ClientOnlyGutenbergEditor({
     closeImageSearch
   } = useImageSearch();
 
-  // Close block inserter when clicking outside
+  // Close block inserter and image toolbar when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Handle block inserter
       if (showBlockInserter && 
           !(event.target as Element).closest('.block-editor-inserter__popover') && 
           !(event.target as Element).closest('.block-editor-inserter__toggle')) {
         setShowBlockInserter(false);
       }
+
+      // Handle image toolbar
+      if (showImageToolbar && 
+          !(event.target as Element).closest('.block-editor-block-popover') && 
+          !(event.target as Element).matches('img')) {
+        setShowImageToolbar(false);
+        setImageToolbarPosition(null);
+      }
     };
 
-    if (showBlockInserter) {
+    if (showBlockInserter || showImageToolbar) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [showBlockInserter]);
+  }, [showBlockInserter, showImageToolbar]);
 
   // Ensure we're on the client side
   useEffect(() => {
@@ -392,20 +434,34 @@ export default function ClientOnlyGutenbergEditor({
               /> */}
               
               <div style={{ marginBottom: '1rem' }}>
-                <BlockEdit
-                  attributes={block.attributes}
-                  setAttributes={(newAttributes) => {
-                    setBlocks(prevBlocks => 
-                      prevBlocks.map(b => 
-                        b.clientId === block.clientId 
-                          ? { ...b, attributes: { ...b.attributes, ...newAttributes } }
-                          : b
-                      )
-                    );
-                  }}
-                  blockName={block.name}
-                  clientId={block.clientId}
-                />
+              <BlockEdit
+                attributes={block.attributes}
+                setAttributes={(newAttributes) => {
+                  setBlocks(prevBlocks => 
+                    prevBlocks.map(b => 
+                      b.clientId === block.clientId 
+                        ? { ...b, attributes: { ...b.attributes, ...newAttributes } }
+                        : b
+                    )
+                  );
+                }}
+                blockName={block.name}
+                clientId={block.clientId}
+                onImageClick={(x, y) => {
+                  console.log('🎯 Image click handler called in editor:', { x, y, blockId: block.clientId });
+                  const { popupX, popupY } = calculateToolbarPosition();
+                  console.log('📐 Calculated toolbar position:', { popupX, popupY });
+                  setImageToolbarPosition({ 
+                    blockId: block.clientId,
+                    x,
+                    y,
+                    popupX,
+                    popupY
+                  });
+                  setShowImageToolbar(true);
+                  console.log('✅ Toolbar state updated, should be visible now');
+                }}
+              />
               </div>
             </div>
           ))}
@@ -419,6 +475,14 @@ export default function ClientOnlyGutenbergEditor({
           /> */}
         </div>
       </div>
+
+      {/* Image Toolbar */}
+      {showImageToolbar && imageToolbarPosition && (
+        <ImageToolbar
+          position={imageToolbarPosition}
+          isVisible={showImageToolbar}
+        />
+      )}
 
       {/* Image Search Modal */}
       <ImageSearchModal
