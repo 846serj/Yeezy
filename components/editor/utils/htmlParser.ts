@@ -10,7 +10,8 @@ export const convertHtmlToBlocks = (html: string): GutenbergBlock[] => {
     let content = '';
     
     // Process child nodes to preserve HTML structure
-    for (const node of element.childNodes) {
+    for (let i = 0; i < element.childNodes.length; i++) {
+      const node = element.childNodes[i];
       if (node.nodeType === Node.TEXT_NODE) {
         content += node.textContent || '';
       } else if (node.nodeType === Node.ELEMENT_NODE) {
