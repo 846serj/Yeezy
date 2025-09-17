@@ -56,11 +56,8 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
         ...(articleType === 'Rewrite blog post' && { blogLink }),
       };
 
-      // Call the mvp-main API
-      const mvpMainUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://write.yeez.ai'
-        : process.env.NEXT_PUBLIC_MVP_MAIN_URL || 'http://localhost:3001';
-      const response = await fetch(`${mvpMainUrl}/api/generate`, {
+      // Call the local API
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

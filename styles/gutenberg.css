@@ -290,8 +290,27 @@
 }
 
 /* ========================================
-   9. LINKS (WordPress Standard)
-   ======================================== */
+  9. UPLOAD STATE MANAGEMENT
+  ======================================== */
+.components-button.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.components-button.is-disabled:hover {
+  background-color: var(--wp--preset--color--primary);
+  color: var(--wp--preset--color--contrast);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+  10. LINKS (WordPress Standard)
+  ======================================== */
 :where(.editor-styles-wrapper) a,
 :where(.editor-styles-wrapper) .wp-block-paragraph a,
 :where(.editor-styles-wrapper) .wp-block-heading a,

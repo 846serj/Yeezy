@@ -48,6 +48,27 @@ function WordPressBlockEditor({
   const [inserterPage, setInserterPage] = useState(1);
   const [inserterHasMore, setInserterHasMore] = useState(false);
   const [inserterLoading, setInserterLoading] = useState(false);
+  
+  // Upload state management - Industry standard pattern for preventing saves during uploads
+  const [uploadingImages, setUploadingImages] = useState<Set<string>>(new Set());
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Helper functions for upload state management
+  // Usage: addUploadingImage(uploadId) at start of upload, removeUploadingImage(uploadId) when done
+  const addUploadingImage = useCallback((imageId: string) => {
+    setUploadingImages(prev => new Set(Array.from(prev).concat(imageId)));
+  }, []);
+  
+  const removeUploadingImage = useCallback((imageId: string) => {
+    setUploadingImages(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(imageId);
+      return newSet;
+    });
+  }, []);
+  
+  // Check if any images are still uploading
+  const hasUploadingImages = uploadingImages.size > 0;
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [selectedFeaturedImage, setSelectedFeaturedImage] = useState<boolean>(false);
   const [showImageToolbar, setShowImageToolbar] = useState(false);
@@ -531,6 +552,32 @@ function WordPressBlockEditor({
     addBlock,
     updateBlock
   } = useBlockManagement(post, onSave);
+
+  // Wrapper for handleSave that checks upload state
+  const handleSaveWithUploadCheck = useCallback(async () => {
+    if (hasUploadingImages) {
+      console.log('⚠️ Cannot save while images are uploading:', Array.from(uploadingImages));
+      return;
+    }
+    
+    setIsSaving(true);
+    
+    // Safety timeout to prevent infinite saving state
+    const timeoutId = setTimeout(() => {
+      console.warn('⚠️ Save operation timed out, resetting saving state');
+      setIsSaving(false);
+    }, 30000); // 30 second timeout
+    
+    try {
+      await handleSave();
+      console.log('✅ Save completed successfully');
+    } catch (error) {
+      console.error('❌ Save failed:', error);
+    } finally {
+      clearTimeout(timeoutId);
+      setIsSaving(false);
+    }
+  }, [handleSave, hasUploadingImages, uploadingImages]);
 
   // Handle keyboard events for image deletion and Enter key
   useEffect(() => {
@@ -1343,6 +1390,9 @@ function WordPressBlockEditor({
       // Background upload process
       const uploadInBackground = async () => {
         setCropLoading(true);
+        const uploadId = `upload-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        addUploadingImage(uploadId);
+        
         try {
           const response = await fetch(croppedImageUrl);
           const blob = await response.blob();
@@ -1455,6 +1505,7 @@ function WordPressBlockEditor({
           // Image will remain with blob URL, which still works for display
         } finally {
           setCropLoading(false);
+          removeUploadingImage(uploadId);
         }
       };
 
@@ -1584,11 +1635,35 @@ function WordPressBlockEditor({
             </div> */}
             
             <div className="editor-header__settings">
+              {hasUploadingImages && (
+                <div className="upload-indicator" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginRight: '12px',
+                  fontSize: '12px',
+                  color: '#666'
+                }}>
+                  <div className="spinner" style={{
+                    width: '12px',
+                    height: '12px',
+                    border: '2px solid #f3f3f3',
+                    borderTop: '2px solid #0073aa',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }}></div>
+                  Uploading {uploadingImages.size} image{uploadingImages.size > 1 ? 's' : ''}...
+                </div>
+              )}
               <button 
-                onClick={handleSave}
-                className="components-button editor-post-publish-button editor-post-publish-button__button is-primary is-compact"
+                onClick={handleSaveWithUploadCheck}
+                disabled={hasUploadingImages || isSaving}
+                className={`components-button editor-post-publish-button editor-post-publish-button__button is-primary is-compact ${
+                  hasUploadingImages || isSaving ? 'is-disabled' : ''
+                }`}
+                title={hasUploadingImages ? 'Please wait for images to finish uploading...' : ''}
               >
-                Save
+                {isSaving ? 'Saving...' : 'Save'}
               </button>
               <button 
                 onClick={onCancel}
@@ -2576,8 +2651,8 @@ function WordPressBlockEditor({
 
       {/* Image Search Modal - only render when needed */}
       {showImageSearch && (
-      <ImageSearchModal
-        isOpen={showImageSearch}
+        <ImageSearchModal
+          isOpen={showImageSearch}
           onClose={() => {
             closeImageSearch();
             // Clear replacement state if modal is closed during replacement
@@ -2590,17 +2665,16 @@ function WordPressBlockEditor({
               }
             }
           }}
-        onSelect={handleImageSelect}
-        selectedSources={selectedSources}
-        onSourceToggle={handleSourceToggle}
-        onSearch={handleImageSearch}
-        images={searchImages}
-        loading={searchLoading}
-        hasMore={hasMoreImages}
-        loadMore={() => handleImageSearch(lastSearchQuery, true)}
-      />
+          onSelect={handleImageSelect}
+          selectedSources={selectedSources}
+          onSourceToggle={handleSourceToggle}
+          onSearch={handleImageSearch}
+          images={searchImages}
+          loading={searchLoading}
+          hasMore={hasMoreImages}
+          loadMore={() => handleImageSearch(lastSearchQuery, true)}
+        />
       )}
-
       
       {/* Crop Modal */}
       <CropModal

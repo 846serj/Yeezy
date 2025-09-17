@@ -94,7 +94,7 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
         };
         console.log('📝 Full post object being saved:', updatedPost);
         console.log('🖼️ Featured media ID being sent to WordPress:', featuredMediaId);
-        onSave(updatedPost);
+        await onSave(updatedPost);
       } catch (error) {
         console.error('Error serializing blocks:', error);
       }
