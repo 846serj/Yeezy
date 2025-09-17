@@ -31,12 +31,6 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
     }
   };
 
-  console.log('🎬 CropModal render:', { 
-    isOpen, 
-    imageSrc: imageSrc ? 'has image' : 'no image', 
-    loading,
-    imageUrl: imageSrc
-  });
   
   if (!isOpen) return null;
   

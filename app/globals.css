@@ -433,8 +433,15 @@ body {
 
 /* Image Selection Styles */
 .selected-image {
-  outline: 2px solid #296DEB !important;
-  outline-offset: 2px;
+  outline: none !important;
+  box-shadow: 0 0 0 2px #296DEB !important;
+  border-radius: 4px;
+}
+
+/* Figure Selection Styles (includes image + caption) */
+.selected-image-figure {
+  outline: none !important;
+  box-shadow: 0 0 0 2px #296DEB !important;
   border-radius: 4px;
 }
 

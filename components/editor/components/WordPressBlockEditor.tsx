@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { ClientOnlyGutenbergEditorProps, GutenbergBlock } from '../types';
+import { ClientOnlyGutenbergEditorProps, GutenbergBlock, ImageResult } from '../types';
 import { useWordPressComponents } from '../hooks/useWordPressComponents';
 import { useBlockManagement } from '../hooks/useBlockManagement';
 import { useImageSearch } from '../hooks/useImageSearch';
@@ -33,7 +33,6 @@ function WordPressBlockEditor({
   onSave, 
   onCancel 
 }: ClientOnlyGutenbergEditorProps) {
-  console.log('🚀 WordPressBlockEditor rendered', { post: !!post, onSave: !!onSave, onCancel: !!onCancel });
   
   const [isClient, setIsClient] = useState(false);
   const [showCropModal, setShowCropModal] = useState(false);
@@ -54,20 +53,14 @@ function WordPressBlockEditor({
   const [showImageToolbar, setShowImageToolbar] = useState(false);
   const [toolbarPosition, setToolbarPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [selectedImageElement, setSelectedImageElement] = useState<HTMLImageElement | null>(null);
-  // Featured image search state - using same hook as body images
-  const {
-    showImageSearch: showFeaturedImageSearch,
-    setShowImageSearch: setShowFeaturedImageSearch,
-    searchImages: featuredImageSearchImages,
-    searchLoading: featuredImageSearchLoading,
-    selectedSources: featuredImageSelectedSources,
-    hasMoreImages: featuredImageHasMore,
-    lastSearchQuery: featuredImageLastQuery,
-    handleImageSearch: handleFeaturedImageSearch,
-    handleSourceToggle: handleFeaturedImageSourceToggle,
-    openImageSearch: openFeaturedImageSearch,
-    closeImageSearch: closeFeaturedImageSearch
-  } = useImageSearch();
+  const [imageToReplace, setImageToReplace] = useState<{ element: HTMLImageElement; blockId: string | null } | null>(null);
+  // Featured image search state - separate from body image search
+  const [showFeaturedImageSearch, setShowFeaturedImageSearch] = useState(false);
+  const [featuredImageSearchImages, setFeaturedImageSearchImages] = useState<ImageResult[]>([]);
+  const [featuredImageSearchLoading, setFeaturedImageSearchLoading] = useState(false);
+  const [featuredImageSelectedSources, setFeaturedImageSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'wikiCommons']);
+  const [featuredImageHasMore, setFeaturedImageHasMore] = useState(false);
+  const [featuredImageLastQuery, setFeaturedImageLastQuery] = useState<string>('');
 
   // Block types for inserter
   const blockTypes = [
@@ -265,6 +258,11 @@ function WordPressBlockEditor({
         // Clear image selection
         if (selectedImageElement) {
           selectedImageElement.classList.remove('selected-image');
+          // Also clear figure selection if it exists
+          const figureElement = selectedImageElement.closest('figure');
+          if (figureElement) {
+            figureElement.classList.remove('selected-image-figure');
+          }
           setSelectedImageElement(null);
         }
       }
@@ -305,6 +303,181 @@ function WordPressBlockEditor({
       };
     }
   }, [showImageToolbar, selectedImageElement]);
+
+  // Handle keyboard events for image deletion
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle backspace when an image is selected and no input/textarea is focused
+      if (event.key === 'Backspace' && 
+          selectedImageElement && 
+          showImageToolbar &&
+          !['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement)?.tagName)) {
+        
+        console.log('⌨️ Backspace pressed with image selected');
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Delete the selected image
+        if (selectedImageId) {
+          const blockToDelete = blocks.find(block => block.clientId === selectedImageId);
+          
+          if (blockToDelete) {
+            // Delete by block ID (preferred method)
+            const updatedBlocks = blocks.filter(block => block.clientId !== selectedImageId);
+            setBlocks(updatedBlocks);
+            console.log('🗑️ Image block deleted by ID via backspace:', selectedImageId);
+          } else {
+            // Fallback: delete by image URL matching
+            const imageUrl = selectedImageElement.src;
+            const updatedBlocks = blocks.filter(block =>
+              !(block.name === 'core/image' && (
+                block.attributes.url === imageUrl ||
+                block.attributes.url?.includes(imageUrl.split('/').pop() || '') ||
+                imageUrl.includes(block.attributes.url?.split('/').pop() || '')
+              ))
+            );
+            setBlocks(updatedBlocks);
+            console.log('🗑️ Image block deleted by URL matching via backspace:', imageUrl);
+          }
+          
+          // Clear selection and close toolbar
+          selectedImageElement.classList.remove('selected-image');
+          // Also clear figure selection if it exists
+          const figureElement = selectedImageElement.closest('figure');
+          if (figureElement) {
+            figureElement.classList.remove('selected-image-figure');
+          }
+          setSelectedImageElement(null);
+          setSelectedImageId(null);
+          setShowImageToolbar(false);
+        }
+      }
+    };
+
+    if (showImageToolbar && selectedImageElement) {
+      console.log('⌨️ Adding keyboard event listener for image deletion');
+      document.addEventListener('keydown', handleKeyDown);
+      
+      return () => {
+        console.log('🧹 Removing keyboard event listener');
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [showImageToolbar, selectedImageElement, selectedImageId]);
+
+  // Handle image clicks for toolbar and selection
+  useEffect(() => {
+    console.log('🎯 Setting up image click event listener...');
+
+    const handleImageClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
+      // Check if the clicked element is an image
+      if (target.tagName === 'IMG') {
+        console.log('🖼️ Image clicked!', target.className);
+
+        // Only target images that are NOT in search results or popups
+        const isInInserterPopup = target.closest('.block-editor-inserter__popover');
+        const isInModal = target.closest('.components-modal__content');
+        const isInSearchResults = target.closest('.block-editor-inserter__search') ||
+                                 target.closest('.block-editor-inserter__block-list');
+
+        if (isInInserterPopup || isInModal || isInSearchResults) {
+          console.log('🚫 Ignoring popup/modal/search result image click');
+          return;
+        }
+
+        // Check if it's within the WordPress editor content
+        const isInEditorContent = target.closest('.editor-visual-editor__content') ||
+                                 target.closest('.editor-styles-wrapper') ||
+                                 target.closest('.block-editor-writing-flow');
+
+        console.log('🔍 Is in editor content:', !!isInEditorContent);
+        console.log('🔍 Available CSS classes on image:', target.className);
+        console.log('🔍 Parent elements:', target.parentElement?.tagName, target.parentElement?.className);
+
+        if (isInEditorContent) {
+          console.log('✅ Image clicked in WordPress editor!', target);
+          
+          // Clear ALL previous selections (ensure only one image selected at a time)
+          if (selectedImageElement) {
+            selectedImageElement.classList.remove('selected-image');
+            // Also clear figure selection if it exists
+            const figureElement = selectedImageElement.closest('figure');
+            if (figureElement) {
+              figureElement.classList.remove('selected-image-figure');
+            }
+          }
+          
+          // Also clear any existing selections in the DOM (safety cleanup)
+          document.querySelectorAll('.selected-image').forEach(el => {
+            el.classList.remove('selected-image');
+          });
+          document.querySelectorAll('.selected-image-figure').forEach(el => {
+            el.classList.remove('selected-image-figure');
+          });
+          
+          // Add selection class to the figure (image + caption) if it exists, otherwise just the image
+          const imageElement = target as HTMLImageElement;
+          const figureElement = imageElement.closest('figure');
+          
+          if (figureElement) {
+            figureElement.classList.add('selected-image-figure');
+            console.log('🎯 Selected entire figure (image + caption)');
+          } else {
+            imageElement.classList.add('selected-image');
+            console.log('🎯 Selected image only');
+          }
+          
+          setSelectedImageElement(imageElement);
+          
+          // Find the matching block for delete functionality
+          const imageUrl = imageElement.src;
+          console.log('🔍 Searching for block with URL:', imageUrl);
+
+          const imageBlocks = blocks.filter(block => block.name === 'core/image');
+          console.log('🔍 Available image blocks:', imageBlocks.length);
+
+          const matchingBlock = imageBlocks.find(block =>
+            block.attributes.url === imageUrl ||
+            block.attributes.url?.includes(imageUrl.split('/').pop() || '') ||
+            imageUrl.includes(block.attributes.url?.split('/').pop() || '')
+          );
+
+          if (matchingBlock) {
+            setSelectedImageId(matchingBlock.clientId);
+            console.log('🎯 Found matching block for delete functionality:', matchingBlock.clientId);
+          } else {
+            console.log('⚠️ Image not in blocks array - using URL as ID for toolbar');
+            setSelectedImageId(imageUrl);
+          }
+
+          // Position toolbar above the image
+          const rect = imageElement.getBoundingClientRect();
+          const centerX = rect.left + (rect.width / 2);
+          const topY = rect.top + window.scrollY;
+
+          setToolbarPosition({ x: centerX, y: topY });
+          setShowImageToolbar(true);
+
+          console.log('✅ Image selected and toolbar positioned:', { x: centerX, y: topY });
+
+          // Prevent event bubbling
+          event.stopPropagation();
+        }
+      }
+    };
+
+    // Add event listener to the document
+    document.addEventListener('click', handleImageClick, true); // Use capture phase
+    console.log('✅ Image click event listener added');
+
+    return () => {
+      console.log('🧹 Removing image click event listener');
+      document.removeEventListener('click', handleImageClick, true);
+    };
+  }, [selectedImageElement, showImageToolbar]); // blocks will be available in closure
+
 
   // Handle window resize to reposition popups
   useEffect(() => {
@@ -582,15 +755,37 @@ function WordPressBlockEditor({
         if (isInEditorContent) {
           console.log('✅ Image clicked in WordPress editor!', target);
           
-          // Clear previous selection
-          if (selectedImageElement) {
-            selectedImageElement.classList.remove('selected-image');
-          }
-          
-          // Add selection class to clicked image
-          const imageElement = target as HTMLImageElement;
-          imageElement.classList.add('selected-image');
-          setSelectedImageElement(imageElement);
+            // Clear ALL previous selections (ensure only one image selected at a time)
+            if (selectedImageElement) {
+              selectedImageElement.classList.remove('selected-image');
+              // Also clear figure selection if it exists
+              const figureElement = selectedImageElement.closest('figure');
+              if (figureElement) {
+                figureElement.classList.remove('selected-image-figure');
+              }
+            }
+            
+            // Also clear any existing selections in the DOM (safety cleanup)
+            document.querySelectorAll('.selected-image').forEach(el => {
+              el.classList.remove('selected-image');
+            });
+            document.querySelectorAll('.selected-image-figure').forEach(el => {
+              el.classList.remove('selected-image-figure');
+            });
+            
+            // Add selection class to the figure (image + caption) if it exists, otherwise just the image
+            const imageElement = target as HTMLImageElement;
+            const figureElement = imageElement.closest('figure');
+            
+            if (figureElement) {
+              figureElement.classList.add('selected-image-figure');
+              console.log('🎯 Selected entire figure (image + caption)');
+            } else {
+              imageElement.classList.add('selected-image');
+              console.log('🎯 Selected image only');
+            }
+            
+            setSelectedImageElement(imageElement);
           
           // Find the matching block for delete functionality
           const imageUrl = imageElement.src;
@@ -657,6 +852,65 @@ function WordPressBlockEditor({
     openImageSearch,
     closeImageSearch
   } = useImageSearch();
+
+  // Featured image search functions
+  const handleFeaturedImageSearch = async (query: string, loadMore = false) => {
+    if (!query.trim() && !loadMore) return;
+    
+    setFeaturedImageSearchLoading(true);
+    try {
+      const searchQuery = loadMore ? featuredImageLastQuery : query;
+      if (!loadMore) {
+        setFeaturedImageLastQuery(query);
+      }
+      
+      const page = loadMore ? 1 : 1; // Simplified for now
+      const response = await fetch(`/api/search-images?query=${encodeURIComponent(searchQuery)}&sources=${featuredImageSelectedSources.join(',')}&page=${page}&perPage=20`);
+      const data = await response.json();
+      
+      if (loadMore) {
+        setFeaturedImageSearchImages(prev => [...prev, ...data.images]);
+      } else {
+        setFeaturedImageSearchImages(data.images);
+      }
+      setFeaturedImageHasMore(data.hasMore);
+    } catch (error) {
+      console.error('Featured image search error:', error);
+    } finally {
+      setFeaturedImageSearchLoading(false);
+    }
+  };
+
+  const handleFeaturedImageSourceToggle = (source: string) => {
+    setFeaturedImageSelectedSources(prev => {
+      if (prev.includes(source)) {
+        if (prev.length === 1) return prev;
+        return prev.filter(s => s !== source);
+      } else {
+        return [...prev, source];
+      }
+    });
+  };
+
+  const openFeaturedImageSearch = () => {
+    setShowFeaturedImageSearch(true);
+    setFeaturedImageSearchImages([]);
+  };
+
+  const closeFeaturedImageSearch = () => {
+    setShowFeaturedImageSearch(false);
+    setFeaturedImageSearchImages([]);
+    setFeaturedImageLastQuery('');
+  };
+
+  // Debug image search modal state changes
+  useEffect(() => {
+    console.log('🔍 ImageSearchModal state changed:', { 
+      showImageSearch,
+      imageToReplace: !!imageToReplace,
+      selectedImageElement: !!selectedImageElement
+    });
+  }, [showImageSearch, imageToReplace, selectedImageElement]);
 
   // Debounced image search function
   const debouncedImageSearch = useMemo(
@@ -870,9 +1124,58 @@ function WordPressBlockEditor({
 
   // Image handling functions
   const handleImageSelect = (image: any) => {
+    // Check if we're replacing an existing image
+    if (imageToReplace) {
+      console.log('🔄 Replacing existing image, opening crop modal for:', image);
+      console.log('🔄 Replacing block ID:', imageToReplace.blockId);
+      
     setCurrentImageToCrop(image);
+      
+      if (imageToReplace.blockId) {
+        // Image is in our blocks array - use the existing block ID
+        setCurrentBlockId(imageToReplace.blockId);
+      } else {
+        // Image is not in our blocks array - we'll need to create a new block
+        // For now, we'll just replace the image visually and handle the block creation later
+        console.log('⚠️ Image not in blocks array - will replace visually only');
+        setCurrentBlockId(null);
+      }
+      
+      // Close the block inserter properly
+      setShowBlockInserter(false);
+      setInserterPosition(null);
+      setShowImageResults(false);
+      setInserterSearchQuery('');
     setShowImageSearch(false);
     setShowCropModal(true);
+      
+      // Keep replacement state (will be handled in crop modal)
+      // Don't clear imageToReplace here - it's needed in handleCropConfirm
+    } else if (inserterPosition) {
+      // Normal image insertion flow
+      console.log('🖼️ Image selected for cropping:', image);
+      console.log('📍 Insertion position:', inserterPosition);
+      
+      // Set the image for cropping and the target block ID
+      setCurrentImageToCrop(image);
+      setCurrentBlockId(`block-${Date.now()}-${inserterPosition.index}`);
+      setPendingImageInsertion({ index: inserterPosition.index });
+      
+      // Close the inserter and open crop modal
+      setShowBlockInserter(false);
+      setInserterPosition(null);
+      setShowImageResults(false);
+      setInserterSearchQuery('');
+      setShowImageSearch(false);
+      setShowCropModal(true);
+      
+      console.log('🎬 Crop modal should now be open');
+    } else {
+      // Fallback: just open crop modal
+      setCurrentImageToCrop(image);
+      setShowImageSearch(false);
+      setShowCropModal(true);
+    }
   };
 
   // Featured image handling functions
@@ -885,7 +1188,7 @@ function WordPressBlockEditor({
   };
 
   const handleCropConfirm = async (croppedImageUrl: string) => {
-    if (!currentImageToCrop || !currentBlockId) return;
+    if (!currentImageToCrop) return;
     
     try {
       // Create caption with attribution for Unsplash, Pexels, and Wikimedia Commons images
@@ -906,6 +1209,76 @@ function WordPressBlockEditor({
           id: undefined // Will be updated after background upload
         });
         console.log('✅ Featured image set immediately with blob URL');
+      } else if (imageToReplace && (!imageToReplace.blockId || imageToReplace.blockId.startsWith('http'))) {
+        // Image is not in our blocks array - replace it by deleting old and inserting new
+        console.log('🔄 Replacing image by deleting old and inserting new block');
+        if (imageToReplace.element) {
+          // Update the DOM element immediately for visual feedback
+          imageToReplace.element.src = croppedImageUrl;
+          imageToReplace.element.alt = imageAlt;
+          
+          // Update caption if it exists
+          const figureElement = imageToReplace.element.closest('figure');
+          if (figureElement) {
+            const captionElement = figureElement.querySelector('figcaption');
+            if (captionElement) {
+              captionElement.textContent = imageCaption;
+            }
+          }
+          
+          // Find and delete the old image block, then insert new one at same position
+          const originalUrl = imageToReplace.blockId && imageToReplace.blockId.startsWith('http') 
+            ? imageToReplace.blockId 
+            : imageToReplace.element.src;
+            
+          setBlocks(prevBlocks => {
+            // Find the index of the old image block
+            const oldBlockIndex = prevBlocks.findIndex(block => 
+              block.name === 'core/image' && 
+              (block.attributes.url === originalUrl || 
+               block.attributes.url?.includes(originalUrl.split('/').pop() || '') ||
+               originalUrl.includes(block.attributes.url?.split('/').pop() || ''))
+            );
+            
+            if (oldBlockIndex !== -1) {
+              console.log('🔄 Found old block at index:', oldBlockIndex, 'deleting and replacing');
+              
+              // Create new image block
+              const newImageBlock = {
+                clientId: `image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                name: 'core/image',
+                isValid: true,
+                attributes: {
+                  url: croppedImageUrl,
+                  alt: imageAlt,
+                  caption: imageCaption
+                },
+                innerBlocks: []
+              };
+              
+              // Remove old block and insert new one at same position
+              const newBlocks = [...prevBlocks];
+              newBlocks.splice(oldBlockIndex, 1, newImageBlock);
+              console.log('🔄 Replaced block at index:', oldBlockIndex);
+              return newBlocks;
+            } else {
+              console.log('⚠️ Could not find old block to replace, adding new block at end');
+              // Fallback: add new block at end
+              const newImageBlock = {
+                clientId: `image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                name: 'core/image',
+                isValid: true,
+                attributes: {
+                  url: croppedImageUrl,
+                  alt: imageAlt,
+                  caption: imageCaption
+                },
+                innerBlocks: []
+              };
+              return [...prevBlocks, newImageBlock];
+            }
+          });
+        }
       } else {
         // Check if this is a new block insertion or updating an existing block
         const existingBlock = blocks.find(block => block.clientId === currentBlockId);
@@ -919,7 +1292,7 @@ function WordPressBlockEditor({
                 : block
             )
           );
-        } else {
+        } else if (currentBlockId) {
           // Insert new image block immediately
           const imageBlock = {
             clientId: currentBlockId,
@@ -947,6 +1320,25 @@ function WordPressBlockEditor({
       const blockIdForUpload = currentBlockId; // Store for background upload
       setCurrentBlockId(null);
       setPendingImageInsertion(null);
+      
+      // Clear replacement state and selection if we were replacing
+      if (imageToReplace) {
+        console.log('✅ Image replacement completed, clearing selection and toolbar');
+        setImageToReplace(null);
+        
+        // Clear any existing selection
+        if (selectedImageElement) {
+          selectedImageElement.classList.remove('selected-image');
+          // Also clear figure selection if it exists
+          const figureElement = selectedImageElement.closest('figure');
+          if (figureElement) {
+            figureElement.classList.remove('selected-image-figure');
+          }
+          setSelectedImageElement(null);
+          setSelectedImageId(null);
+          setShowImageToolbar(false);
+        }
+      }
 
       // Background upload process
       const uploadInBackground = async () => {
@@ -1010,6 +1402,43 @@ function WordPressBlockEditor({
                 url: finalUrl,
                 id: mediaId
               } : prev);
+            } else if (imageToReplace && (!imageToReplace.blockId || imageToReplace.blockId.startsWith('http'))) {
+              // Update the DOM element directly for images not in blocks array
+              if (imageToReplace.element) {
+                imageToReplace.element.src = finalUrl;
+              }
+              
+              // Update the blocks array - find the block with the blob URL and update it
+              console.log('🔄 Updating blocks array for image replacement:', { finalUrl, croppedImageUrl });
+              
+              setBlocks(prevBlocks => {
+                const updatedBlocks = prevBlocks.map(block => {
+                  if (block.name === 'core/image' && block.attributes.url === croppedImageUrl) {
+                    console.log('🔄 Found block with blob URL, updating to final URL:', { blobUrl: croppedImageUrl, finalUrl });
+                    return {
+                      ...block,
+                      attributes: {
+                        ...block.attributes,
+                        url: finalUrl
+                      }
+                    };
+                  }
+                  return block;
+                });
+                
+                console.log('🔄 Blocks array updated, checking for blob URLs...');
+                const blobUrls = updatedBlocks.filter(block => 
+                  block.name === 'core/image' && 
+                  block.attributes.url?.startsWith('blob:')
+                );
+                if (blobUrls.length > 0) {
+                  console.log('⚠️ Still have blob URLs in blocks:', blobUrls.map(b => b.attributes.url));
+                } else {
+                  console.log('✅ No blob URLs found in blocks array');
+                }
+                
+                return updatedBlocks;
+              });
             } else {
               // Update content image block
               setBlocks(prevBlocks => 
@@ -1110,15 +1539,6 @@ function WordPressBlockEditor({
     );
   }
 
-  // Debug: Log blocks before rendering
-  console.log('🔍 Blocks before rendering:', blocks);
-  console.log('🔍 Block count:', blocks.length);
-  console.log('🔍 First few blocks:', blocks.slice(0, 3));
-  
-  // Debug: Log WordPress blocks format
-  console.log('🔍 WordPress blocks format:', wordPressBlocks);
-  console.log('🔍 WordPress blocks count:', wordPressBlocks.length);
-  console.log('🔍 First WordPress block:', wordPressBlocks[0]);
 
 
 
@@ -1335,7 +1755,7 @@ function WordPressBlockEditor({
                             <button
                               onClick={() => {
                                 console.log('🖼️ Opening featured image search...');
-                                openFeaturedImageSearch('featured-image');
+                                openFeaturedImageSearch();
                                 // Auto-search for images
                                 handleFeaturedImageSearch('nature');
                               }}
@@ -1407,7 +1827,7 @@ function WordPressBlockEditor({
                           <button
                             onClick={() => {
                               console.log('🖼️ Opening featured image search...');
-                              openFeaturedImageSearch('featured-image');
+                              openFeaturedImageSearch();
                               // Auto-search for images
                               handleFeaturedImageSearch('nature');
                             }}
@@ -1889,7 +2309,7 @@ function WordPressBlockEditor({
                     padding: '8px 0',
                     borderBottom: '1px solid #e0e0e0'
                   }}>
-                    Image Results for "{inserterSearchQuery}"
+                    {`Image Results for "${inserterSearchQuery}"`}
                   </div>
                   <div style={{ 
                     display: 'grid', 
@@ -1995,7 +2415,7 @@ function WordPressBlockEditor({
                   padding: '20px',
                   color: '#666'
                 }}>
-                  No images found for "{inserterSearchQuery}"
+                  {`No images found for "${inserterSearchQuery}"`}
                 </div>
               ) : (
                 <div className="block-editor-block-types-list" style={{
@@ -2086,6 +2506,11 @@ function WordPressBlockEditor({
           setShowImageToolbar(false);
           if (selectedImageElement) {
             selectedImageElement.classList.remove('selected-image');
+            // Also clear figure selection if it exists
+            const figureElement = selectedImageElement.closest('figure');
+            if (figureElement) {
+              figureElement.classList.remove('selected-image-figure');
+            }
             setSelectedImageElement(null);
           }
           setSelectedImageId(null);
@@ -2116,17 +2541,51 @@ function WordPressBlockEditor({
             
             // Clear selection and close toolbar
             selectedImageElement.classList.remove('selected-image');
+            // Also clear figure selection if it exists
+            const figureElement = selectedImageElement.closest('figure');
+            if (figureElement) {
+              figureElement.classList.remove('selected-image-figure');
+            }
             setSelectedImageElement(null);
             setSelectedImageId(null);
             setShowImageToolbar(false);
           }
         }}
+        onReplace={() => {
+          console.log('🔄 Replace button clicked!', { selectedImageElement: !!selectedImageElement, selectedImageId });
+          if (selectedImageElement) {
+            console.log('🔄 Replace button clicked, opening image search');
+            console.log('🔄 Setting imageToReplace:', { element: selectedImageElement, blockId: selectedImageId });
+            setImageToReplace({ 
+              element: selectedImageElement, 
+              blockId: selectedImageId 
+            });
+            console.log('🔄 Setting showImageSearch to true');
+            setShowImageSearch(true);
+            setShowImageToolbar(false); // Close toolbar when opening search
+            console.log('🔄 Image search modal should now be visible');
+          } else {
+            console.log('⚠️ No selectedImageElement, cannot replace');
+          }
+        }}
       />
 
-      {/* Image Search Modal */}
+      {/* Image Search Modal - only render when needed */}
+      {showImageSearch && (
       <ImageSearchModal
         isOpen={showImageSearch}
-        onClose={closeImageSearch}
+          onClose={() => {
+            closeImageSearch();
+            // Clear replacement state if modal is closed during replacement
+            if (imageToReplace) {
+              console.log('🔄 Image search closed during replacement, clearing state');
+              setImageToReplace(null);
+              // Restore selection if we were replacing
+              if (selectedImageElement) {
+                setShowImageToolbar(true);
+              }
+            }
+          }}
         onSelect={handleImageSelect}
         selectedSources={selectedSources}
         onSourceToggle={handleSourceToggle}
@@ -2136,6 +2595,8 @@ function WordPressBlockEditor({
         hasMore={hasMoreImages}
         loadMore={() => handleImageSearch(lastSearchQuery, true)}
       />
+      )}
+
       
       {/* Crop Modal */}
       <CropModal
@@ -2153,7 +2614,8 @@ function WordPressBlockEditor({
         loading={false}
       />
 
-      {/* Featured Image Search Modal */}
+      {/* Featured Image Search Modal - only render when needed */}
+      {showFeaturedImageSearch && (
       <ImageSearchModal
         isOpen={showFeaturedImageSearch}
         onClose={closeFeaturedImageSearch}
@@ -2166,6 +2628,7 @@ function WordPressBlockEditor({
         hasMore={featuredImageHasMore}
         loadMore={() => handleFeaturedImageSearch(featuredImageLastQuery, true)}
       />
+      )}
     </div>
   );
 }

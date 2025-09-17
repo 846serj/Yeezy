@@ -6,9 +6,10 @@ interface SimpleImageToolbarProps {
   position: { x: number; y: number };
   onClose: () => void;
   onDelete?: () => void;
+  onReplace?: () => void;
 }
 
-const SimpleImageToolbar: React.FC<SimpleImageToolbarProps> = ({ isVisible, position, onClose, onDelete }) => {
+const SimpleImageToolbar: React.FC<SimpleImageToolbarProps> = ({ isVisible, position, onClose, onDelete, onReplace }) => {
   if (!isVisible) return null;
 
   return createPortal(
@@ -30,7 +31,11 @@ const SimpleImageToolbar: React.FC<SimpleImageToolbarProps> = ({ isVisible, posi
             <path d="M19 5.5H5V4h14v1.5ZM19 20H5v-1.5h14V20ZM5 9h14v6H5V9Z" />
           </svg>
         </button>
-        <button className="toolbar-btn" title="Replace">
+        <button 
+          className="toolbar-btn" 
+          title="Replace"
+          onClick={onReplace}
+        >
           Replace
         </button>
         <button className="toolbar-btn" title="Crop">

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { FC, useState } from "react";
+import { createPortal } from 'react-dom';
 
 const sourceLabels: Record<string, string> = {
   all:         "All",
@@ -53,35 +54,28 @@ const ImageSearchModal: FC<Props> = ({
 }) => {
   const [query, setQuery] = useState("");
 
-  console.log('🔍 ImageSearchModal render:', { isOpen, imagesCount: images.length });
 
   // Note: Auto-search is now handled by the parent component
 
-  if (!isOpen) {
-    console.log('🔍 ImageSearchModal not open, returning null');
-    return null;
-  }
-
-  console.log('🔍 ImageSearchModal is open, rendering modal');
-
-  return (
-    <div
-      className="components-popover block-editor-inserter__popover"
-      style={{
-        position: 'fixed',
-        top: '100px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 1000000,
-        width: '66.666vw',
-        minWidth: '600px',
-        maxWidth: '90vw',
-        boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
-        borderRadius: '8px',
-        backgroundColor: '#ffffff',
-        border: '1px solid #e0e0e0'
-      }}
-    >
+  return createPortal(
+    isOpen ? (
+      <div
+        className="components-popover block-editor-inserter__popover"
+        style={{
+          position: 'fixed',
+          top: '100px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000000,
+          width: '66.666vw',
+          minWidth: '600px',
+          maxWidth: '90vw',
+          boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
+          borderRadius: '8px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e0e0e0'
+        }}
+      >
       <div className="components-popover__content" style={{ 
         maxHeight: '600px', 
         overflow: 'auto',
@@ -292,7 +286,10 @@ const ImageSearchModal: FC<Props> = ({
                       e.currentTarget.style.borderColor = '#e0e0e0';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
-                    onClick={() => onSelect(img)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(img);
+                    }}
                   >
                     <div style={{ width: '100%', height: '120px', overflow: 'hidden', borderRadius: '4px' }}>
                       <img
@@ -349,6 +346,8 @@ const ImageSearchModal: FC<Props> = ({
         </div>
       </div>
     </div>
+    ) : null,
+    document.body
   );
 };
 
