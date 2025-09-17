@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { SiteSelector } from '@/components/SiteSelector';
 import { SiteList } from '@/components/SiteList';
 import { ArticleList } from '@/components/ArticleList';
+import { ArticleGenerator } from '@/components/ArticleGenerator';
 import { ClientOnlyGutenbergEditor } from '@/components/editor';
 import SmartGutenbergEditor from '@/components/editor/SmartGutenbergEditor';
 import { AuthForm } from '@/components/AuthForm';
@@ -15,7 +16,7 @@ import { Plus } from 'lucide-react';
 export default function Home() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { isConnected, connect, getPosts, site, disconnect, updatePost, createPost, uploadMedia, updateMedia } = useWordPress();
-  const [currentView, setCurrentView] = useState<'sites' | 'add-site' | 'list' | 'editor'>('sites');
+  const [currentView, setCurrentView] = useState<'sites' | 'add-site' | 'list' | 'editor' | 'generate'>('sites');
   const [selectedArticle, setSelectedArticle] = useState<WordPressPost | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [useSmartEditor, setUseSmartEditor] = useState(true);
@@ -39,6 +40,56 @@ export default function Home() {
 
   const handleCreateNew = () => {
     setSelectedArticle(null);
+    setCurrentView('editor');
+  };
+
+  const handleGenerateNew = () => {
+    setCurrentView('generate');
+  };
+
+  const handleArticleGenerated = (content: string, title: string, sources: string[]) => {
+    // Create a mock WordPressPost object for the generated content
+    const generatedArticle: WordPressPost & { isGenerated?: boolean } = {
+      id: Date.now(), // Temporary ID
+      date: new Date().toISOString(),
+      date_gmt: new Date().toISOString(),
+      guid: { rendered: '' },
+      modified: new Date().toISOString(),
+      modified_gmt: new Date().toISOString(),
+      slug: title.toLowerCase().replace(/\s+/g, '-'),
+      status: 'draft' as const,
+      type: 'post',
+      link: '',
+      title: { rendered: title },
+      content: { rendered: content, protected: false },
+      excerpt: { rendered: '', protected: false },
+      author: 1,
+      featured_media: 0,
+      comment_status: 'open' as const,
+      ping_status: 'open' as const,
+      sticky: false,
+      template: '',
+      format: 'standard' as const,
+      meta: {},
+      categories: [],
+      tags: [],
+      _embedded: {},
+      isGenerated: true, // Mark as generated article
+      _links: {
+        self: [{ href: '' }],
+        collection: [{ href: '' }],
+        about: [{ href: '' }],
+        author: [{ embeddable: true, href: '' }],
+        replies: [{ embeddable: true, href: '' }],
+        'version-history': [{ count: 0, href: '' }],
+        'predecessor-version': [{ id: 0, href: '' }],
+        'wp:attachment': [{ href: '' }],
+        'wp:term': [{ taxonomy: 'category', embeddable: true, href: '' }],
+        curies: [{ name: 'wp', href: 'https://api.w.org/{rel}', templated: true }]
+      }
+    };
+    
+    setSelectedArticle(generatedArticle);
     setCurrentView('editor');
   };
 
@@ -163,7 +214,17 @@ export default function Home() {
                   <ArticleList
                     onSelectArticle={handleSelectArticle}
                     onCreateNew={handleCreateNew}
+                    onGenerateNew={handleGenerateNew}
                     statusFilter={statusFilter}
+                  />
+                </div>
+              )}
+
+              {currentView === 'generate' && (
+                <div className="editor-card">
+                  <ArticleGenerator
+                    onBack={handleBack}
+                    onArticleGenerated={handleArticleGenerated}
                   />
                 </div>
               )}
@@ -206,7 +267,11 @@ export default function Home() {
                           console.log('📝 Title type:', typeof post.title);
                           console.log('📝 Title value:', post.title);
 
-                          if (selectedArticle) {
+                          // Check if this is a generated article
+                          const isGeneratedArticle = selectedArticle && 
+                            (selectedArticle as any).isGenerated === true;
+
+                          if (selectedArticle && !isGeneratedArticle) {
                             // Update existing post
                             const updatedPost = {
                               title: post.title,
@@ -220,7 +285,7 @@ export default function Home() {
                             await updatePost(selectedArticle.id, updatedPost);
                             console.log('✅ Post updated successfully');
                           } else {
-                            // Create new post
+                            // Create new post (either new article or generated article)
                             const newPost = {
                               title: post.title,
                               content: post.content,
@@ -230,8 +295,13 @@ export default function Home() {
                               categories: post.categories,
                               tags: post.tags
                             };
-                            await createPost(newPost);
+                            const createdPost = await createPost(newPost);
                             console.log('✅ New post created successfully');
+                            
+                            // If this was a generated article, update the selectedArticle with the real ID
+                            if (isGeneratedArticle && createdPost) {
+                              setSelectedArticle(createdPost);
+                            }
                           }
                         } catch (error) {
                           console.error('❌ Error saving post:', error);
@@ -256,7 +326,11 @@ export default function Home() {
                           console.log('📝 Title type:', typeof post.title);
                           console.log('📝 Title value:', post.title);
 
-                          if (selectedArticle) {
+                          // Check if this is a generated article
+                          const isGeneratedArticle = selectedArticle && 
+                            (selectedArticle as any).isGenerated === true;
+
+                          if (selectedArticle && !isGeneratedArticle) {
                             // Update existing post
                             const updatedPost = {
                               title: post.title,
@@ -270,7 +344,7 @@ export default function Home() {
                             await updatePost(selectedArticle.id, updatedPost);
                             console.log('✅ Post updated successfully');
                           } else {
-                            // Create new post
+                            // Create new post (either new article or generated article)
                             const newPost = {
                               title: post.title,
                               content: post.content,
@@ -280,8 +354,13 @@ export default function Home() {
                               categories: post.categories,
                               tags: post.tags
                             };
-                            await createPost(newPost);
+                            const createdPost = await createPost(newPost);
                             console.log('✅ New post created successfully');
+                            
+                            // If this was a generated article, update the selectedArticle with the real ID
+                            if (isGeneratedArticle && createdPost) {
+                              setSelectedArticle(createdPost);
+                            }
                           }
                         } catch (error) {
                           console.error('❌ Error saving post:', error);

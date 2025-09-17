@@ -20,10 +20,11 @@ import {
 interface ArticleListProps {
   onSelectArticle: (article: WordPressPost) => void;
   onCreateNew: () => void;
+  onGenerateNew: () => void;
   statusFilter: string;
 }
 
-export const ArticleList: React.FC<ArticleListProps> = ({ onSelectArticle, onCreateNew, statusFilter }) => {
+export const ArticleList: React.FC<ArticleListProps> = ({ onSelectArticle, onCreateNew, onGenerateNew, statusFilter }) => {
   const { fetchPosts, loading, error } = useWordPress();
   const [articles, setArticles] = useState<WordPressPost[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -154,9 +155,27 @@ export const ArticleList: React.FC<ArticleListProps> = ({ onSelectArticle, onCre
 
   return (
     <div>
-      {/* Head: empty - button moved to main header */}
-      <div className="editor-head" style={{ display: 'none' }}>
-        {/* Button moved to main header */}
+      {/* Header with action buttons */}
+      <div className="editor-head" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>Articles</h2>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={onGenerateNew}
+            className="btn btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <Plus className="h-4 w-4" />
+            Generate Article
+          </button>
+          <button
+            onClick={onCreateNew}
+            className="btn"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <Plus className="h-4 w-4" />
+            Create New
+          </button>
+        </div>
       </div>
 
       {/* Search and filters moved to header row */}

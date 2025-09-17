@@ -290,7 +290,44 @@
 }
 
 /* ========================================
-   9. BUTTONS (WordPress Components)
+   9. LINKS (WordPress Standard)
+   ======================================== */
+:where(.editor-styles-wrapper) a,
+:where(.editor-styles-wrapper) .wp-block-paragraph a,
+:where(.editor-styles-wrapper) .wp-block-heading a,
+:where(.editor-styles-wrapper) .block-editor-rich-text__editable a {
+  color: #0073aa;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+:where(.editor-styles-wrapper) a:hover,
+:where(.editor-styles-wrapper) .wp-block-paragraph a:hover,
+:where(.editor-styles-wrapper) .wp-block-heading a:hover,
+:where(.editor-styles-wrapper) .block-editor-rich-text__editable a:hover {
+  color: #005177;
+  text-decoration: underline;
+}
+
+:where(.editor-styles-wrapper) a:focus,
+:where(.editor-styles-wrapper) .wp-block-paragraph a:focus,
+:where(.editor-styles-wrapper) .wp-block-heading a:focus,
+:where(.editor-styles-wrapper) .block-editor-rich-text__editable a:focus {
+  color: #005177;
+  outline: 1px solid #005177;
+  outline-offset: 1px;
+}
+
+:where(.editor-styles-wrapper) a:visited,
+:where(.editor-styles-wrapper) .wp-block-paragraph a:visited,
+:where(.editor-styles-wrapper) .wp-block-heading a:visited,
+:where(.editor-styles-wrapper) .block-editor-rich-text__editable a:visited {
+  color: #522c81;
+}
+
+/* ========================================
+   10. BUTTONS (WordPress Components)
    ======================================== */
 :where(.editor-styles-wrapper) .wp-element-button,
 :where(.editor-styles-wrapper) .wp-block-button__link {

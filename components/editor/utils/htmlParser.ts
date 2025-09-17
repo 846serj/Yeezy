@@ -5,6 +5,38 @@ export const convertHtmlToBlocks = (html: string): GutenbergBlock[] => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
   
+  // Helper function to process HTML content and preserve links
+  const processHtmlContent = (element: Element): string => {
+    let content = '';
+    
+    // Process child nodes to preserve HTML structure
+    for (const node of element.childNodes) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        content += node.textContent || '';
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as Element;
+        if (el.tagName.toLowerCase() === 'a') {
+          // Preserve link structure
+          const href = el.getAttribute('href') || '';
+          const target = el.getAttribute('target') || '';
+          const text = el.textContent || '';
+          content += `<a href="${href}"${target ? ` target="${target}"` : ''}>${text}</a>`;
+        } else if (el.tagName.toLowerCase() === 'strong' || el.tagName.toLowerCase() === 'b') {
+          content += `<strong>${el.textContent || ''}</strong>`;
+        } else if (el.tagName.toLowerCase() === 'em' || el.tagName.toLowerCase() === 'i') {
+          content += `<em>${el.textContent || ''}</em>`;
+        } else if (el.tagName.toLowerCase() === 'code') {
+          content += `<code>${el.textContent || ''}</code>`;
+        } else {
+          // For other inline elements, preserve the content
+          content += el.innerHTML || el.textContent || '';
+        }
+      }
+    }
+    
+    return content;
+  };
+  
   // Process each element
   const processElement = (element: Element, index: number): GutenbergBlock | null => {
     const clientId = `block-${Date.now()}-${index}`;
@@ -16,7 +48,7 @@ export const convertHtmlToBlocks = (html: string): GutenbergBlock[] => {
           name: 'core/paragraph',
           isValid: true,
           attributes: {
-            content: element.textContent || '',
+            content: processHtmlContent(element),
             dropCap: false
           },
           innerBlocks: []
@@ -33,7 +65,7 @@ export const convertHtmlToBlocks = (html: string): GutenbergBlock[] => {
           name: 'core/heading',
           isValid: true,
           attributes: {
-            content: element.textContent || '',
+            content: processHtmlContent(element),
             level: parseInt(element.tagName.charAt(1))
           },
           innerBlocks: []
@@ -110,7 +142,7 @@ export const convertHtmlToBlocks = (html: string): GutenbergBlock[] => {
           name: 'core/paragraph',
           isValid: true,
           attributes: {
-            content: element.textContent || '',
+            content: processHtmlContent(element),
             dropCap: false
           },
           innerBlocks: []
@@ -135,7 +167,7 @@ export const convertHtmlToBlocks = (html: string): GutenbergBlock[] => {
       name: 'core/paragraph',
       isValid: true,
       attributes: {
-        content: doc.body.textContent || '',
+        content: processHtmlContent(doc.body),
         dropCap: false
       },
       innerBlocks: []

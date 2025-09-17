@@ -1884,18 +1884,20 @@ function WordPressBlockEditor({
                                 {/* Block content */}
                                 <div style={{ marginBottom: '4px' }} data-block-id={block.clientId}>
                                   {block.name === 'core/paragraph' && (
-                                    <textarea
+                                    <div
                                       key={`paragraph-${block.clientId}`}
-                                      value={block.attributes.content || ''}
-                                      onChange={(e) => handleTextareaChange(e, block.clientId, 'content')}
-                                      data-auto-resize
+                                      contentEditable
+                                      suppressContentEditableWarning={true}
+                                      onInput={(e) => {
+                                        const newContent = e.currentTarget.innerHTML;
+                                        handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
+                                      }}
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
                                       }}
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
-                                      placeholder="Start writing..."
                                       style={{
                                         minHeight: '1.5em',
                                         outline: 'none',
@@ -1912,22 +1914,20 @@ function WordPressBlockEditor({
                                         resize: 'none',
                                         overflow: 'hidden'
                                       }}
+                                      dangerouslySetInnerHTML={{ 
+                                        __html: block.attributes.content || '<p>Start writing...</p>' 
+                                      }}
                                     />
                                   )}
 
                                   {block.name === 'core/heading' && (
-                                    <input
+                                    <div
                                       key={`heading-${block.clientId}`}
-                                      type="text"
-                                      value={block.attributes.content || ''}
-                                      onChange={(e) => {
-                                        setBlocks(prevBlocks =>
-                                          prevBlocks.map(b =>
-                                            b.clientId === block.clientId 
-                                              ? { ...b, attributes: { ...b.attributes, content: e.target.value } }
-                                              : b
-                                          )
-                                        );
+                                      contentEditable
+                                      suppressContentEditableWarning={true}
+                                      onInput={(e) => {
+                                        const newContent = e.currentTarget.innerHTML;
+                                        handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
                                       }}
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
@@ -1935,7 +1935,6 @@ function WordPressBlockEditor({
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
-                                      placeholder="Heading"
                                       style={{
                                         minHeight: '1.2em',
                                         outline: 'none',
@@ -1945,11 +1944,16 @@ function WordPressBlockEditor({
                                         fontSize: 'var(--wp--preset--font-size--large)',
                                         fontWeight: '800',
                                         lineHeight: '1.2',
-                                        margin: '0',
-                                        padding: '8px',
-                                        borderRadius: '4px',
+                                        padding: '0px 0px',
+                                        borderRadius: '2px',
                                         direction: 'ltr',
-                                        unicodeBidi: 'normal'
+                                        unicodeBidi: 'normal',
+                                        margin: '0',
+                                        resize: 'none',
+                                        overflow: 'hidden'
+                                      }}
+                                      dangerouslySetInnerHTML={{ 
+                                        __html: block.attributes.content || '<span>Heading</span>' 
                                       }}
                                     />
                                   )}
