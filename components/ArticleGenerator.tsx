@@ -65,7 +65,11 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
         body: JSON.stringify(payload),
       });
 
+      console.log('📡 API Response status:', response.status);
+      console.log('📡 API Response headers:', response.headers);
+      
       const data = await response.json();
+      console.log('📡 API Response data:', data);
 
       if (!response.ok || !data.content) {
         throw new Error(data.error || 'Failed to generate article');

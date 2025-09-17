@@ -3,9 +3,8 @@ import { NextResponse } from 'next/server';
 import { openai } from '../../../lib/openai';
 import { DEFAULT_WORDS, WORD_RANGES } from '../../../constants/lengthOptions';
 
-export const runtime = 'nodejs';
+export const runtime = 'edge';
 export const revalidate = 0;
-export const maxDuration = 60; // 60 seconds timeout
 
 // Handle CORS preflight requests
 export async function OPTIONS() {
@@ -256,8 +255,6 @@ export async function POST(request: Request) {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
-  console.log('🚀 Article generation request started');
-  
   try {
     const {
       articleType,
@@ -375,7 +372,7 @@ ${toneInstruction}${povInstruction}Requirements:
   - For each <h2> in the outline, write 2–3 paragraphs under it.
   - Use standard HTML tags such as <h2>, <h3>, <p>, <a>, <ul>, and <li> as needed.
   - Avoid cheesy or overly rigid language (e.g., "gem", "embodiment", "endeavor", "Vigilant", "Daunting", etc.).
-  - Avoid referring to the article itself (e.g., "This article explores…" or "In this article…") anywhere in the introduction.
+  - Avoid referring to the article itself (e.g., “This article explores…” or “In this article…”) anywhere in the introduction.
   - Do NOT wrap your output in markdown code fences or extra <p> tags.
   ${DETAIL_INSTRUCTION}${customInstructionBlock}${linkInstruction}  - Do NOT label the intro under "Introduction" or with prefixes like "INTRO:", and do not end with a "Conclusion" heading or closing phrases like "In conclusion".
   - Do NOT invent sources or links.
@@ -432,7 +429,7 @@ ${transcriptInstruction}${toneInstruction}${povInstruction}Requirements:
   - For each <h2> in the outline, write 2–3 paragraphs under it.
   - Use standard HTML tags such as <h2>, <h3>, <p>, <a>, <ul>, and <li> as needed.
   - Avoid cheesy or overly rigid language (e.g., "gem", "embodiment", "endeavor", "Vigilant", "Daunting", etc.).
-  - Avoid referring to the article itself (e.g., "This article explores…" or "In this article…") anywhere in the introduction.
+  - Avoid referring to the article itself (e.g., “This article explores…” or “In this article…”) anywhere in the introduction.
   - Do NOT wrap your output in markdown code fences or extra <p> tags.
   ${DETAIL_INSTRUCTION}${customInstructionBlock}${linkInstruction}  - Do NOT label the intro under "Introduction" or with prefixes like "INTRO:", and do not end with a "Conclusion" heading or closing phrases like "In conclusion".
   - Do NOT invent sources or links.
@@ -506,7 +503,7 @@ ${rewriteInstruction}${toneInstruction}${povInstruction}Requirements:
   - Under each <h2>, write 2–3 paragraphs.
   - Use standard HTML tags such as <h2>, <h3>, <p>, <a>, <ul>, and <li> as needed.
   - Avoid cheesy or overly rigid language (e.g., "gem", "embodiment", "endeavor", "Vigilant", "Daunting", etc.).
-  - Avoid referring to the article itself (e.g., "This article explores…" or "In this article…") anywhere in the introduction.
+  - Avoid referring to the article itself (e.g., “This article explores…” or “In this article…”) anywhere in the introduction.
   - Do NOT wrap your output in markdown code fences or extra <p> tags.
   ${DETAIL_INSTRUCTION}${customInstructionBlock}${linkInstruction}  - Do NOT label the intro under "Introduction" or with prefixes like "INTRO:", and do not end with a "Conclusion" heading or closing phrases like "In conclusion".
   - Do NOT invent sources or links.
@@ -615,7 +612,7 @@ ${toneInstruction}${povInstruction}Requirements:
   - For each <h2> in the outline, write 2–3 paragraphs under it.
   - Use standard HTML tags such as <h2>, <h3>, <p>, <a>, <ul>, and <li> as needed.
   - Avoid cheesy or overly rigid language (e.g., "gem", "embodiment", "endeavor", "Vigilant", "Daunting", etc.).
-  - Avoid referring to the article itself (e.g., "This article explores…" or "In this article…") anywhere in the introduction.
+  - Avoid referring to the article itself (e.g., “This article explores…” or “In this article…”) anywhere in the introduction.
   - Do NOT wrap your output in markdown code fences or extra <p> tags.
   ${DETAIL_INSTRUCTION}${customInstructionBlock}${linkInstruction}
   - Do NOT label the intro under "Introduction" or with prefixes like "INTRO:", and do not end with a "Conclusion" heading or closing phrases like "In conclusion".
@@ -632,21 +629,15 @@ Output raw HTML only:
       baseMaxTokens,
       getWordBounds(lengthOption, customSections)[0]
     );
-        console.log('✅ Article generation completed successfully');
-        return NextResponse.json({
-          content,
-          sources,
-        }, { headers: corsHeaders });
-      } catch (err: any) {
-        console.error('❌ [api/generate] error:', err);
-        console.error('❌ Error details:', {
-          message: err.message,
-          stack: err.stack,
-          name: err.name
-        });
-        return NextResponse.json(
-          { error: err.message || 'Internal error' },
-          { status: 500, headers: corsHeaders }
-        );
-      }
-    }
+    return NextResponse.json({
+      content,
+      sources,
+    }, { headers: corsHeaders });
+  } catch (err: any) {
+    console.error('[api/generate] error:', err);
+    return NextResponse.json(
+      { error: err.message || 'Internal error' },
+      { status: 500, headers: corsHeaders }
+    );
+  }
+}
