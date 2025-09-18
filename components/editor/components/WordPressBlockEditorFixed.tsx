@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ClientOnlyGutenbergEditorProps } from '../types';
-import { useWordPressComponents } from '../hooks/useWordPressComponents';
+import { useWordPressComponentsFixed } from '../hooks/useWordPressComponentsFixed';
 import { convertHtmlToBlocks } from '../utils/htmlParser';
 import { GutenbergBlock } from '../types';
 
@@ -15,7 +15,7 @@ export default function WordPressBlockEditorFixed({
   const [blocks, setBlocks] = useState<GutenbergBlock[]>([]);
   const [featuredImage, setFeaturedImage] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const { components: WordPressComponents, isLoading: componentsLoading } = useWordPressComponents();
+  const { components: WordPressComponents, isLoading: componentsLoading } = useWordPressComponentsFixed();
 
   // Destructure WordPress components
   const {
