@@ -1984,12 +1984,20 @@ function WordPressBlockEditor({
                                 {/* Block content */}
                                 <div style={{ marginBottom: '4px' }} data-block-id={block.clientId}>
                                   {block.name === 'core/paragraph' && (
-                                    <input
+                                    <textarea
                                       key={`paragraph-${block.clientId}`}
-                                      type="text"
                                       value={block.attributes.content || ''}
+                                      ref={(textarea) => {
+                                        if (textarea) {
+                                          textarea.style.height = 'auto';
+                                          textarea.style.height = textarea.scrollHeight + 'px';
+                                        }
+                                      }}
                                       onChange={(e) => {
-                                        handleTextareaChange(e as any, block.clientId, 'content');
+                                        handleTextareaChange(e, block.clientId, 'content');
+                                        // Auto-resize the textarea
+                                        e.target.style.height = 'auto';
+                                        e.target.style.height = e.target.scrollHeight + 'px';
                                       }}
                                       onKeyDown={(e) => {
                                         if (e.key === 'Backspace' && e.currentTarget.value === '') {
@@ -2016,7 +2024,9 @@ function WordPressBlockEditor({
                                         margin: '0',
                                         resize: 'none',
                                         overflow: 'hidden',
-                                        textAlign: 'left'
+                                        textAlign: 'left',
+                                        whiteSpace: 'pre-wrap',
+                                        wordWrap: 'break-word'
                                       }}
                                     />
                                   )}
