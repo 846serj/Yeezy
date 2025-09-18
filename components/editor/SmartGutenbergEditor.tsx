@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ClientOnlyGutenbergEditorProps } from './types';
 import { EDITOR_CONFIG } from './config';
 import ClientOnlyGutenbergEditor from './ClientOnlyGutenbergEditor';
-import WordPressBlockEditor from './components/WordPressBlockEditor';
+import WordPressBlockEditorFixed from './components/WordPressBlockEditorFixed';
 
 export default function SmartGutenbergEditor(props: ClientOnlyGutenbergEditorProps) {
   const [useWordPressOfficial, setUseWordPressOfficial] = useState<boolean>(EDITOR_CONFIG.USE_WORDPRESS_OFFICIAL);
@@ -77,7 +77,7 @@ export default function SmartGutenbergEditor(props: ClientOnlyGutenbergEditorPro
   // Choose the appropriate editor
   if (useWordPressOfficial && wordPressComponentsLoaded) {
     console.log('🎯 Using WordPress Official Block Editor');
-    return <WordPressBlockEditor {...props} />;
+    return <WordPressBlockEditorFixed {...props} />;
   } else {
     console.log('🎯 Using Custom Block Editor');
     return <ClientOnlyGutenbergEditor {...props} />;
