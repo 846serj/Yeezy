@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ClientOnlyGutenbergEditor } from '@/components/editor';
 import SmartGutenbergEditor from '@/components/editor/SmartGutenbergEditor';
@@ -8,7 +8,7 @@ import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/hooks/useAuth';
 import { EditorContent } from '@/types';
 
-export default function NewEditor() {
+function EditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -144,5 +144,19 @@ export default function NewEditor() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function NewEditor() {
+  return (
+    <Suspense fallback={
+      <div className="App mq--dt mq--above-sm mq--above-md mq--below-lg mq--below-xl mq--above-xs">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+          <div>Loading editor...</div>
+        </div>
+      </div>
+    }>
+      <EditorContent />
+    </Suspense>
   );
 }
