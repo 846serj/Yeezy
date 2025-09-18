@@ -40,7 +40,7 @@ const userSites = new Map<string, Array<{
 }>>();
 
 // Check if we're in production with Postgres available
-const isPostgresAvailable = process.env.POSTGRES_URL && process.env.NODE_ENV === 'production';
+const isPostgresAvailable = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
 export async function createUser(email: string, password: string): Promise<{ id: number | string; email: string }> {
   if (isPostgresAvailable) {
