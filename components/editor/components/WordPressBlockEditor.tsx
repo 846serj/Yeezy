@@ -2025,7 +2025,8 @@ function WordPressBlockEditor({
                                         borderRadius: '2px',
                                         margin: '0',
                                         resize: 'none',
-                                        overflow: 'hidden'
+                                        overflow: 'hidden',
+                                        textAlign: 'left'
                                       }}
                                     >
                                       {block.attributes.content || 'Start writing...'}
@@ -2075,7 +2076,8 @@ function WordPressBlockEditor({
                                         borderRadius: '2px',
                                         margin: '0',
                                         resize: 'none',
-                                        overflow: 'hidden'
+                                        overflow: 'hidden',
+                                        textAlign: 'left'
                                       }}
                                     >
                                       {block.attributes.content || 'Heading'}

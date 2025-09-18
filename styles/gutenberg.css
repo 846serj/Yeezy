@@ -1627,3 +1627,24 @@ input[placeholder="Add caption..."]:focus,
   outline: none !important;
   min-height: 1.2em !important;
 }
+
+/* Fix contentEditable text direction issues */
+.block-editor-rich-text__editable[contenteditable="true"] {
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  text-align: left !important;
+}
+
+/* Ensure paragraph contentEditable elements work correctly */
+.wp-block-paragraph[contenteditable="true"] {
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  text-align: left !important;
+}
+
+/* Ensure heading contentEditable elements work correctly */
+.wp-block-heading[contenteditable="true"] {
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  text-align: left !important;
+}
