@@ -2001,7 +2001,7 @@ function WordPressBlockEditor({
                                       }}
                                       onKeyDown={(e) => {
                                         if (e.key === 'Backspace' && e.currentTarget.value === '') {
-                                          setBlocks(prevBlocks => prevBlocks.filter(block => block.clientId !== block.clientId));
+                                          setBlocks(prevBlocks => prevBlocks.filter(prevBlock => prevBlock.clientId !== block.clientId));
                                         }
                                       }}
                                       onFocus={(e) => {
@@ -2041,7 +2041,7 @@ function WordPressBlockEditor({
                                       }}
                                       onKeyDown={(e) => {
                                         if (e.key === 'Backspace' && e.currentTarget.value === '') {
-                                          setBlocks(prevBlocks => prevBlocks.filter(block => block.clientId !== block.clientId));
+                                          setBlocks(prevBlocks => prevBlocks.filter(prevBlock => prevBlock.clientId !== block.clientId));
                                         }
                                       }}
                                       onFocus={(e) => {
