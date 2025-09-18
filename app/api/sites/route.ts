@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const sites = getUserSites(userId);
+    const sites = await getUserSites(userId);
     return addCorsHeaders(NextResponse.json({ sites }));
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Site URL, username, and app password are required' }, { status: 400 });
     }
 
-    const result = addUserSite(userId, siteUrl, username, appPassword, siteName);
+    const result = await addUserSite(userId, siteUrl, username, appPassword, siteName);
     
     return addCorsHeaders(NextResponse.json({ 
       message: 'Site added successfully',
@@ -87,7 +87,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Site ID required' }, { status: 400 });
     }
 
-    const result = deleteUserSite(userId, siteId);
+    const result = await deleteUserSite(userId, siteId);
     if (!result.success) {
       return NextResponse.json({ error: 'Site not found' }, { status: 404 });
     }

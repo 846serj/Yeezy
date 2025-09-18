@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
     }
 
-    const user = createUser(email, password);
+    const user = await createUser(email, password);
     
     return addCorsHeaders(NextResponse.json({ 
       message: 'User created successfully',
