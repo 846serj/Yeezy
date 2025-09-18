@@ -1984,21 +1984,25 @@ function WordPressBlockEditor({
                                 {/* Block content */}
                                 <div style={{ marginBottom: '4px' }} data-block-id={block.clientId}>
                                   {block.name === 'core/paragraph' && (
-                                    <div
+                                    <input
                                       key={`paragraph-${block.clientId}`}
-                                      contentEditable
-                                      suppressContentEditableWarning={true}
-                                      onInput={(e) => {
-                                        const newContent = e.currentTarget.textContent || '';
-                                        handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
+                                      type="text"
+                                      value={block.attributes.content || ''}
+                                      onChange={(e) => {
+                                        handleTextareaChange({ target: { value: e.target.value } } as any, block.clientId, 'content');
                                       }}
-                                      onKeyDown={(e) => handleContentEditableKeyDown(e, block.clientId)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Backspace' && e.currentTarget.value === '') {
+                                          setBlocks(prevBlocks => prevBlocks.filter(block => block.clientId !== block.clientId));
+                                        }
+                                      }}
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
                                       }}
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
+                                      placeholder="Start writing..."
                                       style={{
                                         minHeight: '1.5em',
                                         outline: 'none',
@@ -2009,33 +2013,33 @@ function WordPressBlockEditor({
                                         lineHeight: '1.5',
                                         padding: '0px 0px',
                                         borderRadius: '2px',
-                                        direction: 'ltr',
-                                        unicodeBidi: 'normal',
                                         margin: '0',
                                         resize: 'none',
                                         overflow: 'hidden'
                                       }}
-                                    >
-                                      {block.attributes.content || 'Start writing...'}
-                                    </div>
+                                    />
                                   )}
 
                                   {block.name === 'core/heading' && (
-                                    <div
+                                    <input
                                       key={`heading-${block.clientId}`}
-                                      contentEditable
-                                      suppressContentEditableWarning={true}
-                                      onInput={(e) => {
-                                        const newContent = e.currentTarget.textContent || '';
-                                        handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
+                                      type="text"
+                                      value={block.attributes.content || ''}
+                                      onChange={(e) => {
+                                        handleTextareaChange({ target: { value: e.target.value } } as any, block.clientId, 'content');
                                       }}
-                                      onKeyDown={(e) => handleContentEditableKeyDown(e, block.clientId)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Backspace' && e.currentTarget.value === '') {
+                                          setBlocks(prevBlocks => prevBlocks.filter(block => block.clientId !== block.clientId));
+                                        }
+                                      }}
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
                                       }}
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
+                                      placeholder="Heading"
                                       style={{
                                         minHeight: '1.2em',
                                         outline: 'none',
@@ -2047,15 +2051,11 @@ function WordPressBlockEditor({
                                         lineHeight: '1.2',
                                         padding: '0px 0px',
                                         borderRadius: '2px',
-                                        direction: 'ltr',
-                                        unicodeBidi: 'normal',
                                         margin: '0',
                                         resize: 'none',
                                         overflow: 'hidden'
                                       }}
-                                    >
-                                      {block.attributes.content || 'Heading'}
-                                    </div>
+                                    />
                                   )}
 
                                   {block.name === 'core/image' && (
