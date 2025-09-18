@@ -378,7 +378,8 @@ ${outline}
 ${toneInstruction}${povInstruction}Requirements:
   ${lengthInstruction}${numberingInstruction}${wordCountInstruction}${customInstructionBlock}  - Use the outline's introduction bullet to write a 2–3 sentence introduction (no <h2> tags) without including the words "INTRO:" or "Introduction".
   - For each <h2> in the outline, write 2–3 paragraphs under it.
-  - Use standard HTML tags such as <h2>, <h3>, <p>, <a>, <ul>, and <li> as needed.
+  - Use standard HTML tags such as <h1>, <h2>, <p>, <a>, <ul>, and <li> as needed.
+  - Only use <h1> for the main title and <h2> for section headings. Do not use <h3>, <h4>, <h5>, or <h6>.
   - Avoid cheesy or overly rigid language (e.g., "gem", "embodiment", "endeavor", "Vigilant", "Daunting", etc.).
   - Avoid referring to the article itself (e.g., "This article explores…" or "In this article…") anywhere in the introduction.
   - Do NOT wrap your output in markdown code fences or extra <p> tags.
@@ -435,7 +436,8 @@ Do NOT include the title or any <h1> tag in the HTML output.
 ${transcriptInstruction}${toneInstruction}${povInstruction}Requirements:
   - Use the outline's introduction bullet to write a 2–3 sentence introduction (no <h2> tags) without including the words "INTRO:" or "Introduction".
   - For each <h2> in the outline, write 2–3 paragraphs under it.
-  - Use standard HTML tags such as <h2>, <h3>, <p>, <a>, <ul>, and <li> as needed.
+  - Use standard HTML tags such as <h1>, <h2>, <p>, <a>, <ul>, and <li> as needed.
+  - Only use <h1> for the main title and <h2> for section headings. Do not use <h3>, <h4>, <h5>, or <h6>.
   - Avoid cheesy or overly rigid language (e.g., "gem", "embodiment", "endeavor", "Vigilant", "Daunting", etc.).
   - Avoid referring to the article itself (e.g., "This article explores…" or "In this article…") anywhere in the introduction.
   - Do NOT wrap your output in markdown code fences or extra <p> tags.
@@ -509,7 +511,8 @@ ${rewriteInstruction}${toneInstruction}${povInstruction}Requirements:
   - Begin with a 2–3 sentence introduction (no <h2> tags).
   - Organize the article with <h2> headings similar to the original structure.
   - Under each <h2>, write 2–3 paragraphs.
-  - Use standard HTML tags such as <h2>, <h3>, <p>, <a>, <ul>, and <li> as needed.
+  - Use standard HTML tags such as <h1>, <h2>, <p>, <a>, <ul>, and <li> as needed.
+  - Only use <h1> for the main title and <h2> for section headings. Do not use <h3>, <h4>, <h5>, or <h6>.
   - Avoid cheesy or overly rigid language (e.g., "gem", "embodiment", "endeavor", "Vigilant", "Daunting", etc.).
   - Avoid referring to the article itself (e.g., "This article explores…" or "In this article…") anywhere in the introduction.
   - Do NOT wrap your output in markdown code fences or extra <p> tags.
@@ -536,15 +539,15 @@ Write the full article in valid HTML below:
     // ─── Blog post (default) ───────────────────────────────────────────────────
     let sectionInstruction: string;
     if (lengthOption === 'default') {
-      sectionInstruction = 'Include around 9 <h2> headings.';
+      sectionInstruction = 'Include around 9 <h2> headings. Only use <h1> for the main title and <h2> for section headings.';
     } else if (lengthOption === 'custom' && customSections) {
-      sectionInstruction = `Use exactly ${customSections} <h2> headings.`;
+      sectionInstruction = `Use exactly ${customSections} <h2> headings. Only use <h1> for the main title and <h2> for section headings.`;
     } else if (sectionRanges[lengthOption || 'medium']) {
       const [minS, maxS] = sectionRanges[lengthOption || 'medium'];
       sectionInstruction =
-        `Include ${minS}–${maxS} <h2> headings.`;
+        `Include ${minS}–${maxS} <h2> headings. Only use <h1> for the main title and <h2> for section headings.`;
     } else {
-      sectionInstruction = 'Include at least three <h2> headings.';
+      sectionInstruction = 'Include at least three <h2> headings. Only use <h1> for the main title and <h2> for section headings.';
     }
 
     const references =
@@ -565,6 +568,7 @@ Create a detailed outline for an article titled:
 • Under each <h2>, list 2–3 bullet-point subtopics.
 • Do NOT use "Introduction" or "Intro" as an <h2> heading.
 • Do NOT use "Conclusion" or "Bottom line" as an <h2> heading.
+• Only use <h1> for the main title and <h2> for section headings. Do not use <h3>, <h4>, <h5>, or <h6>.
 ${references}
 `.trim();
 
@@ -618,7 +622,8 @@ ${toneInstruction}${povInstruction}Requirements:
   ${lengthInstruction}
   - Use the outline's introduction bullet to write a 2–3 sentence introduction (no <h2> tags) without including the words "INTRO:" or "Introduction".
   - For each <h2> in the outline, write 2–3 paragraphs under it.
-  - Use standard HTML tags such as <h2>, <h3>, <p>, <a>, <ul>, and <li> as needed.
+  - Use standard HTML tags such as <h1>, <h2>, <p>, <a>, <ul>, and <li> as needed.
+  - Only use <h1> for the main title and <h2> for section headings. Do not use <h3>, <h4>, <h5>, or <h6>.
   - Avoid cheesy or overly rigid language (e.g., "gem", "embodiment", "endeavor", "Vigilant", "Daunting", etc.).
   - Avoid referring to the article itself (e.g., "This article explores…" or "In this article…") anywhere in the introduction.
   - Do NOT wrap your output in markdown code fences or extra <p> tags.
