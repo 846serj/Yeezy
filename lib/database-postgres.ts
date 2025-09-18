@@ -143,7 +143,7 @@ export async function deleteUserSite(userId: number, siteId: number): Promise<{ 
       WHERE id = ${siteId} AND user_id = ${userId}
     `;
     
-    return { success: result.rowCount > 0 };
+    return { success: (result.rowCount ?? 0) > 0 };
   } catch (error) {
     console.error('Error deleting user site:', error);
     return { success: false };

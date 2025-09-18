@@ -194,7 +194,7 @@ export async function deleteUserSite(userId: number | string, siteId: number | s
         AND user_id = ${typeof userId === 'string' ? parseInt(userId) : userId}
       `;
       
-      return { success: result.rowCount > 0 };
+      return { success: (result.rowCount ?? 0) > 0 };
     } catch (error) {
       console.error('Error deleting user site:', error);
       return { success: false };
