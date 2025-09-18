@@ -1573,7 +1573,28 @@ function WordPressBlockEditor({
     }
   }, []);
 
-
+  // Handle backspace deletion for contentEditable elements
+  const handleContentEditableKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>, blockId: string) => {
+    if (e.key === 'Backspace') {
+      const element = e.currentTarget;
+      const selection = window.getSelection();
+      
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const isAtStart = range.startOffset === 0 && range.startContainer === element.firstChild;
+        
+        // Check if content is empty or only contains whitespace/br tags
+        const textContent = element.textContent || '';
+        const isEmpty = textContent.trim() === '' || textContent === '';
+        
+        if (isAtStart && isEmpty) {
+          e.preventDefault();
+          console.log('🗑️ Deleting contentEditable block:', blockId);
+          setBlocks(prevBlocks => prevBlocks.filter(block => block.clientId !== blockId));
+        }
+      }
+    }
+  }, [setBlocks]);
 
   // Show loading while checking client side or loading WordPress components
   if (!isClient || componentsLoading || !WordPressComponents) {
@@ -1967,6 +1988,7 @@ function WordPressBlockEditor({
                                         const newContent = e.currentTarget.innerHTML;
                                         handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
                                       }}
+                                      onKeyDown={(e) => handleContentEditableKeyDown(e, block.clientId)}
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
                                       }}
@@ -2004,6 +2026,7 @@ function WordPressBlockEditor({
                                         const newContent = e.currentTarget.innerHTML;
                                         handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
                                       }}
+                                      onKeyDown={(e) => handleContentEditableKeyDown(e, block.clientId)}
                                       onFocus={(e) => {
                                         e.currentTarget.style.border = '1px solid #007cba';
                                       }}

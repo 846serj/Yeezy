@@ -8,6 +8,7 @@ interface BlockEditProps {
   blockName: string;
   clientId: string;
   onImageClick?: (x: number, y: number) => void;
+  onDeleteBlock?: (clientId: string) => void;
 }
 
 export const BlockEdit: React.FC<BlockEditProps> = ({ 
@@ -15,7 +16,8 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
   setAttributes, 
   blockName, 
   clientId,
-  onImageClick
+  onImageClick,
+  onDeleteBlock
 }) => {
   const { content, level, url, alt, caption, values, ordered, value, citation } = attributes;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -23,6 +25,22 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
   // Auto-resize function - Handles text wrapping properly
   const handleAutoResize = (textarea: HTMLTextAreaElement) => {
     autoResize(textarea, blockName);
+  };
+
+  // Handle backspace deletion when cursor is at the beginning
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Backspace') {
+      const textarea = e.currentTarget;
+      const cursorPosition = textarea.selectionStart;
+      
+      // Check if cursor is at the beginning and content is empty or only whitespace
+      if (cursorPosition === 0 && (!content || content.trim() === '')) {
+        e.preventDefault();
+        if (onDeleteBlock) {
+          onDeleteBlock(clientId);
+        }
+      }
+    }
   };
   
   // Set initial height on mount and when content changes
@@ -63,6 +81,7 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               setAttributes({ content: e.target.value });
               handleAutoResize(e.target);
             }}
+            onKeyDown={handleKeyDown}
             style={{ 
               width: '100%', 
               minHeight: '32px',
@@ -96,6 +115,7 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               setAttributes({ content: e.target.value });
               handleAutoResize(e.target);
             }}
+            onKeyDown={handleKeyDown}
             style={{ 
               width: '100%', 
               minHeight: '28px',
@@ -180,6 +200,7 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               setAttributes({ values: e.target.value });
               handleAutoResize(e.target);
             }}
+            onKeyDown={handleKeyDown}
             style={{ 
               width: '100%', 
               minHeight: '32px',
@@ -212,6 +233,7 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               setAttributes({ value: e.target.value });
               handleAutoResize(e.target);
             }}
+            onKeyDown={handleKeyDown}
             style={{ 
               width: '100%', 
               minHeight: '32px',
@@ -245,6 +267,7 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               setAttributes({ content: e.target.value });
               handleAutoResize(e.target);
             }}
+            onKeyDown={handleKeyDown}
             style={{ 
               width: '100%', 
               minHeight: '32px',

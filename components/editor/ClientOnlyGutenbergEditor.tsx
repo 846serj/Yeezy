@@ -461,6 +461,10 @@ export default function ClientOnlyGutenbergEditor({
                   setShowImageToolbar(true);
                   console.log('✅ Toolbar state updated, should be visible now');
                 }}
+                onDeleteBlock={(clientId) => {
+                  console.log('🗑️ Deleting block:', clientId);
+                  setBlocks(prevBlocks => prevBlocks.filter(b => b.clientId !== clientId));
+                }}
               />
               </div>
             </div>
