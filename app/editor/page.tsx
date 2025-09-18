@@ -8,7 +8,7 @@ import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/hooks/useAuth';
 import { EditorContent } from '@/types';
 
-function EditorContent() {
+function EditorPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -156,7 +156,7 @@ export default function NewEditor() {
         </div>
       </div>
     }>
-      <EditorContent />
+      <EditorPageContent />
     </Suspense>
   );
 }
