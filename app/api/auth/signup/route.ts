@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addCorsHeaders } from '../middleware';
-import { createUser } from '@/lib/database';
+import { createUser, ensureDatabaseInitialized } from '@/lib/database';
 
 // Define allowed methods
 export const dynamic = 'force-dynamic';
@@ -30,6 +30,9 @@ export async function POST(request: NextRequest) {
     });
   }
   try {
+    // Ensure database is initialized
+    await ensureDatabaseInitialized();
+    
     const { email, password } = await request.json();
 
     if (!email || !password) {

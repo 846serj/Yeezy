@@ -262,3 +262,21 @@ export async function initializeDatabase() {
     }
   }
 }
+
+// Auto-initialize database when module loads
+let isInitialized = false;
+export async function ensureDatabaseInitialized() {
+  if (!isInitialized && isPostgresAvailable) {
+    try {
+      await initializeDatabase();
+      isInitialized = true;
+      console.log('✅ Database auto-initialization completed');
+    } catch (error) {
+      console.error('❌ Database auto-initialization failed:', error);
+      // Don't throw error in production to allow fallback to in-memory storage
+      if (process.env.NODE_ENV === 'production') {
+        console.log('⚠️ Falling back to in-memory storage due to database initialization failure');
+      }
+    }
+  }
+}

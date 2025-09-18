@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addCorsHeaders } from '../middleware';
-import { getUserByEmail, verifyPassword } from '@/lib/database';
+import { getUserByEmail, verifyPassword, ensureDatabaseInitialized } from '@/lib/database';
 import * as jose from 'jose';
 
 // Define allowed methods
@@ -25,6 +25,9 @@ export async function OPTIONS() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Ensure database is initialized
+    await ensureDatabaseInitialized();
+    
     const { email, password } = await request.json();
 
     if (!email || !password) {
