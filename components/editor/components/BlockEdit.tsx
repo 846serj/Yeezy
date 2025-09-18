@@ -97,7 +97,9 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               backgroundColor: 'transparent',
               whiteSpace: 'pre-wrap',
               minWidth: '1px',
-              outline: 'none'
+              outline: 'none',
+              direction: 'ltr',
+              unicodeBidi: 'normal'
             }}
             placeholder="Enter paragraph text..."
           />
@@ -216,7 +218,9 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               backgroundColor: 'transparent',
               whiteSpace: 'pre-wrap',
               minWidth: '1px',
-              outline: 'none'
+              outline: 'none',
+              direction: 'ltr',
+              unicodeBidi: 'normal'
             }}
             placeholder="Enter list items (one per line)..."
           />
@@ -283,7 +287,9 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               backgroundColor: 'transparent',
               whiteSpace: 'pre-wrap',
               minWidth: '1px',
-              outline: 'none'
+              outline: 'none',
+              direction: 'ltr',
+              unicodeBidi: 'normal'
             }}
             placeholder="Enter text..."
           />
