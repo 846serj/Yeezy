@@ -72,7 +72,7 @@ export async function createUser(email: string, password: string): Promise<{ id:
       RETURNING id, email
     `;
     
-    const user = result.rows[0];
+    const user = result.rows[0] as { id: number; email: string };
     return { id: user.id, email: user.email };
   } catch (error: any) {
     if (error.code === '23505') { // Unique constraint violation
@@ -88,7 +88,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
       SELECT * FROM users WHERE email = ${email}
     `;
     
-    return result.rows[0] || null;
+    return result.rows[0] as User || null;
   } catch (error) {
     console.error('Error getting user by email:', error);
     return null;
@@ -108,7 +108,7 @@ export async function getUserSites(userId: number): Promise<UserSite[]> {
       ORDER BY created_at DESC
     `;
     
-    return result.rows;
+    return result.rows as UserSite[];
   } catch (error) {
     console.error('Error getting user sites:', error);
     return [];
@@ -129,7 +129,7 @@ export async function addUserSite(
       RETURNING id
     `;
     
-    return { id: result.rows[0].id };
+    return { id: result.rows[0].id as number };
   } catch (error) {
     console.error('Error adding user site:', error);
     throw error;
