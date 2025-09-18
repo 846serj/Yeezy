@@ -1984,16 +1984,15 @@ function WordPressBlockEditor({
                                 {/* Block content */}
                                 <div style={{ marginBottom: '4px' }} data-block-id={block.clientId}>
                                   {block.name === 'core/paragraph' && (
-                                    <p
+                                    <input
                                       key={`paragraph-${block.clientId}`}
-                                      contentEditable
-                                      suppressContentEditableWarning={true}
-                                      onInput={(e) => {
-                                        const newContent = e.currentTarget.textContent || '';
-                                        handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
+                                      type="text"
+                                      value={block.attributes.content || ''}
+                                      onChange={(e) => {
+                                        handleTextareaChange(e as any, block.clientId, 'content');
                                       }}
                                       onKeyDown={(e) => {
-                                        if (e.key === 'Backspace' && e.currentTarget.textContent === '') {
+                                        if (e.key === 'Backspace' && e.currentTarget.value === '') {
                                           setBlocks(prevBlocks => prevBlocks.filter(block => block.clientId !== block.clientId));
                                         }
                                       }}
@@ -2003,17 +2002,8 @@ function WordPressBlockEditor({
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
-                                      role="document"
-                                      aria-multiline="true"
-                                      aria-label="Block: Paragraph"
-                                      data-block={block.clientId}
-                                      data-type="core/paragraph"
-                                      data-title="Paragraph"
-                                      data-empty={!block.attributes.content}
-                                      className="block-editor-rich-text__editable block-editor-block-list__block wp-block wp-block-paragraph rich-text"
+                                      placeholder="Start writing..."
                                       style={{
-                                        whiteSpace: 'pre-wrap',
-                                        minWidth: '1px',
                                         minHeight: '1.5em',
                                         outline: 'none',
                                         border: '1px solid transparent',
@@ -2028,22 +2018,19 @@ function WordPressBlockEditor({
                                         overflow: 'hidden',
                                         textAlign: 'left'
                                       }}
-                                    >
-                                      {block.attributes.content || 'Start writing...'}
-                                    </p>
+                                    />
                                   )}
 
                                   {block.name === 'core/heading' && (
-                                    <h2
+                                    <input
                                       key={`heading-${block.clientId}`}
-                                      contentEditable
-                                      suppressContentEditableWarning={true}
-                                      onInput={(e) => {
-                                        const newContent = e.currentTarget.textContent || '';
-                                        handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
+                                      type="text"
+                                      value={block.attributes.content || ''}
+                                      onChange={(e) => {
+                                        handleTextareaChange(e as any, block.clientId, 'content');
                                       }}
                                       onKeyDown={(e) => {
-                                        if (e.key === 'Backspace' && e.currentTarget.textContent === '') {
+                                        if (e.key === 'Backspace' && e.currentTarget.value === '') {
                                           setBlocks(prevBlocks => prevBlocks.filter(block => block.clientId !== block.clientId));
                                         }
                                       }}
@@ -2053,17 +2040,8 @@ function WordPressBlockEditor({
                                       onBlur={(e) => {
                                         e.currentTarget.style.border = '1px solid transparent';
                                       }}
-                                      role="document"
-                                      aria-multiline="true"
-                                      aria-label="Block: Heading"
-                                      data-block={block.clientId}
-                                      data-type="core/heading"
-                                      data-title="Heading"
-                                      data-empty={!block.attributes.content}
-                                      className="block-editor-rich-text__editable block-editor-block-list__block wp-block wp-block-heading rich-text"
+                                      placeholder="Heading"
                                       style={{
-                                        whiteSpace: 'pre-wrap',
-                                        minWidth: '1px',
                                         minHeight: '1.2em',
                                         outline: 'none',
                                         border: '1px solid transparent',
@@ -2079,9 +2057,7 @@ function WordPressBlockEditor({
                                         overflow: 'hidden',
                                         textAlign: 'left'
                                       }}
-                                    >
-                                      {block.attributes.content || 'Heading'}
-                                    </h2>
+                                    />
                                   )}
 
                                   {block.name === 'core/image' && (
