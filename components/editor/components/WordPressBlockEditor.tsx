@@ -1543,8 +1543,10 @@ function WordPressBlockEditor({
 
   // Auto-resize textareas to match contentEditable behavior
   const autoResizeTextarea = useCallback((textarea: HTMLTextAreaElement) => {
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
+    if (textarea && textarea.style) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
   }, []);
 
   // Handle textarea change with auto-resize
@@ -1556,9 +1558,11 @@ function WordPressBlockEditor({
         return;
       }
       
-      // Auto-resize the textarea
-      target.style.height = 'auto';
-      target.style.height = target.scrollHeight + 'px';
+      // Auto-resize the textarea - add null checks
+      if (target.style) {
+        target.style.height = 'auto';
+        target.style.height = target.scrollHeight + 'px';
+      }
       
       // Update the block
       setBlocks(prevBlocks =>

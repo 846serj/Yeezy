@@ -1,5 +1,5 @@
 export const autoResize = (textarea: HTMLTextAreaElement, blockName: string) => {
-  if (!textarea) return;
+  if (!textarea || !textarea.style) return;
   
   const minHeight = blockName === 'core/paragraph' ? 32 : 28;
   
