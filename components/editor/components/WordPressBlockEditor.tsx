@@ -1989,7 +1989,7 @@ function WordPressBlockEditor({
                                       contentEditable
                                       suppressContentEditableWarning={true}
                                       onInput={(e) => {
-                                        const newContent = e.currentTarget.innerHTML;
+                                        const newContent = e.currentTarget.textContent || '';
                                         handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
                                       }}
                                       onKeyDown={(e) => handleContentEditableKeyDown(e, block.clientId)}
@@ -2015,10 +2015,9 @@ function WordPressBlockEditor({
                                         resize: 'none',
                                         overflow: 'hidden'
                                       }}
-                                      dangerouslySetInnerHTML={{ 
-                                        __html: block.attributes.content || '<p>Start writing...</p>' 
-                                      }}
-                                    />
+                                    >
+                                      {block.attributes.content || 'Start writing...'}
+                                    </div>
                                   )}
 
                                   {block.name === 'core/heading' && (
@@ -2027,7 +2026,7 @@ function WordPressBlockEditor({
                                       contentEditable
                                       suppressContentEditableWarning={true}
                                       onInput={(e) => {
-                                        const newContent = e.currentTarget.innerHTML;
+                                        const newContent = e.currentTarget.textContent || '';
                                         handleTextareaChange({ target: { value: newContent } } as any, block.clientId, 'content');
                                       }}
                                       onKeyDown={(e) => handleContentEditableKeyDown(e, block.clientId)}
@@ -2054,10 +2053,9 @@ function WordPressBlockEditor({
                                         resize: 'none',
                                         overflow: 'hidden'
                                       }}
-                                      dangerouslySetInnerHTML={{ 
-                                        __html: block.attributes.content || '<span>Heading</span>' 
-                                      }}
-                                    />
+                                    >
+                                      {block.attributes.content || 'Heading'}
+                                    </div>
                                   )}
 
                                   {block.name === 'core/image' && (
