@@ -56,17 +56,36 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
         ...(articleType === 'Rewrite blog post' && { blogLink }),
       };
 
-      // Call the local API
+      // Call the local API with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 65000); // 65 seconds timeout
+      
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       console.log('📡 API Response status:', response.status);
       console.log('📡 API Response headers:', response.headers);
+      
+      // Handle different error status codes
+      if (response.status === 504) {
+        throw new Error('Request timed out. The article generation is taking longer than expected. Please try again with a shorter article or different settings.');
+      }
+      
+      if (response.status === 500) {
+        throw new Error('Server error occurred during generation. Please check your API keys and try again.');
+      }
+      
+      if (response.status === 400) {
+        throw new Error('Invalid request. Please check your input and try again.');
+      }
       
       const data = await response.json();
       console.log('📡 API Response data:', data);
@@ -80,7 +99,14 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
       
     } catch (err: any) {
       console.error('Generation error:', err);
-      setError(err.message || 'Failed to generate article');
+      
+      if (err.name === 'AbortError') {
+        setError('Request timed out. The article generation is taking longer than expected. Please try again with a shorter article or different settings.');
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Failed to generate article. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

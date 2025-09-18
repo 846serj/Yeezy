@@ -258,6 +258,11 @@ export async function POST(request: Request) {
 
   console.log('🚀 Article generation request started');
   
+  // Set up timeout handling
+  const timeoutId = setTimeout(() => {
+    console.warn('⚠️ Request timeout - this should not happen with maxDuration');
+  }, 55000); // 55 seconds, just under the 60 second limit
+  
   try {
     const {
       articleType,
@@ -632,21 +637,25 @@ Output raw HTML only:
       baseMaxTokens,
       getWordBounds(lengthOption, customSections)[0]
     );
-        console.log('✅ Article generation completed successfully');
-        return NextResponse.json({
-          content,
-          sources,
-        }, { headers: corsHeaders });
-      } catch (err: any) {
-        console.error('❌ [api/generate] error:', err);
-        console.error('❌ Error details:', {
-          message: err.message,
-          stack: err.stack,
-          name: err.name
-        });
-        return NextResponse.json(
-          { error: err.message || 'Internal error' },
-          { status: 500, headers: corsHeaders }
-        );
-      }
-    }
+    
+    console.log('✅ Article generation completed successfully');
+    return NextResponse.json({
+      content,
+      sources,
+    }, { headers: corsHeaders });
+    
+  } catch (err: any) {
+    console.error('❌ [api/generate] error:', err);
+    console.error('❌ Error details:', {
+      message: err.message,
+      stack: err.stack,
+      name: err.name
+    });
+    return NextResponse.json(
+      { error: err.message || 'Internal error' },
+      { status: 500, headers: corsHeaders }
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
