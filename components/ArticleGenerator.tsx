@@ -14,6 +14,7 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
   const [customInstructions, setCustomInstructions] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<string>('');
 
   // Additional fields for different article types
   const [videoLink, setVideoLink] = useState('');
@@ -39,6 +40,7 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
 
     setLoading(true);
     setError(null);
+    setProgress('Starting article generation...');
 
     try {
       // Prepare the payload for the mvp-main API
@@ -58,7 +60,10 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
 
       // Call the local API with timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 65000); // 65 seconds timeout
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout
+      
+      // Add progress updates
+      setProgress('Sending request to AI...');
       
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -70,6 +75,7 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
       });
       
       clearTimeout(timeoutId);
+      setProgress('Processing AI response...');
 
       console.log('📡 API Response status:', response.status);
       console.log('📡 API Response headers:', response.headers);
@@ -109,6 +115,7 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
       }
     } finally {
       setLoading(false);
+      setProgress('');
     }
   };
 
@@ -288,6 +295,16 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
             </label>
           </div>
         </div>
+
+        {/* Progress Message */}
+        {loading && progress && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
+            <div className="flex items-center">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              {progress}
+            </div>
+          </div>
+        )}
 
         {/* Error Message */}
         {error && (

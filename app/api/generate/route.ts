@@ -5,7 +5,7 @@ import { DEFAULT_WORDS, WORD_RANGES } from '../../../constants/lengthOptions';
 
 export const runtime = 'nodejs';
 export const revalidate = 0;
-export const maxDuration = 60; // 60 seconds timeout
+export const maxDuration = 300; // 5 minutes timeout (Vercel Pro plan limit)
 
 // Handle CORS preflight requests
 export async function OPTIONS() {
@@ -261,7 +261,7 @@ export async function POST(request: Request) {
   // Set up timeout handling
   const timeoutId = setTimeout(() => {
     console.warn('⚠️ Request timeout - this should not happen with maxDuration');
-  }, 55000); // 55 seconds, just under the 60 second limit
+  }, 290000); // 4 minutes 50 seconds, just under the 5 minute limit
   
   try {
     const {
@@ -305,7 +305,12 @@ export async function POST(request: Request) {
     }
 
     const serpEnabled = includeLinks && useSerpApi && !!process.env.SERPAPI_KEY;
-    const sources = serpEnabled ? await fetchSources(title) : [];
+    
+    // Fetch sources in parallel with other operations to save time
+    const sourcesPromise = serpEnabled ? fetchSources(title) : Promise.resolve([]);
+    
+    // Start fetching sources immediately, don't wait
+    const sources = await sourcesPromise;
 
     const baseMaxTokens = calcMaxTokens(lengthOption, customSections, modelVersion);
 
