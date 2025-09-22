@@ -28,10 +28,16 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
   };
 
   // Handle backspace deletion when cursor is at the beginning
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement | HTMLTextAreaElement>) => {
     if (e.key === 'Backspace') {
-      const textarea = e.currentTarget;
-      const cursorPosition = textarea.selectionStart;
+      let cursorPosition = 0;
+      
+      if (e.currentTarget instanceof HTMLTextAreaElement) {
+        cursorPosition = e.currentTarget.selectionStart || 0;
+      } else {
+        const selection = window.getSelection();
+        cursorPosition = selection?.anchorOffset || 0;
+      }
       
       // Check if cursor is at the beginning and content is empty or only whitespace
       if (cursorPosition === 0 && (!content || content.trim() === '')) {
@@ -110,7 +116,7 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               lineBreak: 'after-white-space' as any,
               WebkitNbspMode: 'space' as any,
               WebkitUserModify: 'read-write' as any
-            }}
+            } as React.CSSProperties}
             onInput={(e) => {
               const content = e.currentTarget.textContent || '';
               setAttributes({ content });

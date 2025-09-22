@@ -339,7 +339,6 @@ export default function EditArticle() {
                       try {
                         // Use the handleSaveWithUploadCheck function directly from the editor ref
                         if (editorRef.current) {
-                          ');
                           await editorRef.current.handleSaveWithUploadCheck();
                         } else {
                           // Fallback: use our handleSave function directly

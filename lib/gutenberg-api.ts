@@ -191,10 +191,6 @@ export class GutenbergAPI {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
     
-    
-    .map(el => el.tagName));
-    ).map(img => img.src));
-    
     let clientId = 1;
     
     const parseElement = (element: Element): GutenbergBlock | null => {

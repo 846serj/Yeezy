@@ -69,119 +69,118 @@ export default function Settings() {
             padding: '0 var(--space-20) var(--space-20) var(--space-20)',
             height: 'calc(100vh - var(--space-80))',
             overflow: 'auto',
-            maxWidth: '500px',
-            margin: '0 auto'
-          }}>
-          {/* Sidebar */}
-          <div style={{
-            width: 'var(--space-200)',
-            minWidth: 'var(--space-200)',
-            marginRight: 'var(--space-4)',
-            flexShrink: 0,
-            padding: 'var(--space-4)'
-          }}>
-            <div className="tui-window tui-border-solid" style={{ height: '100%' }}>
-              <fieldset className="tui-fieldset">
-                <legend className="center">Menu</legend>
-                <ul style={{ listStyle: 'none', padding: '0', margin: '0' }}>
-                  <li style={{ marginBottom: 'var(--space-2)' }}>
-                    <a href="/" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
-                      <span className="red-255-text">H</span>ome
-                      <span className="tui-shortcut">F1</span>
-                    </a>
-                  </li>
-                  <li style={{ marginBottom: 'var(--space-2)' }}>
-                    <a href="/dashboard" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
-                      <span className="red-255-text">D</span>ashboard
-                      <span className="tui-shortcut">F2</span>
-                    </a>
-                  </li>
-                  <li style={{ marginBottom: 'var(--space-2)' }}>
-                    <a href="/editor" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
-                      <span className="red-255-text">E</span>ditor
-                      <span className="tui-shortcut">F3</span>
-                    </a>
-                  </li>
-                  <li style={{ marginBottom: 'var(--space-2)' }}>
-                    <a href="/generate" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
-                      <span className="red-255-text">G</span>enerate
-                      <span className="tui-shortcut">F4</span>
-                    </a>
-                  </li>
-                  <li style={{ marginBottom: 'var(--space-8)' }}>
-                    <div className="tui-black-divider"></div>
-                  </li>
-                  <li style={{ marginBottom: 'var(--space-2)' }}>
-                    <a href="/settings" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
-                      <span className="red-255-text">S</span>ettings
-                      <span className="tui-shortcut">F5</span>
-                    </a>
-                  </li>
-                </ul>
-              </fieldset>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div style={{
-            flex: 1,
             display: 'flex',
-            flexDirection: 'column',
-            minWidth: 0,
-            padding: 'var(--space-4)',
-            overflow: 'auto'
+            gap: 'var(--space-10)'
           }}>
-            <div style={{ 
-              display: 'flex', 
-              height: '100%', 
-              gap: 'var(--space-10)'
+            {/* Sidebar */}
+            <div style={{
+              width: 'var(--space-200)',
+              minWidth: 'var(--space-200)',
+              flexShrink: 0,
+              padding: 'var(--space-4)'
             }}>
-              {/* Settings Section */}
-              <div style={{ 
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column'
-              }}>
-                <div className="tui-window" style={{ height: '100%' }}>
-                  <fieldset className="tui-fieldset tui-border-solid" style={{
-                    width: '100%',
-                    height: '100%',
-                    margin: 0,
-                    padding: 0
-                  }}>
-                    <legend className="center">Settings</legend>
-                    <button 
-                      className="tui-button" 
-                      onClick={() => window.history.back()}
-                    >
-                      &lt;
-                    </button>
-                    <TuiSettingsTabs />
-                  </fieldset>
-                </div>
+              <div className="tui-window tui-border-solid" style={{ height: '100%' }}>
+                <fieldset className="tui-fieldset">
+                  <legend className="center">Menu</legend>
+                  <ul style={{ listStyle: 'none', padding: '0', margin: '0' }}>
+                    <li style={{ marginBottom: 'var(--space-2)' }}>
+                      <a href="/" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
+                        <span className="red-255-text">H</span>ome
+                        <span className="tui-shortcut">F1</span>
+                      </a>
+                    </li>
+                    <li style={{ marginBottom: 'var(--space-2)' }}>
+                      <a href="/dashboard" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
+                        <span className="red-255-text">D</span>ashboard
+                        <span className="tui-shortcut">F2</span>
+                      </a>
+                    </li>
+                    <li style={{ marginBottom: 'var(--space-2)' }}>
+                      <a href="/editor" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
+                        <span className="red-255-text">E</span>ditor
+                        <span className="tui-shortcut">F3</span>
+                      </a>
+                    </li>
+                    <li style={{ marginBottom: 'var(--space-2)' }}>
+                      <a href="/generate" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
+                        <span className="red-255-text">G</span>enerate
+                        <span className="tui-shortcut">F4</span>
+                      </a>
+                    </li>
+                    <li style={{ marginBottom: 'var(--space-8)' }}>
+                      <div className="tui-black-divider"></div>
+                    </li>
+                    <li style={{ marginBottom: 'var(--space-2)' }}>
+                      <a href="/settings" style={{ display: 'block', padding: 'var(--space-4) var(--space-8)', textDecoration: 'none' }}>
+                        <span className="red-255-text">S</span>ettings
+                        <span className="tui-shortcut">F5</span>
+                      </a>
+                    </li>
+                  </ul>
+                </fieldset>
               </div>
+            </div>
 
-              {/* Help Section */}
+            {/* Main Content */}
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              minWidth: 0,
+              padding: 'var(--space-4)',
+              overflow: 'auto'
+            }}>
               <div style={{ 
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column'
+                display: 'flex', 
+                height: '100%', 
+                gap: 'var(--space-10)'
               }}>
-                <div className="tui-window" style={{ height: '100%' }}>
-                  <fieldset className="tui-fieldset tui-border-solid" style={{
-                    width: '100%',
-                    height: '100%',
-                    margin: 0,
-                    padding: 0
-                  }}>
-                    <legend className="center">Help & Documentation</legend>
-                    <TuiHelpTabs />
-                  </fieldset>
+                {/* Settings Section */}
+                <div style={{ 
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <div className="tui-window" style={{ height: '100%' }}>
+                    <fieldset className="tui-fieldset tui-border-solid" style={{
+                      width: '100%',
+                      height: '100%',
+                      margin: 0,
+                      padding: 0
+                    }}>
+                      <legend className="center">Settings</legend>
+                      <button 
+                        className="tui-button" 
+                        onClick={() => window.history.back()}
+                      >
+                        &lt;
+                      </button>
+                      <TuiSettingsTabs />
+                    </fieldset>
+                  </div>
+                </div>
+
+                {/* Help Section */}
+                <div style={{ 
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <div className="tui-window" style={{ height: '100%' }}>
+                    <fieldset className="tui-fieldset tui-border-solid" style={{
+                      width: '100%',
+                      height: '100%',
+                      margin: 0,
+                      padding: 0
+                    }}>
+                      <legend className="center">Help & Documentation</legend>
+                      <TuiHelpTabs />
+                    </fieldset>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
         {/* Status Bar */}
         <div className="tui-statusbar" style={{
@@ -204,6 +203,7 @@ export default function Settings() {
           </div>
           <div>Settings - WordPress Article Editor v1.0 - Ready</div>
         </div>
+        </fieldset>
       </div>
 
       {/* Action Buttons */}
@@ -257,9 +257,20 @@ export default function Settings() {
           </ul>
           <br />
           <p><strong>Built with:</strong> Next.js, React, TuiCss, TypeScript</p>
-          </div>
-        </fieldset>
-      </div>
+        </div>
+      </TuiModal>
+
+      {/* Reset Confirmation Modal */}
+      <TuiConfirmModal
+        isOpen={showConfirmReset}
+        onClose={() => setShowConfirmReset(false)}
+        onConfirm={handleResetSettings}
+        title="Reset Settings"
+        message="Are you sure you want to reset all settings to their default values? This action cannot be undone."
+        confirmText="Reset"
+        cancelText="Cancel"
+        confirmButtonClass="tui-button tui-button-red"
+      />
     </div>
   );
 }

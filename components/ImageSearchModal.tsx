@@ -103,285 +103,286 @@ const ImageSearchModal: FC<Props> = ({
     };
   }, [isOpen, onClose]);
 
+  if (!isOpen) return null;
+
   return createPortal(
-    isOpen ? (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 1000000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}
+      onClick={onClose}
+    >
       <div
+        className="components-popover components-dropdown__content block-editor-inserter__popover is-quick is-positioned"
         style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 1000000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
+          position: 'relative',
+          opacity: 1,
+          margin: 0,
+          width: '900px',
+          maxWidth: '90vw',
+          boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
+          borderRadius: '8px',
+          border: '1px solid #ddd',
+          backgroundColor: 'white',
+          padding: '16px',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
         }}
-        onClick={onClose}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="components-popover components-dropdown__content block-editor-inserter__popover is-quick is-positioned"
-          style={{
-            position: 'relative',
-            opacity: 1,
-            margin: 0,
-            width: '900px',
-            maxWidth: '90vw',
-            boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            backgroundColor: 'white',
-            padding: '16px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-      <div className="block-editor-inserter__quick-inserter">
-        {/* Search Input */}
-        <div className="block-editor-inserter__search" style={{ marginBottom: '8px' }}>
-          <input
-            type="text"
-            placeholder="Search for an image..."
-            value={query}
-            onChange={handleSearchChange}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-            onFocus={(e) => e.currentTarget.style.borderColor = '#007cba'}
-            onBlur={(e) => e.currentTarget.style.borderColor = '#ddd'}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                onSearch(query);
-              }
-            }}
-          />
-        </div>
-
-        {/* API Selection Buttons */}
-        <div className="block-editor-inserter__block-list" style={{ marginBottom: '8px' }}>
-          <div className="block-editor-block-types-list">
-            <div 
-              className="block-editor-block-types-list__item" 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                padding: '8px 12px', 
-                cursor: 'pointer', 
-                border: '1px solid transparent', 
-                borderRadius: '4px', 
-                marginBottom: '2px', 
-                transition: '0.2s',
-                backgroundColor: selectedSources.includes('unsplash') ? '#e3f2fd' : 'transparent'
+        <div className="block-editor-inserter__quick-inserter">
+          {/* Search Input */}
+          <div className="block-editor-inserter__search" style={{ marginBottom: '8px' }}>
+            <input
+              type="text"
+              placeholder="Search for an image..."
+              value={query}
+              onChange={handleSearchChange}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px',
+                outline: 'none'
               }}
-              onClick={() => onSourceToggle('unsplash')}
-              onMouseEnter={(e) => {
-                if (!selectedSources.includes('unsplash')) {
-                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+              onFocus={(e) => e.currentTarget.style.borderColor = '#007cba'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#ddd'}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  onSearch(query);
                 }
               }}
-              onMouseLeave={(e) => {
-                if (!selectedSources.includes('unsplash')) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
-            >
-              <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Unsplash</div>
-            </div>
-            
-            <div 
-              className="block-editor-block-types-list__item" 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                padding: '8px 12px', 
-                cursor: 'pointer', 
-                border: '1px solid transparent', 
-                borderRadius: '4px', 
-                marginBottom: '2px', 
-                transition: '0.2s',
-                backgroundColor: selectedSources.includes('pexels') ? '#e3f2fd' : 'transparent'
-              }}
-              onClick={() => onSourceToggle('pexels')}
-              onMouseEnter={(e) => {
-                if (!selectedSources.includes('pexels')) {
-                  e.currentTarget.style.backgroundColor = '#f5f5f5';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!selectedSources.includes('pexels')) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
-            >
-              <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pexels</div>
-            </div>
-            
-            <div 
-              className="block-editor-block-types-list__item" 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                padding: '8px 12px', 
-                cursor: 'pointer', 
-                border: '1px solid transparent', 
-                borderRadius: '4px', 
-                marginBottom: '2px', 
-                transition: '0.2s',
-                backgroundColor: selectedSources.includes('wikiCommons') ? '#e3f2fd' : 'transparent'
-              }}
-              onClick={() => onSourceToggle('wikiCommons')}
-              onMouseEnter={(e) => {
-                if (!selectedSources.includes('wikiCommons')) {
-                  e.currentTarget.style.backgroundColor = '#f5f5f5';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!selectedSources.includes('wikiCommons')) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
-            >
-              <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
-            </div>
+            />
           </div>
-        </div>
 
-        <div className="block-editor-inserter__block-list">
-          {query && images.length > 0 ? (
-            <div>
-              <div style={{ 
-                fontSize: '14px', 
-                fontWeight: '600', 
-                color: '#1e1e1e', 
-                marginBottom: '12px',
-                padding: '8px 0',
-                borderBottom: '1px solid #e5e7eb'
-              }}>
-                {`Image Results for "${query}"`}
-              </div>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
-                gap: '12px',
-                maxHeight: '400px',
-                overflowY: 'auto'
-              }}>
-                {images.map((image, index) => (
-                  <div
-                    key={`${image.url}-${index}`}
-                    onClick={() => onSelect(image)}
-                    style={{
-                      cursor: 'pointer',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      overflow: 'hidden',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#007cba';
-                      e.currentTarget.style.transform = 'scale(1.02)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#ddd';
-                      e.currentTarget.style.transform = 'scale(1)';
-                    }}
-                  >
-                    <img
-                      src={image.thumbnail || image.url}
-                      alt={image.caption || 'Image'}
-                      style={{
-                        width: '100%',
-                        height: '160px',
-                        objectFit: 'cover',
-                        display: 'block'
-                      }}
-                    />
-                    <div style={{
-                      padding: '4px 6px',
-                      fontSize: '10px',
-                      color: '#666',
-                      lineHeight: '1.2',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {image.attribution || image.caption || 'Image'}
-                    </div>
-                  </div>
-                ))}
+          {/* API Selection Buttons */}
+          <div className="block-editor-inserter__block-list" style={{ marginBottom: '8px' }}>
+            <div className="block-editor-block-types-list">
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('unsplash') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('unsplash')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('unsplash')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('unsplash')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Unsplash</div>
               </div>
               
-              {/* Load More Button */}
-              {hasMore && (
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('pexels') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('pexels')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('pexels')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('pexels')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pexels</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('wikiCommons') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('wikiCommons')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('wikiCommons')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('wikiCommons')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="block-editor-inserter__block-list">
+            {query && images.length > 0 ? (
+              <div>
                 <div style={{ 
-                  textAlign: 'center', 
-                  marginTop: '12px',
+                  fontSize: '14px', 
+                  fontWeight: '600', 
+                  color: '#1e1e1e', 
+                  marginBottom: '12px',
                   padding: '8px 0',
-                  borderTop: '1px solid #e5e7eb'
+                  borderBottom: '1px solid #e5e7eb'
                 }}>
-                  <button
-                    onClick={loadMore}
-                    disabled={loading}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: loading ? '#f5f5f5' : '#007cba',
-                      color: loading ? '#999' : 'white',
-                      border: 'none',
-                      borderWidth: '0',
-                      borderStyle: 'none',
-                      borderRadius: '4px',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      transition: 'all 0.2s ease',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!loading) {
-                        e.currentTarget.style.backgroundColor = '#005a87';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!loading) {
-                        e.currentTarget.style.backgroundColor = '#007cba';
-                      }
-                    }}
-                  >
-                    {loading ? 'Loading...' : 'Load More Images'}
-                  </button>
+                  {`Image Results for "${query}"`}
                 </div>
-              )}
-            </div>
-          ) : loading ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '20px',
-              color: '#666'
-            }}>
-              Searching for images...
-            </div>
-          ) : query && images.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '20px',
-              color: '#666'
-            }}>
-              {`No images found for "${query}"`}
-            </div>
-          ) : null}
-        </div>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+                  gap: '12px',
+                  maxHeight: '400px',
+                  overflowY: 'auto'
+                }}>
+                  {images.map((image, index) => (
+                    <div
+                      key={`${image.url}-${index}`}
+                      onClick={() => onSelect(image)}
+                      style={{
+                        cursor: 'pointer',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        overflow: 'hidden',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#007cba';
+                        e.currentTarget.style.transform = 'scale(1.02)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#ddd';
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }}
+                    >
+                      <img
+                        src={image.thumbnail || image.url}
+                        alt={image.caption || 'Image'}
+                        style={{
+                          width: '100%',
+                          height: '160px',
+                          objectFit: 'cover',
+                          display: 'block'
+                        }}
+                      />
+                      <div style={{
+                        padding: '4px 6px',
+                        fontSize: '10px',
+                        color: '#666',
+                        lineHeight: '1.2',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {image.attribution || image.caption || 'Image'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Load More Button */}
+                {hasMore && (
+                  <div style={{ 
+                    textAlign: 'center', 
+                    marginTop: '12px',
+                    padding: '8px 0',
+                    borderTop: '1px solid #e5e7eb'
+                  }}>
+                    <button
+                      onClick={loadMore}
+                      disabled={loading}
+                      style={{
+                        padding: '8px 16px',
+                        backgroundColor: loading ? '#f5f5f5' : '#007cba',
+                        color: loading ? '#999' : 'white',
+                        border: 'none',
+                        borderWidth: '0',
+                        borderStyle: 'none',
+                        borderRadius: '4px',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        transition: 'all 0.2s ease',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!loading) {
+                          e.currentTarget.style.backgroundColor = '#005a87';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!loading) {
+                          e.currentTarget.style.backgroundColor = '#007cba';
+                        }
+                      }}
+                    >
+                      {loading ? 'Loading...' : 'Load More Images'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : loading ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '20px',
+                color: '#666'
+              }}>
+                Searching for images...
+              </div>
+            ) : query && images.length === 0 ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '20px',
+                color: '#666'
+              }}>
+                {`No images found for "${query}"`}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
-    ) : null,
+    </div>,
     document.body
   );
 };
