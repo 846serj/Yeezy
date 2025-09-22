@@ -132,7 +132,9 @@ function PostsContent() {
           {/* Posts List */}
           <div style={{ 
             height: 'calc(100vh - var(--space-120))',
-            overflow: 'auto'
+            overflow: 'auto',
+            maxWidth: '500px',
+            margin: '0 auto'
           }}>
             <ArticleList
               onSelectArticle={handlePostClick}
