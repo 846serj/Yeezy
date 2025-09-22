@@ -40,9 +40,16 @@ export class WordPressAPIV2Fallback {
   // Test connection to WordPress site
   async testConnection(): Promise<boolean> {
     try {
+      
       const response = await this.client.get('/users/me');
+      
       return response.status === 200;
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ Connection test failed:', error.message);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
       return false;
     }
   }
@@ -127,7 +134,7 @@ export class WordPressAPIV2Fallback {
     }
     if (postData.featured_media !== undefined) {
       updateData.featured_media = postData.featured_media;
-      console.log('🖼️ Setting featured_media to:', postData.featured_media);
+      
     }
     if (postData.categories !== undefined) {
       updateData.categories = postData.categories;
@@ -136,9 +143,9 @@ export class WordPressAPIV2Fallback {
       updateData.tags = postData.tags;
     }
 
-    console.log('📤 Sending update data to WordPress:', updateData);
+    
     const response = await this.client.post(`/posts/${id}`, updateData);
-    console.log('✅ WordPress API response:', response.data);
+    
     return response.data;
   }
 
@@ -202,9 +209,9 @@ export class WordPressAPIV2Fallback {
     caption?: string;
     alt_text?: string;
   }): Promise<WordPressMedia> {
-    console.log('📝 Updating media item', id, 'with data:', data);
+    
     const response = await this.client.post(`/media/${id}`, data);
-    console.log('✅ Media item updated successfully:', response.data);
+    
     return response.data;
   }
 

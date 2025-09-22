@@ -73,7 +73,7 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
   switch (blockName) {
     case 'core/paragraph':
       return (
-        <div style={{ margin: '1em 0', padding: '0', border: 'none', backgroundColor: 'transparent' }}>
+        <div className="block-container">
           <textarea
             ref={textareaRef}
             value={content}
@@ -82,25 +82,7 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               handleAutoResize(e.target);
             }}
             onKeyDown={handleKeyDown}
-            style={{ 
-              width: '100%', 
-              minHeight: '32px',
-              height: 'auto',
-              border: 'none', 
-              borderRadius: '0', 
-              padding: '0',
-              fontFamily: 'inherit',
-              fontSize: '19px',
-              lineHeight: '1.5',
-              resize: 'none',
-              overflow: 'hidden',
-              backgroundColor: 'transparent',
-              whiteSpace: 'pre-wrap',
-              minWidth: '1px',
-              outline: 'none',
-              direction: 'ltr',
-              unicodeBidi: 'normal'
-            }}
+            className="paragraph-input"
             placeholder="Enter paragraph text..."
           />
         </div>
@@ -109,35 +91,35 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
     case 'core/heading':
       const HeadingTag = `h${level}`;
       return (
-        <div style={{ margin: '1em 0', padding: '0', border: 'none', backgroundColor: 'transparent' }}>
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(e) => {
-              setAttributes({ content: e.target.value });
-              handleAutoResize(e.target);
-            }}
-            onKeyDown={handleKeyDown}
-            style={{ 
-              width: '100%', 
-              minHeight: '28px',
-              height: 'auto',
-              border: 'none', 
-              borderRadius: '0', 
-              padding: '2px 0',
-              fontFamily: 'inherit',
-              fontSize: level === 1 ? '2.5rem' : level === 2 ? '2rem' : level === 3 ? '1.75rem' : level === 4 ? '1.5rem' : level === 5 ? '1.25rem' : '1rem',
-              fontWeight: 'bold',
-              lineHeight: '1.2',
-              resize: 'none',
-              overflow: 'hidden',
-              backgroundColor: 'transparent',
+        <div className="block-container">
+          <div
+            role="document"
+            aria-multiline="true"
+            className={`block-editor-rich-text__editable block-editor-block-list__block wp-block is-selected wp-block-heading rich-text heading-input heading-input--h${level}`}
+            id={`block-${clientId}`}
+            aria-label="Block: Heading"
+            data-block={clientId}
+            data-type="core/heading"
+            data-title="Heading"
+            contentEditable={true}
+            data-wp-block-attribute-key="content"
+            style={{
               whiteSpace: 'pre-wrap',
               minWidth: '1px',
-              outline: 'none'
+              overflowWrap: 'break-word',
+              lineBreak: 'after-white-space' as any,
+              WebkitNbspMode: 'space' as any,
+              WebkitUserModify: 'read-write' as any
             }}
-            placeholder={`Enter heading ${level} text...`}
-          />
+            onInput={(e) => {
+              const content = e.currentTarget.textContent || '';
+              setAttributes({ content });
+            }}
+            onKeyDown={handleKeyDown}
+            suppressContentEditableWarning={true}
+          >
+            {content}
+          </div>
         </div>
       );
       
@@ -150,12 +132,12 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
                 src={url} 
                 alt={alt || ''} 
                 onClick={(e) => {
-                  console.log('🖼️ Image clicked!', { onImageClick: !!onImageClick });
+                  
                   if (onImageClick) {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const clickX = rect.left + (rect.width / 2);
                     const clickY = rect.top;
-                    console.log('📍 Image click coordinates:', { clickX, clickY });
+                    
                     onImageClick(clickX, clickY);
                   }
                 }}
@@ -169,9 +151,9 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               />
               {caption && (
                 <figcaption style={{ 
-                  fontSize: '14px', 
+                  fontSize: 'var(--font-size-sm)', 
                   color: '#666', 
-                  marginTop: '8px',
+                  marginTop: 'var(--space-8)',
                   fontStyle: 'italic'
                 }}>
                   {caption}
@@ -180,11 +162,11 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
             </figure>
           ) : (
             <div style={{ 
-              border: '2px dashed #ccc', 
-              padding: '20px', 
+              border: 'var(--space-2) dashed #ccc', 
+              padding: 'var(--space-20)', 
               textAlign: 'center',
               backgroundColor: '#f9f9f9',
-              borderRadius: '4px'
+              borderRadius: 'var(--space-4)'
             }}>
               <p style={{ margin: '0', color: '#666' }}>No image selected</p>
             </div>
@@ -205,19 +187,19 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
             onKeyDown={handleKeyDown}
             style={{ 
               width: '100%', 
-              minHeight: '32px',
+              minHeight: 'var(--space-32)',
               height: 'auto',
               border: 'none', 
               borderRadius: '0', 
               padding: '0',
               fontFamily: 'inherit',
-              fontSize: '19px',
+              fontSize: 'var(--font-size-base)',
               lineHeight: '1.5',
               resize: 'none',
               overflow: 'hidden',
               backgroundColor: 'transparent',
               whiteSpace: 'pre-wrap',
-              minWidth: '1px',
+              minWidth: 'var(--space-1)',
               outline: 'none',
               direction: 'ltr',
               unicodeBidi: 'normal'
@@ -240,19 +222,19 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
             onKeyDown={handleKeyDown}
             style={{ 
               width: '100%', 
-              minHeight: '32px',
+              minHeight: 'var(--space-32)',
               height: 'auto',
               border: 'none', 
               borderRadius: '0', 
               padding: '0',
               fontFamily: 'inherit',
-              fontSize: '19px',
+              fontSize: 'var(--font-size-base)',
               lineHeight: '1.5',
               resize: 'none',
               overflow: 'hidden',
               backgroundColor: 'transparent',
               whiteSpace: 'pre-wrap',
-              minWidth: '1px',
+              minWidth: 'var(--space-1)',
               outline: 'none',
               fontStyle: 'italic'
             }}
@@ -274,19 +256,19 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
             onKeyDown={handleKeyDown}
             style={{ 
               width: '100%', 
-              minHeight: '32px',
+              minHeight: 'var(--space-32)',
               height: 'auto',
               border: 'none', 
               borderRadius: '0', 
               padding: '0',
               fontFamily: 'inherit',
-              fontSize: '19px',
+              fontSize: 'var(--font-size-base)',
               lineHeight: '1.5',
               resize: 'none',
               overflow: 'hidden',
               backgroundColor: 'transparent',
               whiteSpace: 'pre-wrap',
-              minWidth: '1px',
+              minWidth: 'var(--space-1)',
               outline: 'none',
               direction: 'ltr',
               unicodeBidi: 'normal'

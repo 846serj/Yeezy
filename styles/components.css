@@ -1,0 +1,500 @@
+/* ========================================
+   COMPONENT-SPECIFIC STYLES
+   Industry-standard component architecture
+   ======================================== */
+
+/* Import the unified font system */
+@import './font-system.css';
+
+/* ========================================
+   HEADING INPUT COMPONENT
+   ======================================== */
+
+.heading-input {
+  /* Base styles - WordPress-like contentEditable approach */
+  width: 100%;
+  min-height: 1.2em;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  outline: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--space-2) 0;
+  text-indent: 0;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  border-radius: 2px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  /* ContentEditable specific styles */
+  display: block;
+  vertical-align: top;
+  min-width: 1px;
+  overflow-wrap: break-word;
+  line-break: after-white-space;
+  -webkit-nbsp-mode: space;
+  -webkit-user-modify: read-write;
+  /* Ensure proper cursor behavior */
+  cursor: text;
+}
+
+/* Focus state */
+.heading-input:focus {
+  border-color: var(--tui-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 168, 0.1);
+  outline: none;
+}
+
+/* WordPress-specific class overrides */
+.block-editor-rich-text__editable {
+  /* Ensure proper contentEditable behavior */
+  outline: none;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.block-editor-rich-text__editable:focus {
+  border-color: var(--tui-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 168, 0.1);
+  outline: none;
+}
+
+.wp-block-heading {
+  /* WordPress heading block styles */
+  margin: 0;
+  padding: 0;
+}
+
+.rich-text {
+  /* Rich text editing styles */
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Hover state */
+.heading-input:hover:not(:focus) {
+  border-color: rgba(0, 0, 168, 0.3);
+}
+
+/* Disabled state */
+.heading-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Error state */
+.heading-input--error {
+  border-color: var(--tui-danger);
+}
+
+.heading-input--error:focus {
+  border-color: var(--tui-danger);
+  box-shadow: 0 0 0 2px rgba(168, 0, 0, 0.1);
+}
+
+/* Success state */
+.heading-input--success {
+  border-color: var(--tui-success);
+}
+
+.heading-input--success:focus {
+  border-color: var(--tui-success);
+  box-shadow: 0 0 0 2px rgba(0, 168, 0, 0.1);
+}
+
+/* Heading level variants - Reduced font sizes */
+.heading-input--h1 {
+  font-size: var(--font-size-3xl);
+}
+
+.heading-input--h2 {
+  font-size: 1.65rem;
+}
+
+.heading-input--h3 {
+  font-size: var(--font-size-xl);
+}
+
+.heading-input--h4 {
+  font-size: var(--font-size-lg);
+}
+
+.heading-input--h5 {
+  font-size: var(--font-size-base);
+}
+
+.heading-input--h6 {
+  font-size: var(--font-size-sm);
+}
+
+/* ========================================
+   PARAGRAPH INPUT COMPONENT
+   ======================================== */
+
+.paragraph-input {
+  width: 100%;
+  min-height: var(--space-32);
+  height: auto;
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--space-2) 0;
+  text-indent: 0;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  border-radius: 2px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.paragraph-input:focus {
+  border-color: var(--tui-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 168, 0.1);
+  outline: none;
+}
+
+.paragraph-input:hover:not(:focus) {
+  border-color: rgba(0, 0, 168, 0.3);
+}
+
+/* ========================================
+   BLOCK CONTAINER COMPONENT
+   ======================================== */
+
+.block-container {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  position: relative;
+}
+
+.block-container--focused {
+  outline: 2px solid var(--tui-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ========================================
+   ARTICLE TITLE COMPONENT
+   ======================================== */
+
+.article-title {
+  width: 100%;
+  font-family: var(--font-primary);
+  font-size: 1.65rem;
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  outline: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  text-indent: 0;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  border-radius: 2px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 1.2em;
+  text-align: left;
+  /* ContentEditable specific styles */
+  display: block;
+  vertical-align: top;
+  min-width: 1px;
+  overflow-wrap: break-word;
+  line-break: after-white-space;
+  -webkit-nbsp-mode: space;
+  -webkit-user-modify: read-write;
+  /* Ensure proper cursor behavior */
+  cursor: text;
+}
+
+.article-title:focus {
+  border-color: var(--tui-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 168, 0.1);
+  outline: none;
+}
+
+.article-title:hover:not(:focus) {
+  border-color: rgba(0, 0, 168, 0.3);
+}
+
+/* Override generic input styles for article titles */
+input.article-title {
+  font-size: 1.65rem !important;
+  font-weight: var(--font-weight-bold) !important;
+  line-height: var(--line-height-tight) !important;
+}
+
+/* WordPress post title overrides - High specificity to override generic input styles */
+.editor-visual-editor__post-title-wrapper .editor-post-title__input,
+.wp-block-post-title.editor-post-title__input,
+input.editor-post-title__input {
+  font-family: var(--font-primary) !important;
+  font-size: 1.65rem !important;
+  font-weight: var(--font-weight-bold) !important;
+  line-height: var(--line-height-tight) !important;
+  color: inherit !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  outline: none !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  min-height: 1.2em !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-indent: 0 !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.editor-post-title__input:focus {
+  border-color: var(--tui-primary) !important;
+  box-shadow: 0 0 0 2px rgba(0, 0, 168, 0.1) !important;
+  outline: none !important;
+}
+
+/* ========================================
+   FORM INPUT COMPONENT
+   ======================================== */
+
+.form-input {
+  width: 100%;
+  padding: var(--space-3);
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-base);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: var(--tui-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 168, 0.1);
+  outline: none;
+}
+
+.form-input:hover:not(:focus) {
+  border-color: rgba(0, 0, 168, 0.3);
+}
+
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.form-input--error {
+  border-color: var(--tui-danger);
+}
+
+.form-input--error:focus {
+  border-color: var(--tui-danger);
+  box-shadow: 0 0 0 2px rgba(168, 0, 0, 0.1);
+}
+
+.form-input--success {
+  border-color: var(--tui-success);
+}
+
+.form-input--success:focus {
+  border-color: var(--tui-success);
+  box-shadow: 0 0 0 2px rgba(0, 168, 0, 0.1);
+}
+
+/* ========================================
+   BUTTON COMPONENT
+   ======================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  color: #fff;
+  background-color: var(--tui-primary);
+  border: 1px solid var(--tui-primary);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.btn:hover {
+  background-color: rgba(0, 0, 168, 0.8);
+  border-color: rgba(0, 0, 168, 0.8);
+}
+
+.btn:focus {
+  outline: 2px solid var(--tui-primary);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--secondary {
+  color: var(--tui-primary);
+  background-color: transparent;
+  border-color: var(--tui-primary);
+}
+
+.btn--secondary:hover {
+  color: #fff;
+  background-color: var(--tui-primary);
+}
+
+.btn--danger {
+  background-color: var(--tui-danger);
+  border-color: var(--tui-danger);
+}
+
+.btn--danger:hover {
+  background-color: rgba(168, 0, 0, 0.8);
+  border-color: rgba(168, 0, 0, 0.8);
+}
+
+.btn--success {
+  background-color: var(--tui-success);
+  border-color: var(--tui-success);
+}
+
+.btn--success:hover {
+  background-color: rgba(0, 168, 0, 0.8);
+  border-color: rgba(0, 168, 0, 0.8);
+}
+
+/* ========================================
+   UTILITY CLASSES FOR STATES
+   ======================================== */
+
+.focus-visible {
+  outline: 2px solid var(--tui-primary);
+  outline-offset: 2px;
+}
+
+.focus-hidden {
+  outline: none;
+}
+
+/* ========================================
+   TUICSS OVERRIDES
+   ======================================== */
+
+.tui-table tbody {
+  color: #000 !important;
+}
+
+.tui-window {
+  color: #000 !important;
+}
+
+.tui-fieldset {
+  border: 6px #000 double !important;
+}
+
+/* ========================================
+   LAYOUT UTILITIES
+   ======================================== */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: var(--space-2);
+}
+
+.gap-4 {
+  gap: var(--space-4);
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: var(--space-768)) {
+  .heading-input--h1 {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .heading-input--h2 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .heading-input--h3 {
+    font-size: var(--font-size-xl);
+  }
+}

@@ -7,11 +7,11 @@ export const useWordPressComponents = () => {
   useEffect(() => {
     const loadWordPressComponents = async () => {
       try {
-        console.log('🎨 Loading WordPress CSS...');
-        // Load CSS first
-        console.log('✅ WordPress CSS loaded');
         
-        console.log('📚 Loading WordPress components...');
+        // Load CSS first
+        
+        
+        
         const [
           blockEditorModule,
           componentsModule,
@@ -49,10 +49,10 @@ export const useWordPressComponents = () => {
         const { Popover, SlotFillProvider, Button } = componentsModule as any;
         const { parse, serialize, rawHandler, registerBlockType } = blocksModule as any;
 
-        console.log('✅ WordPress components loaded successfully');
+        
         
         // Register core blocks with proper edit/save functions
-        console.log('🔧 Registering core blocks...');
+        
         
         // Register paragraph block
         registerBlockType('core/paragraph', {
@@ -213,8 +213,8 @@ export const useWordPressComponents = () => {
                   />
                 ) : (
                   <div style={{ 
-                    border: '2px dashed #ccc', 
-                    padding: '40px', 
+                    border: 'var(--space-2) dashed #ccc', 
+                    padding: 'var(--space-40)', 
                     textAlign: 'center',
                     backgroundColor: '#f9f9f9',
                     color: '#666'
@@ -331,7 +331,7 @@ export const useWordPressComponents = () => {
           edit: ({ attributes, setAttributes }: { attributes: any; setAttributes: (attrs: any) => void }) => {
             return (
               <blockquote style={{ 
-                borderLeft: '4px solid var(--wp--preset--color--primary)',
+                borderLeft: 'var(--space-4) solid var(--wp--preset--color--primary)',
                 paddingLeft: 'var(--wp--preset--spacing--40)',
                 margin: 'var(--wp--style--block-gap) 0',
                 fontStyle: 'italic',
@@ -401,9 +401,9 @@ export const useWordPressComponents = () => {
             return (
               <hr style={{ 
                 border: 'none',
-                borderTop: '1px solid #ddd',
+                borderTop: 'var(--space-1) solid #ddd',
                 margin: '2em 0',
-                height: '1px'
+                height: 'var(--space-1)'
               }} />
             );
           },
@@ -412,7 +412,7 @@ export const useWordPressComponents = () => {
           },
         });
 
-        console.log('✅ Core blocks registered successfully');
+        
 
         setComponents({
           BlockEditorProvider,

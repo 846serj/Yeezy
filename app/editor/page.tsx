@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ClientOnlyGutenbergEditor } from '@/components/editor';
-import SmartGutenbergEditor from '@/components/editor/SmartGutenbergEditor';
+import SmartGutenbergEditor, { SmartGutenbergEditorRef } from '@/components/editor/SmartGutenbergEditor';
 import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/hooks/useAuth';
 import { EditorContent } from '@/types';
+import { TuiLayout } from '@/components/TuiLayout';
 
 function EditorPageContent() {
   const router = useRouter();
@@ -15,18 +16,59 @@ function EditorPageContent() {
   const { isConnected, updatePost, createPost, uploadMedia, updateMedia } = useWordPress();
   const [useSmartEditor, setUseSmartEditor] = useState(true);
   const [generatedContent, setGeneratedContent] = useState<{ title: string; content: string } | null>(null);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingGeneratedContent, setIsLoadingGeneratedContent] = useState(false);
+  const editorRef = useRef<SmartGutenbergEditorRef>(null);
 
-  // Check for generated content from URL params
+  // Check for generated content from localStorage or URL params
   useEffect(() => {
     const isGenerated = searchParams.get('generated') === 'true';
+    
+    if (isGenerated) {
+      setIsLoadingGeneratedContent(true);
+      
+      // First try to load from localStorage (preferred method)
+      try {
+        const storedData = localStorage.getItem('generatedArticle');
+        if (storedData) {
+          const generatedData = JSON.parse(storedData);
+          
+          setGeneratedContent({
+            title: generatedData.title,
+            content: generatedData.content
+          });
+          // Clear localStorage after loading to prevent stale data
+          localStorage.removeItem('generatedArticle');
+          setIsLoadingGeneratedContent(false);
+          return;
+        }
+      } catch (error) {
+        console.error('❌ Error loading from localStorage:', error);
+      }
+      
+      // Fallback to URL params if localStorage is empty or fails
     const title = searchParams.get('title');
     const content = searchParams.get('content');
     
-    if (isGenerated && title && content) {
+      if (title && content) {
+        try {
+          
       setGeneratedContent({
         title: decodeURIComponent(title),
         content: decodeURIComponent(content)
       });
+        } catch (error) {
+          console.error('❌ Error decoding URL parameters:', error);
+          // Fallback: use the raw values if decoding fails
+          setGeneratedContent({
+            title: title,
+            content: content
+          });
+        }
+      }
+      
+      setIsLoadingGeneratedContent(false);
     }
   }, [searchParams]);
 
@@ -39,11 +81,41 @@ function EditorPageContent() {
     }
   }, [authLoading, isAuthenticated, isConnected, router]);
 
+  // Set window properties for WordPress functions
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.wordPressUpload = uploadMedia;
+      window.wordPressUpdateMedia = updateMedia;
+    }
+  }, [uploadMedia, updateMedia]);
+
+  // Monitor upload state from the editor component
+  useEffect(() => {
+    const checkEditorState = () => {
+      if (editorRef.current) {
+        // Get upload state from the editor component
+        const editorState = editorRef.current.getUploadState?.();
+        if (editorState) {
+          setIsUploadingImages(editorState.hasUploadingImages);
+          setIsSaving(editorState.isSaving);
+        }
+      }
+    };
+
+    // Check immediately
+    checkEditorState();
+
+    // Set up interval to check periodically
+    const interval = setInterval(checkEditorState, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleSave = async (post: EditorContent) => {
     try {
-      console.log('💾 WordPress Gutenberg content saved:', post);
-      console.log('📝 Title type:', typeof post.title);
-      console.log('📝 Title value:', post.title);
+      
+      
+      
 
       // Create new post
       const newPost = {
@@ -56,10 +128,10 @@ function EditorPageContent() {
         tags: post.tags
       };
       const createdPost = await createPost(newPost);
-      console.log('✅ New post created successfully');
       
-      // Redirect to dashboard after successful creation
-      router.push('/dashboard');
+      
+      // Stay on the editor page after successful save
+      // No redirect - user can continue editing
     } catch (error) {
       console.error('❌ Error saving post:', error);
     }
@@ -72,9 +144,48 @@ function EditorPageContent() {
   // Show loading while checking authentication
   if (authLoading) {
     return (
-      <div className="App mq--dt mq--above-sm mq--above-md mq--below-lg mq--below-xl mq--above-xs">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-          <div>Loading...</div>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        backgroundColor: '#c0c0c0'
+      }}>
+        <div 
+          className="tui-window" 
+          style={{ 
+            width: '100%',
+            height: '100%',
+            margin: 0
+          }}
+        >
+          <fieldset className="tui-fieldset" style={{
+            width: '100%',
+            height: '100vh',
+            margin: 0,
+            padding: 0
+          }}>
+            <legend className="center">Loading Editor</legend>
+            <div className="center" style={{ 
+              height: 'calc(100vh - var(--space-80))',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              maxWidth: '500px',
+              margin: '0 auto'
+            }}>
+              <div className="tui-progress-bar" style={{ width: 'var(--space-300)', marginBottom: 'var(--space-20)' }}>
+                <div className="tui-progress" style={{ width: '50%' }}></div>
+              </div>
+              <div style={{ fontSize: 'var(--space-18)' }}>Loading...</div>
+            </div>
+          </fieldset>
         </div>
       </div>
     );
@@ -90,59 +201,182 @@ function EditorPageContent() {
     return null; // Will redirect
   }
 
+  // Show loading state while loading generated content
+  if (isLoadingGeneratedContent) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        backgroundColor: '#c0c0c0'
+      }}>
+        <div 
+          className="tui-window" 
+          style={{ 
+            width: '100%',
+            height: '100%',
+            margin: 0
+          }}
+        >
+          <fieldset className="tui-fieldset" style={{
+            width: '100%',
+            height: '100vh',
+            margin: 0,
+            padding: 0
+          }}>
+            <legend className="center">Loading Generated Content</legend>
+            <div className="center" style={{ 
+              height: 'calc(100vh - var(--space-80))',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div className="tui-progress-bar" style={{ width: 'var(--space-300)', marginBottom: 'var(--space-20)' }}>
+                <div className="tui-progress" style={{ width: '75%' }}></div>
+              </div>
+              <p style={{ fontSize: 'var(--space-18)' }}>Loading your generated article...</p>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="App">
-      <main className="main-content">
-        <div className="container">
-          {/* Editor Type Toggle */}
-          <div style={{ padding: '1rem', background: '#f5f5f5', borderBottom: '1px solid #ddd' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '14px' }}>
-              <input
-                type="checkbox"
-                checked={useSmartEditor}
-                onChange={(e) => setUseSmartEditor(e.target.checked)}
-              />
-              Use Smart Editor (WordPress Official + Custom Fallback)
-            </label>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      zIndex: 9999,
+      backgroundColor: '#c0c0c0',
+      overflow: 'auto'
+    }}>
+        <div 
+          id="article-editor-window"
+          className="tui-window" 
+          style={{ 
+            width: '100%',
+            minHeight: '100vh',
+            margin: 0
+          }}
+        >
+        <fieldset className="tui-fieldset" style={{
+          width: '100%',
+          minHeight: '100vh',
+          margin: 0,
+          padding: '40px'
+        }}>
+          <legend className="center">Article Editor</legend>
+          
+          {/* Editor Content */}
+          <div style={{ 
+            minHeight: 'calc(100vh - var(--space-120))',
+            overflow: 'visible',
+            maxWidth: '500px',
+            margin: '0 auto',
+            width: '100%'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-10)' }}>
+            <button 
+              className="tui-button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                try {
+                  router.push('/dashboard');
+                  
+                } catch (error) {
+                  console.error('❌ Navigation failed:', error);
+                  // Fallback: use window.location
+                  window.location.href = '/dashboard';
+                }
+              }}
+              title="Back to Posts"
+            >
+              &lt;
+            </button>
+            {isUploadingImages || isSaving ? (
+              <span className="tui-button disabled">
+                {isSaving ? 'Saving...' : 'Uploading...'}
+              </span>
+            ) : (
+              <button 
+                className="tui-button"
+                onClick={async () => {
+                  try {
+                    // Use the handleSaveWithUploadCheck function directly from the editor ref
+                    if (editorRef.current) {
+                      ');
+                      await editorRef.current.handleSaveWithUploadCheck();
+                    } else {
+                      // Fallback: use our handleSave function directly
+                      
+                      if (generatedContent) {
+                        await handleSave({
+                          title: generatedContent.title,
+                          content: generatedContent.content,
+                          excerpt: '',
+                          status: 'draft' as const,
+                          featured_media: null,
+                          categories: [],
+                          tags: []
+                        });
+                      }
+                    }
+                  } catch (error) {
+                    console.error('❌ Error in TuiCss save button:', error);
+                  }
+                }}
+                title="Save Article"
+              >
+                Save
+              </button>
+            )}
           </div>
           
-          {typeof window !== 'undefined' && (
-            <>
-              {window.wordPressUpload = uploadMedia}
-              {window.wordPressUpdateMedia = updateMedia}
-            </>
-          )}
-          {useSmartEditor ? (
-            <SmartGutenbergEditor
-              post={generatedContent ? {
-                title: generatedContent.title,
-                content: generatedContent.content,
-                excerpt: '',
-                status: 'draft' as const,
-                featured_media: null,
-                categories: [],
-                tags: []
-              } : null} // New post or generated content
-              onSave={handleSave}
-              onCancel={handleCancel}
-            />
-          ) : (
-            <ClientOnlyGutenbergEditor
-              post={generatedContent ? {
-                title: generatedContent.title,
-                content: generatedContent.content,
-                excerpt: '',
-                status: 'draft' as const,
-                featured_media: null,
-                categories: [],
-                tags: []
-              } : null} // New post or generated content
-              onSave={handleSave}
-              onCancel={handleCancel}
-            />
-          )}
-        </div>
-      </main>
+          {/* Editor Content - Constrained to table width */}
+          <div style={{ 
+            flex: 1, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            width: '100%', 
+            maxWidth: '100%',
+            minHeight: 'auto',
+            overflow: 'visible',
+            position: 'relative'
+          }}>
+              {/* Always use smart editor - client only editor commented out */}
+              <SmartGutenbergEditor
+                ref={editorRef}
+                post={generatedContent ? {
+                  title: generatedContent.title,
+                  content: generatedContent.content,
+                  excerpt: '',
+                  status: 'draft' as const,
+                  featured_media: null,
+                  categories: [],
+                  tags: []
+                } : null} // New post or generated content
+                onSave={handleSave}
+                onCancel={handleCancel}
+              />
+          </div>
+          </div>
+        </fieldset>
+      </div>
     </div>
   );
 }
@@ -150,11 +384,19 @@ function EditorPageContent() {
 export default function NewEditor() {
   return (
     <Suspense fallback={
-      <div className="App mq--dt mq--above-sm mq--above-md mq--below-lg mq--below-xl mq--above-xs">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-          <div>Loading editor...</div>
+      <TuiLayout>
+        <div className="tui-window" style={{ width: 'var(--space-400)', border: 'none' }}>
+          <fieldset className="tui-fieldset">
+            <legend className="center">Loading Editor</legend>
+            <div className="center">
+              <div className="tui-progress-bar">
+                <div className="tui-progress" style={{ width: '50%' }}></div>
+              </div>
+              <div>Loading editor...</div>
+            </div>
+          </fieldset>
         </div>
-      </div>
+      </TuiLayout>
     }>
       <EditorPageContent />
     </Suspense>

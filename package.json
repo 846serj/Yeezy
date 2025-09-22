@@ -26,7 +26,10 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-easy-crop": "^5.5.0",
+    "react95": "^4.0.0",
+    "styled-components": "^6.1.19",
     "tailwind-merge": "^2.0.0",
+    "tuicss": "^2.1.2",
     "zustand": "^4.4.7"
   },
   "devDependencies": {

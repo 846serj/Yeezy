@@ -16,7 +16,7 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
   // Keep blocks ref in sync with blocks state
   useEffect(() => {
     blocksRef.current = blocks;
-    console.log('💾 Updated blocks ref with', blocks.length, 'blocks');
+    
   }, [blocks]);
 
   const handleBlocksChange = useCallback((newBlocks: GutenbergBlock[]) => {
@@ -27,11 +27,11 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
     if (onSave) {
       try {
         const serializedContent = serializeBlocksToWordPress(blocks);
-        console.log('📝 Serialized content:', serializedContent);
-        console.log('📝 Title being saved:', title);
-        console.log('📝 Featured image being saved:', featuredImage);
+        
+        
+        
         if (featuredImage?.caption) {
-          console.log('📝 Featured image caption:', featuredImage.caption);
+          
         }
 
         let featuredMediaId = post?.featured_media || null;
@@ -41,7 +41,7 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
           // If we already have a media ID, use it
           if (featuredImage.id) {
             featuredMediaId = featuredImage.id;
-            console.log('📝 Using existing featured image media ID:', featuredMediaId);
+            
           } else {
             // Check if this is a new image (not already uploaded to WordPress)
             const isNewImage = !featuredImage.url.includes('/wp-content/uploads/') && 
@@ -50,7 +50,7 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
             
             if (isNewImage) {
               try {
-                console.log('📤 Uploading new featured image to WordPress...');
+                
                 
                 // Convert the image URL to a file
                 const response = await fetch(featuredImage.url);
@@ -61,7 +61,7 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
                 if (window.wordPressUpload) {
                   const media = await window.wordPressUpload(file);
                   featuredMediaId = media.id;
-                  console.log('✅ Featured image uploaded to WordPress with ID:', featuredMediaId);
+                  
                   
                   // Update the featured image state with the media ID
                   setFeaturedImage(prev => prev ? { ...prev, id: media.id } : null);
@@ -73,13 +73,13 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
                 // Keep the original featured_media if upload fails
               }
             } else {
-              console.log('📝 Featured image is already uploaded to WordPress, but no media ID available');
+              
               // If it's already a WordPress URL but we don't have the ID, keep the original
-              console.log('⚠️ Cannot determine media ID for existing WordPress image');
+              
             }
           }
         } else {
-          console.log('📝 No featured image to save - removing featured image from WordPress');
+          
           featuredMediaId = 0; // Set to 0 to remove featured image in WordPress
         }
 
@@ -92,8 +92,8 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
           categories: post?.categories || [],
           tags: post?.tags || []
         };
-        console.log('📝 Full post object being saved:', updatedPost);
-        console.log('🖼️ Featured media ID being sent to WordPress:', featuredMediaId);
+        
+        
         await onSave(updatedPost);
       } catch (error) {
         console.error('Error serializing blocks:', error);
@@ -140,7 +140,7 @@ export const useBlockManagement = (post: EditorContent | null, onSave: (post: Ed
 
   const restoreBlocks = useCallback(() => {
     if (blocksRef.current.length > 0) {
-      console.log('🔄 Restoring blocks from ref:', blocksRef.current.length, 'blocks');
+      
       setBlocks(blocksRef.current);
       return true;
     }

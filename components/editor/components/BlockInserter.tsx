@@ -1,16 +1,122 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface BlockInserterProps {
   isOpen: boolean;
   onClose: () => void;
   onAddBlock: (blockType: string, attributes?: Record<string, any>) => void;
+  onAddImage?: (image: any) => void;
+}
+
+interface ImageResult {
+  url: string;
+  thumbnail?: string;
+  caption?: string;
+  attribution?: string;
+  source?: string;
 }
 
 export const BlockInserter: React.FC<BlockInserterProps> = ({ 
   isOpen, 
   onClose, 
-  onAddBlock 
+  onAddBlock,
+  onAddImage
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showImageResults, setShowImageResults] = useState(false);
+  const [images, setImages] = useState<ImageResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'wikiCommons']);
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (query: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          if (query.trim()) {
+            handleImageSearch(query);
+          } else {
+            setShowImageResults(false);
+            setImages([]);
+          }
+        }, 300);
+      };
+    })(),
+    []
+  );
+
+  const handleImageSearch = async (query: string, loadMore = false) => {
+    if (!query.trim()) {
+      setShowImageResults(false);
+      setImages([]);
+      return;
+    }
+    
+    setLoading(true);
+    setShowImageResults(true);
+    
+    try {
+      const response = await fetch(`/api/search-images?query=${encodeURIComponent(query)}&sources=${selectedSources.join(',')}&page=${loadMore ? page + 1 : 1}&perPage=20`);
+      const data = await response.json();
+      
+      if (loadMore) {
+        setImages(prev => [...prev, ...data.images]);
+        setPage(prev => prev + 1);
+      } else {
+        setImages(data.images);
+        setPage(1);
+      }
+      
+      setHasMore(data.hasMore);
+    } catch (error) {
+      console.error('Image search error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSourceToggle = (source: string) => {
+    setSelectedSources(prev => {
+      if (prev.includes(source)) {
+        if (prev.length === 1) return prev;
+        return prev.filter(s => s !== source);
+      } else {
+        return [...prev, source];
+      }
+    });
+  };
+
+  const handleImageSelect = (image: ImageResult) => {
+    if (onAddImage) {
+      onAddImage(image);
+    } else {
+      // Fallback to adding as image block
+      onAddBlock('core/image', { 
+        url: image.url, 
+        alt: image.caption || '', 
+        caption: image.attribution || '' 
+      });
+    }
+    onClose();
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    debouncedSearch(query);
+  };
+
+  // Re-search when selectedSources changes and there's an active search
+  useEffect(() => {
+    if (searchQuery.trim() && showImageResults) {
+      setPage(1);
+      handleImageSearch(searchQuery, false);
+    }
+  }, [selectedSources]);
+
   if (!isOpen) return null;
 
   const blockTypes = [
@@ -75,157 +181,343 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
     <div
       className="components-popover components-dropdown__content block-editor-inserter__popover is-quick is-positioned"
       style={{
-        position: 'absolute',
-        top: '100%',
+        position: 'fixed',
+        top: '50%',
         left: '50%',
-        transform: 'translateX(-50%) translateY(8px)',
+        transform: 'translate(-50%, -50%)',
         opacity: 1,
         zIndex: 1000000,
         margin: 0,
-        width: '900px',
+        width: 'var(--space-900)',
         maxWidth: '90vw',
-        boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
-        borderRadius: '8px',
-        border: '1px solid #ddd',
-        backgroundColor: 'white'
+        boxShadow: '0 var(--space-3) var(--space-30) rgba(25, 30, 35, 0.2)',
+        borderRadius: 'var(--space-8)',
+        border: 'var(--space-1) solid #ddd',
+        backgroundColor: 'white',
+        padding: 'var(--space-16)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
       }}
     >
-      <div className="components-popover__content" style={{ 
-        maxHeight: '473px', 
-        overflow: 'auto',
-        borderRadius: '8px'
-      }}>
-        <div className="block-editor-inserter__quick-inserter has-search has-expand">
-          {/* Search Control */}
-          <div className="components-base-control components-input-control components-search-control block-editor-inserter__search">
-            <div className="components-base-control__field">
-              <div className="components-flex components-input-base">
-                <label className="components-visually-hidden" htmlFor="components-search-control">
-                  Search
-                </label>
-                <div className="components-input-control__container">
-                  <input
-                    autoComplete="off"
-                    placeholder="Search"
-                    className="components-input-control__input"
-                    id="components-search-control"
-                    type="search"
-                    value=""
-                    readOnly
-                  />
-                  <span className="components-input-control__suffix">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
-                        <path d="M13 5c-3.3 0-6 2.7-6 6 0 1.4.5 2.7 1.3 3.7l-3.8 3.8 1.1 1.1 3.8-3.8c1 .8 2.3 1.3 3.7 1.3 3.3 0 6-2.7 6-6S16.3 5 13 5zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5z"></path>
-                      </svg>
-                    </div>
-                  </span>
-                  <div aria-hidden="true" className="components-input-control__backdrop"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="block-editor-inserter__quick-inserter">
+        {/* Search Input */}
+        <div className="block-editor-inserter__search" style={{ marginBottom: 'var(--space-8)' }}>
+          <input
+            type="text"
+            placeholder="Search for an image..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            style={{
+              width: '100%',
+              padding: 'var(--space-8) var(--space-12)',
+              border: 'var(--space-1) solid #ddd',
+              borderRadius: 'var(--space-4)',
+              fontSize: 'var(--space-14)',
+              outline: 'none'
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = '#007cba'}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#ddd'}
+          />
+        </div>
 
-          {/* Block Types List */}
-          <div className="block-editor-inserter__quick-inserter-results">
-            <div className="block-editor-inserter__panel-header">
-              <h2 className="block-editor-inserter__panel-title">
-                <div className="components-visually-hidden">Blocks</div>
-              </h2>
+        {/* API Selection Buttons */}
+        <div className="block-editor-inserter__block-list" style={{ marginBottom: 'var(--space-8)' }}>
+          <div className="block-editor-block-types-list">
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('unsplash') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('unsplash')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('unsplash')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('unsplash')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Unsplash</div>
             </div>
             
-            <div className="block-editor-inserter__block-list">
-              <div className="block-editor-block-types-list" style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '8px',
-                padding: '16px'
-              }}>
-                {blockTypes.map((block) => (
-                  <button
-                    key={block.name}
-                    type="button"
-                    role="option"
-                    tabIndex={0}
-                    className="components-button block-editor-block-types-list__item"
-                    onClick={() => handleAddBlock(block.name, { content: `New ${block.title.toLowerCase()} block` })}
-                    style={{
-                      width: '100%',
-                      padding: '16px 12px',
-                      border: 'none',
-                      background: 'transparent',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '8px',
-                      borderRadius: '4px',
-                      transition: 'all 0.15s ease',
-                      fontSize: '13px',
-                      lineHeight: '1.4',
-                      color: '#1e1e1e',
-                      minHeight: '100px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f0f0f0';
-                      e.currentTarget.style.color = '#007cba';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = '#1e1e1e';
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f0f0f0';
-                      e.currentTarget.style.color = '#007cba';
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = '#1e1e1e';
-                    }}
-                  >
-                    <span className="block-editor-block-types-list__item-icon" style={{
-                      width: '32px',
-                      height: '32px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <span className="block-editor-block-icon has-colors">
-                        {block.icon}
-                      </span>
-                    </span>
-                    <div style={{ 
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '4px',
-                      width: '100%'
-                    }}>
-                      <div style={{ 
-                        fontWeight: '500', 
-                        fontSize: '13px',
-                        lineHeight: '1.4',
-                        textAlign: 'center'
-                      }}>
-                        {block.title}
-                      </div>
-                      <div style={{ 
-                        fontSize: '11px', 
-                        color: '#666',
-                        lineHeight: '1.3',
-                        textAlign: 'center',
-                        maxWidth: '100%',
-                        wordWrap: 'break-word'
-                      }}>
-                        {block.description}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('pexels') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('pexels')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('pexels')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('pexels')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Pexels</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('wikiCommons') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('wikiCommons')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('wikiCommons')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('wikiCommons')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
             </div>
           </div>
+        </div>
+        
+        <div className="block-editor-inserter__block-list">
+          {showImageResults && images.length > 0 ? (
+            <div>
+              <div style={{ 
+                fontSize: 'var(--space-14)', 
+                fontWeight: '600', 
+                color: '#1e1e1e', 
+                marginBottom: 'var(--space-12)',
+                padding: 'var(--space-8) 0',
+                borderBottom: 'var(--space-1) solid var(--color-gray-200)'
+              }}>
+                {`Image Results for "${searchQuery}"`}
+              </div>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(var(--space-200), 1fr))', 
+                gap: 'var(--space-12)',
+                maxHeight: 'var(--space-400)',
+                overflowY: 'auto'
+              }}>
+                {images.map((image, index) => (
+                  <div
+                    key={`${image.url}-${index}`}
+                    onClick={() => handleImageSelect(image)}
+                    style={{
+                      cursor: 'pointer',
+                      border: 'var(--space-1) solid #ddd',
+                      borderRadius: 'var(--space-4)',
+                      overflow: 'hidden',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#007cba';
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#ddd';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    <img
+                      src={image.thumbnail || image.url}
+                      alt={image.caption || 'Image'}
+                      style={{
+                        width: '100%',
+                        height: 'var(--space-160)',
+                        objectFit: 'cover',
+                        display: 'block'
+                      }}
+                    />
+                    <div style={{
+                      padding: 'var(--space-4) var(--space-6)',
+                      fontSize: 'var(--space-10)',
+                      color: '#666',
+                      lineHeight: '1.2',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {image.attribution || image.caption || 'Image'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Load More Button */}
+              {hasMore && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  marginTop: 'var(--space-12)',
+                  padding: 'var(--space-8) 0',
+                  borderTop: 'var(--space-1) solid var(--color-gray-200)'
+                }}>
+                  <button
+                    onClick={() => handleImageSearch(searchQuery, true)}
+                    disabled={loading}
+                    style={{
+                      padding: 'var(--space-8) var(--space-16)',
+                      backgroundColor: loading ? '#f5f5f5' : '#007cba',
+                      color: loading ? '#999' : 'white',
+                      border: 'none',
+                      borderRadius: 'var(--space-4)',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      fontSize: 'var(--space-14)',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!loading) {
+                        e.currentTarget.style.backgroundColor = '#005a87';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!loading) {
+                        e.currentTarget.style.backgroundColor = '#007cba';
+                      }
+                    }}
+                  >
+                    {loading ? 'Loading...' : 'Load More Images'}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : showImageResults && loading ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: 'var(--space-20)',
+              color: '#666'
+            }}>
+              Searching for images...
+            </div>
+          ) : showImageResults && images.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: 'var(--space-20)',
+              color: '#666'
+            }}>
+              {`No images found for "${searchQuery}"`}
+            </div>
+          ) : (
+            <div className="block-editor-block-types-list" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 'var(--space-8)',
+              padding: 'var(--space-16)'
+            }}>
+              {blockTypes.map((block) => (
+                <button
+                  key={block.name}
+                  type="button"
+                  role="option"
+                  tabIndex={0}
+                  className="components-button block-editor-block-types-list__item"
+                  onClick={() => handleAddBlock(block.name, { content: `New ${block.title.toLowerCase()} block` })}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-16) var(--space-12)',
+                    border: 'none',
+                    background: 'transparent',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 'var(--space-8)',
+                    borderRadius: 'var(--space-4)',
+                    transition: 'all 0.15s ease',
+                    fontSize: 'var(--space-13)',
+                    lineHeight: '1.4',
+                    color: '#1e1e1e',
+                    minHeight: 'var(--space-100)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-gray-100)';
+                    e.currentTarget.style.color = '#007cba';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1e1e1e';
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-gray-100)';
+                    e.currentTarget.style.color = '#007cba';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#1e1e1e';
+                  }}
+                >
+                  <span className="block-editor-block-types-list__item-icon" style={{
+                    width: 'var(--space-32)',
+                    height: 'var(--space-32)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span className="block-editor-block-icon has-colors">
+                      {block.icon}
+                    </span>
+                  </span>
+                  <div style={{ 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 'var(--space-4)',
+                    width: '100%'
+                  }}>
+                    <div style={{ 
+                      fontWeight: '500', 
+                      fontSize: 'var(--space-13)',
+                      lineHeight: '1.4',
+                      textAlign: 'center'
+                    }}>
+                      {block.title}
+                    </div>
+                    <div style={{ 
+                      fontSize: 'var(--space-11)', 
+                      color: '#666',
+                      lineHeight: '1.3',
+                      textAlign: 'center',
+                      maxWidth: '100%',
+                      wordWrap: 'break-word'
+                    }}>
+                      {block.description}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -26,58 +26,75 @@ export default function Generate() {
   };
 
   const handleArticleGenerated = (content: string, title: string, sources: string[]) => {
-    // Create a mock WordPressPost object for the generated content
-    const generatedArticle: WordPressPost & { isGenerated?: boolean } = {
-      id: Date.now(), // Temporary ID
-      date: new Date().toISOString(),
-      date_gmt: new Date().toISOString(),
-      guid: { rendered: '' },
-      modified: new Date().toISOString(),
-      modified_gmt: new Date().toISOString(),
-      slug: title.toLowerCase().replace(/\s+/g, '-'),
-      status: 'draft' as const,
-      type: 'post',
-      link: '',
-      title: { rendered: title },
-      content: { rendered: content, protected: false },
-      excerpt: { rendered: '', protected: false },
-      author: 1,
-      featured_media: 0,
-      comment_status: 'open' as const,
-      ping_status: 'open' as const,
-      sticky: false,
-      template: '',
-      format: 'standard' as const,
-      meta: {},
-      categories: [],
-      tags: [],
-      _embedded: {},
-      isGenerated: true, // Mark as generated article
-      _links: {
-        self: [{ href: '' }],
-        collection: [{ href: '' }],
-        about: [{ href: '' }],
-        author: [{ embeddable: true, href: '' }],
-        replies: [{ embeddable: true, href: '' }],
-        'version-history': [{ count: 0, href: '' }],
-        'predecessor-version': [{ id: 0, href: '' }],
-        'wp:attachment': [{ href: '' }],
-        'wp:term': [{ taxonomy: 'category', embeddable: true, href: '' }],
-        curies: [{ name: 'wp', href: 'https://api.w.org/{rel}', templated: true }]
-      }
-    };
-    
-    // Redirect to editor with generated content
-    // We'll pass the generated content via URL params or state
-    router.push(`/editor?generated=true&title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`);
+    try {
+      
+      
+      // Store generated content in localStorage to avoid URL encoding issues
+      const generatedData = {
+        title,
+        content,
+        sources,
+        timestamp: Date.now()
+      };
+      
+      localStorage.setItem('generatedArticle', JSON.stringify(generatedData));
+      
+      
+      // Redirect to editor
+      router.push('/editor?generated=true');
+    } catch (error) {
+      console.error('❌ Error handling generated article:', error);
+      // Fallback to URL params if localStorage fails
+      router.push(`/editor?generated=true&title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`);
+    }
   };
 
   // Show loading while checking authentication
   if (authLoading) {
     return (
-      <div className="App mq--dt mq--above-sm mq--above-md mq--below-lg mq--below-xl mq--above-xs">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-          <div>Loading...</div>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        zIndex: 9999,
+        backgroundColor: '#c0c0c0',
+        overflow: 'auto'
+      }}>
+        <div 
+          className="tui-window" 
+          style={{ 
+            width: '100%',
+            minHeight: '100vh',
+            margin: 0
+          }}
+        >
+          <fieldset className="tui-fieldset" style={{
+            width: '100%',
+            height: '100vh',
+            margin: 0,
+            padding: 0
+          }}>
+            <legend className="center">Loading Generator</legend>
+            <div className="center" style={{ 
+              minHeight: 'calc(100vh - var(--space-120))',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              maxWidth: '500px',
+              margin: '0 auto'
+            }}>
+              <div className="tui-progress-bar" style={{ width: 'var(--space-300)', marginBottom: 'var(--space-20)' }}>
+                <div className="tui-progress" style={{ width: '50%' }}></div>
+              </div>
+              <div style={{ fontSize: 'var(--space-18)' }}>Loading Generator...</div>
+            </div>
+          </fieldset>
         </div>
       </div>
     );
@@ -94,17 +111,48 @@ export default function Generate() {
   }
 
   return (
-    <div className="App mq--dt mq--above-sm mq--above-md mq--below-lg mq--below-xl mq--above-xs">
-      <main className="view__inner">
-        <div className="maxWidth maxWidth--content hSpace hSpace--content">
-          <div className="editor-card">
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      zIndex: 9999,
+      backgroundColor: '#c0c0c0',
+      overflow: 'auto'
+    }}>
+      <div 
+        className="tui-window" 
+        style={{ 
+          width: '100%',
+          minHeight: '100vh',
+          margin: 0
+        }}
+      >
+        <fieldset className="tui-fieldset" style={{
+          width: '100%',
+          height: '100vh',
+          margin: 0,
+          padding: 0
+        }}>
+          <legend className="center">Article Generator</legend>
+          <div style={{ 
+            padding: 'var(--space-20) var(--space-20) var(--space-20) var(--space-20)',
+            minHeight: 'calc(100vh - var(--space-120))',
+            overflow: 'visible',
+            maxWidth: '500px',
+            margin: '0 auto'
+          }}>
             <ArticleGenerator
               onBack={handleBack}
               onArticleGenerated={handleArticleGenerated}
             />
           </div>
-        </div>
-      </main>
+        </fieldset>
+      </div>
     </div>
   );
 }

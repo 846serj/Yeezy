@@ -40,10 +40,10 @@ module.exports = {
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
       },
       borderWidth: {
-        '2': '2px',
+        '2': 'var(--space-2)',
       },
       maxWidth: {
-        'container': '750px',
+        'container': 'var(--space-750)',
       },
     },
   },

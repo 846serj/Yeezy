@@ -1,458 +1,118 @@
 /* ========================================
-   WORDPRESS-STYLE CSS ARCHITECTURE
-   Professional, comprehensive, theme-ready
+   CLEAN GLOBAL STYLES
+   Simplified, industry-standard approach
    ======================================== */
 
-/* 1. CSS CUSTOM PROPERTIES (WordPress Style) */
-:root {
-  /* Color Palette */
-  --wp--preset--color--black: #000000;
-  --wp--preset--color--white: #ffffff;
-  --wp--preset--color--cyan-bluish-gray: #abb8c3;
-  --wp--preset--color--pale-pink: #f78da7;
-  --wp--preset--color--vivid-red: #cf2e2e;
-  --wp--preset--color--luminous-vivid-orange: #ff6900;
-  --wp--preset--color--luminous-vivid-amber: #fcb900;
-  --wp--preset--color--light-green-cyan: #7bdcb5;
-  --wp--preset--color--vivid-green-cyan: #00d084;
-  --wp--preset--color--pale-cyan-blue: #8ed1fc;
-  --wp--preset--color--vivid-cyan-blue: #0693e3;
-  --wp--preset--color--vivid-purple: #9b51e0;
-  --wp--preset--color--base: #ffffff;
-  --wp--preset--color--contrast: #000000;
-  --wp--preset--color--primary: #296DEB;
-  --wp--preset--color--secondary: #2e2e2e;
-  --wp--preset--color--tertiary: #757575;
+/* Import the unified font system */
+@import '../styles/font-system.css';
 
-  /* Typography */
-  --wp--preset--font-family--manrope: Manrope, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-  --wp--preset--font-family--orbitron: Orbitron, monospace;
-  --wp--preset--font-size--x-small: 0.868rem;
-  --wp--preset--font-size--small: clamp(0.868rem, 0.868rem + ((1vw - 0.2rem) * 0.275), 1.042rem);
-  --wp--preset--font-size--medium: clamp(1.042rem, 1.042rem + ((1vw - 0.2rem) * 0.329), 1.25rem);
-  --wp--preset--font-size--large: clamp(1.25rem, 1.25rem + ((1vw - 0.2rem) * 0.395), 1.5rem);
-  --wp--preset--font-size--x-large: clamp(1.5rem, 1.5rem + ((1vw - 0.2rem) * 0.474), 1.8rem);
-  --wp--preset--font-size--xx-large: clamp(1.8rem, 1.8rem + ((1vw - 0.2rem) * 1.252), 2.592rem);
-  --wp--preset--font-size--xxx-large: clamp(2.592rem, 2.592rem + ((1vw - 0.2rem) * 1.802), 3.732rem);
-  --wp--preset--font-size--xxxx-large: clamp(2.592rem, 2.592rem + ((1vw - 0.2rem) * 2.983), 4.479rem);
+/* Import component styles */
+@import '../styles/components.css';
 
-  /* Spacing System */
-  --wp--preset--spacing--20: 0.25rem;
-  --wp--preset--spacing--30: 0.5rem;
-  --wp--preset--spacing--40: 1rem;
-  --wp--preset--spacing--50: clamp(1.5rem, 2.2408964vw, 2.0rem);
-  --wp--preset--spacing--60: clamp(2.0rem, 3.3613445vw, 3.0rem);
-  --wp--preset--spacing--70: clamp(2.0rem, 4.4817927vw, 4.0rem);
-  --wp--preset--spacing--80: clamp(3.0rem, 6.7226891vw, 6.0rem);
-
-  /* Layout */
-  --wp--style--global--content-size: 650px;
-  --wp--style--global--wide-size: 1332px;
-  --wp--style--block-gap: var(--wp--preset--spacing--50);
-  --wp--style--root--padding-top: 0;
-  --wp--style--root--padding-right: var(--wp--preset--spacing--60);
-  --wp--style--root--padding-bottom: 0;
-  --wp--style--root--padding-left: var(--wp--preset--spacing--60);
-
-  /* Shadows */
-  --wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);
-  --wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);
-  --wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);
-  --wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);
-  --wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);
+/* Industry standard scaling approach */
+html {
+  zoom: 1.3; /* Clean, simple 1.3x scaling */
 }
 
-/* 2. CSS RESET & BASE STYLES */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* Ensure proper viewport behavior */
+body {
   margin: 0;
   padding: 0;
+  min-height: 100vh;
 }
 
-html {
-  font-family: var(--wp--preset--font-family--manrope);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  height: 100%;
-  overflow-x: hidden;
+/* TuiCss Variables - Simplified */
+:root {
+  /* Theme Colors */
+  --tui-primary: rgb(0, 0, 168);
+  --tui-secondary: rgb(168, 168, 168);
+  --tui-success: rgb(0, 168, 0);
+  --tui-danger: rgb(168, 0, 0);
+  --tui-warning: rgb(168, 168, 0);
+  --tui-info: rgb(0, 168, 168);
 }
 
-body {
-  color: var(--wp--preset--color--contrast);
-  background-color: var(--wp--preset--color--base);
-  font-size: var(--wp--preset--font-size--medium);
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  line-height: 1.4;
-  height: 100%;
-  overflow-x: hidden;
-  --wp--style--root--padding-top: 0;
-  --wp--style--root--padding-right: var(--wp--preset--spacing--60);
-  --wp--style--root--padding-bottom: 0;
-  --wp--style--root--padding-left: var(--wp--preset--spacing--60);
+/* TuiCss screen container */
+.screen {
+  min-height: 100vh;
 }
 
-/* 2. UTILITY CLASSES */
-.container {
-  max-width: 666px;
-    margin: 0 auto;
-  padding: 0 1rem;
+/* Custom styles for WordPress editor integration */
+.editor-container {
+  background-color: #FFFFFF;
+  border: var(--space-2) outset var(--color-black);
+  margin: var(--space-10);
+  padding: var(--space-5);
 }
 
-/* Override maxWidth--content class for site listing pages */
-.maxWidth--content {
-  max-width: 632px !important;
-  margin: 0 auto;
+/* Ensure proper contrast for text */
+.text-content {
+  color: var(--color-black);
+  background-color: #FFFFFF;
 }
 
-/* Header styling fixes */
-.MuMainHeader {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1rem 0;
-  max-width: 620px !important;
-  margin: 0 auto;
-  width: 100%;
+/* TuiCss Theme Colors */
+.primary { color: var(--tui-primary) !important; }
+.secondary { color: var(--tui-secondary) !important; }
+.success { color: var(--tui-success) !important; }
+.danger { color: var(--tui-danger) !important; }
+.warning { color: var(--tui-warning) !important; }
+.info { color: var(--tui-info) !important; }
+
+/* TuiCss Background Theme Colors */
+.bg-primary {
+  background-color: var(--tui-primary) !important;
+  color: #fff !important;
 }
 
-.MhStickyHeader {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: #fff;
-  max-width: 650px;
-  margin: 0 auto;
-  width: 100%;
+.bg-secondary {
+  background-color: var(--tui-secondary) !important;
+  color: #000 !important;
 }
 
-.MhStickyHeader__menubar {
-  width: 100%;
-  max-width: 650px;
-  margin: 0 auto;
+.bg-success {
+  background-color: var(--tui-success) !important;
+  color: #000 !important;
 }
 
-.flex {
-    display: flex;
+.bg-danger {
+  background-color: var(--tui-danger) !important;
+  color: #fff !important;
 }
 
-.flex-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.bg-warning {
+  background-color: var(--tui-warning) !important;
+  color: #000 !important;
 }
 
-.flex-between {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.bg-info {
+  background-color: var(--tui-info) !important;
+  color: #000 !important;
 }
 
-/* Typography classes */
-.text-2xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
+/* Override yellow-255-text to use gray for draft status */
+.yellow-255-text {
+  color: #666 !important;
 }
 
-.font-bold {
-    font-weight: 700;
+/* TuiCss specific classes - use unified font system */
+.tui-window, 
+.tui-fieldset, 
+.tui-button, 
+.tui-input, 
+.tui-table, 
+.tui-nav, 
+.tui-statusbar, 
+.tui-screen, 
+.tui-screen-content, 
+.tui-main-content, 
+.tui-sidenav {
+  font-family: var(--font-primary) !important;
+  font-size: var(--font-size-lg) !important;
 }
 
-.text-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-}
-
-.text-gray-600 {
-    color: #6b7280;
-}
-
-/* Flex utilities */
-.flex {
-    display: flex;
-}
-
-.space-x-3 > * + * {
-    margin-left: 0.75rem;
-}
-
-/* Button classes */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.375rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-}
-
-.btn-sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-}
-
-.btn-secondary {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
-}
-
-.btn-secondary:hover {
-    background-color: #e5e7eb;
-    border-color: #9ca3af;
-}
-
-/* Custom site button style */
-.btn-site {
-    width: auto;
-    height: 2.5rem;
-    padding: 0 1rem;
-    border: 4px solid #000;
-    background: #fff;
-    color: #000;
-    cursor: pointer;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: bold;
-    border-radius: 0;
-}
-
-.btn-site:hover {
-    background-color: #f5f5f5;
-    border-color: #333;
-}
-
-/* Editor header width constraint */
-.interface-interface-skeleton__header {
-    max-width: 650px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-.editor-header {
-    max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-.flex-col {
-    flex-direction: column;
-}
-
-.items-center {
-    align-items: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.space-x-3 > * + * {
-  margin-left: 0.75rem;
-}
-
-.space-y-2 > * + * {
-  margin-top: 0.5rem;
-}
-
-.h-64 {
-  height: 16rem;
-}
-
-.h-8 {
-  height: 2rem;
-}
-
-.w-8 {
-  width: 2rem;
-}
-
-.ml-3 {
-  margin-left: 0.75rem;
-}
-
-.text-gray-600 {
-  color: #6b7280;
-}
-
-.rounded-full {
-  border-radius: 9999px;
-}
-
-.border-b-2 {
-  border-bottom-width: 2px;
-}
-
-.border-blue-500 {
-  border-color: #3b82f6;
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
+/* Spinner animation for upload indicators */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
-/* 3. COMPONENT STYLES */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  border: 1px solid transparent;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-.btn-secondary {
-  background-color: #f3f4f6;
-  color: #374151;
-  border-color: #d1d5db;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #e5e7eb;
-  border-color: #9ca3af;
-}
-
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-}
-
-/* 4. LAYOUT STYLES */
-.header {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1rem 0;
-}
-
-.main-content {
-  min-height: calc(100vh - 80px);
-  padding: 0.5rem 0;
-  overflow-y: auto;
-}
-
-/* Ensure the main view can scroll */
-.view__inner {
-  overflow-y: auto;
-  min-height: calc(100vh - 80px);
-}
-
-/* 5. RESPONSIVE DESIGN */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 0.5rem;
-  }
-  
-  .flex-col-mobile {
-    flex-direction: column;
-  }
-  
-  .space-x-3-mobile > * + * {
-    margin-left: 0;
-    margin-top: 0.75rem;
-  }
-}
-
-/* 6. IMAGE TOOLBAR STYLES */
-.image-toolbar-overlay {
-  pointer-events: none;
-}
-
-.image-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 8px;
-  box-shadow: 0 3px 30px rgba(25, 30, 35, 0.2);
-  pointer-events: auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-}
-
-.toolbar-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 32px;
-  padding: 6px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #1e1e1e;
-  transition: background-color 0.2s ease;
-}
-
-.toolbar-btn:hover {
-  background-color: #f0f0f0;
-}
-
-.toolbar-btn svg {
-  fill: currentColor;
-}
-
-/* Image Selection Styles */
-.selected-image {
-  outline: none !important;
-  box-shadow: 0 0 0 2px #296DEB !important;
-  border-radius: 4px;
-}
-
-/* Figure Selection Styles (includes image + caption) */
-.selected-image-figure {
-  outline: none !important;
-  box-shadow: 0 0 0 2px #296DEB !important;
-  border-radius: 4px;
-}
-
-/* Delete button styling */
-.toolbar-btn-delete {
-  color: #dc3545 !important;
-}
-
-.toolbar-btn-delete:hover {
-  background-color: #f8d7da !important;
-}
-
-/* 7. GUTENBERG EDITOR STYLES */
-@import '../styles/gutenberg.css';

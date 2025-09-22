@@ -175,7 +175,7 @@ export class GutenbergAPI {
       }
     }
     
-    console.log('parseGutenbergComments - Parsed blocks:', blocks);
+    
     return blocks;
   }
 
@@ -191,9 +191,9 @@ export class GutenbergAPI {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
     
-    console.log('parseHtmlToBlocks - HTML content:', htmlContent);
-    console.log('parseHtmlToBlocks - Body children:', Array.from(doc.body.children).map(el => el.tagName));
-    console.log('parseHtmlToBlocks - All img elements:', Array.from(doc.querySelectorAll('img')).map(img => img.src));
+    
+    .map(el => el.tagName));
+    ).map(img => img.src));
     
     let clientId = 1;
     

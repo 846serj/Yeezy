@@ -150,10 +150,15 @@ export interface WordPressUser {
 
 // App State Types
 export interface WordPressSite {
-  url: string;
+  id: number | string;
+  user_id: number | string;
+  site_url: string;
   username: string;
-  appPassword: string;
-  isConnected: boolean;
+  app_password: string;
+  site_name: string | null;
+  created_at: string;
+  updated_at: string;
+  isConnected?: boolean;
   user?: WordPressUser;
 }
 

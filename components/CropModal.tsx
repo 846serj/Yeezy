@@ -1,6 +1,7 @@
 "use client";
-import { FC, useState, useCallback } from "react";
+import React, { FC, useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
+// Removed React95 imports - using Bootstrap/386 components
 
 interface Props {
   isOpen: boolean;
@@ -18,6 +19,29 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
   const handleCropComplete = useCallback((_: any, pixels: any) => {
     setCroppedAreaPixels(pixels);
   }, []);
+
+  const handleZoomChange = useCallback((newZoom: number) => {
+    setZoom(Math.max(1, Math.min(3, newZoom)));
+  }, []);
+
+  // Handle keyboard zoom
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === '+' || e.key === '=') {
+      e.preventDefault();
+      handleZoomChange(zoom + 0.1);
+    } else if (e.key === '-') {
+      e.preventDefault();
+      handleZoomChange(zoom - 0.1);
+    }
+  }, [zoom, handleZoomChange]);
+
+  // Add keyboard event listener
+  React.useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, handleKeyDown]);
 
   const handleConfirm = async () => {
     if (!croppedAreaPixels) return;
@@ -39,13 +63,13 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
       <style jsx>{`
         .crop-modal {
           --bg: #f7f7f7;
-          --card: #ffffff;
+          --card: var(--color-white);
           --text: #111;
           --muted: #666;
           --border: #e9e9e9;
           --btn-bg: rgba(255,255,255,.8);
-          --btn-shadow: 0 2px 10px rgba(0,0,0,.08);
-          --radius: 16px;
+          --btn-shadow: 0 var(--space-2) var(--space-10) rgba(0,0,0,.08);
+          --radius: var(--space-16);
           --primary: #e60023;
           --primary-hover: #ad081b;
         }
@@ -59,23 +83,27 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
           align-items: center;
           justify-content: center;
           padding: 0;
-          backdrop-filter: blur(4px);
+          backdrop-filter: blur(var(--space-4));
         }
         
         .crop-container {
           background: var(--card);
-          border: 1px solid var(--border);
+          border: var(--space-1) solid var(--border);
           border-radius: 0;
           overflow: hidden;
-          width: 100vw;
-          height: 100vh;
-          display: flex;
-          flex-direction: column;
+          width: auto !important;
+          max-width: 90vw !important;
+          height: auto !important;
+          max-height: 90vh !important;
+          display: flex !important;
+          flex-direction: column !important;
+          min-width: 400px;
+          min-height: 300px;
         }
         
         .crop-header {
-          padding: 16px 32px;
-          border-bottom: 1px solid var(--border);
+          padding: var(--space-16) var(--space-32);
+          border-bottom: var(--space-1) solid var(--border);
           background: rgba(255, 255, 255, 0.98);
           display: flex;
           align-items: center;
@@ -83,7 +111,7 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         }
         
         .crop-title {
-          font-size: 18px;
+          font-size: var(--space-18);
           font-weight: 600;
           color: var(--text);
           margin: 0;
@@ -92,13 +120,13 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         .crop-close {
           background: none;
           border: none;
-          font-size: 18px;
+          font-size: var(--space-18);
           color: #666;
           cursor: pointer;
-          padding: 4px;
+          padding: var(--space-4);
           border-radius: 50%;
-          width: 32px;
-          height: 32px;
+          width: var(--space-32);
+          height: var(--space-32);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -112,28 +140,28 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         
         .crop-area {
           position: relative;
-          width: 100%;
-          flex: 1;
+          width: 100% !important;
+          height: 400px !important;
           background: var(--bg);
-          display: flex;
+          display: flex !important;
           align-items: center;
           justify-content: center;
         }
         
         .crop-controls {
-          padding: 16px 32px;
-          border-top: 1px solid var(--border);
+          padding: var(--space-16) var(--space-32);
+          border-top: var(--space-1) solid var(--border);
           background: rgba(255, 255, 255, 0.98);
-          display: flex;
+          display: flex !important;
           align-items: center;
           justify-content: center;
-          gap: 24px;
-          flex-direction: column;
+          gap: var(--space-24);
+          flex-direction: column !important;
         }
         
         .crop-actions {
           display: flex;
-          gap: 16px;
+          gap: var(--space-16);
           align-items: center;
         }
         
@@ -141,24 +169,24 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          border: 1px solid var(--border);
+          gap: var(--space-8);
+          border: var(--space-1) solid var(--border);
           background: var(--btn-bg);
-          height: 40px;
-          padding: 0 16px;
-          border-radius: 999px;
+          height: var(--space-40);
+          padding: 0 var(--space-16);
+          border-radius: var(--space-999);
           cursor: pointer;
           box-shadow: var(--btn-shadow);
-          backdrop-filter: saturate(1.2) blur(2px);
+          backdrop-filter: saturate(1.2) blur(var(--space-2));
           font-weight: 500;
-          font-size: 14px;
+          font-size: var(--space-14);
           transition: all 0.2s ease;
           text-decoration: none;
         }
         
         .btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+          transform: translateY(-var(--space-1));
+          box-shadow: 0 var(--space-4) var(--space-12) rgba(0, 0, 0, 0.12);
         }
         
         .btn:active {
@@ -197,32 +225,32 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
         .zoom-controls {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: var(--space-8);
           color: var(--muted);
-          font-size: 14px;
+          font-size: var(--space-14);
         }
         
         .zoom-slider {
-          width: 200px;
-          height: 4px;
+          width: var(--space-200);
+          height: var(--space-4);
           background: var(--border);
-          border-radius: 2px;
+          border-radius: var(--space-2);
           outline: none;
           cursor: pointer;
         }
         
         .zoom-slider::-webkit-slider-thumb {
           appearance: none;
-          width: 16px;
-          height: 16px;
+          width: var(--space-16);
+          height: var(--space-16);
           background: var(--primary);
           border-radius: 50%;
           cursor: pointer;
         }
         
         .zoom-slider::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
+          width: var(--space-16);
+          height: var(--space-16);
           background: var(--primary);
           border-radius: 50%;
           border: none;
@@ -237,7 +265,7 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
               &lt;
             </button>
             <h2 className="crop-title">Crop Image</h2>
-            <div style={{ width: '32px' }}></div>
+            <div style={{ width: 'var(--space-32)' }}></div>
           </div>
           
           <div className="crop-area">
@@ -246,56 +274,56 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
                 image={imageSrc}
                 crop={crop}
                 zoom={zoom}
-                aspect={1280 / 720}
+                aspect={16 / 9}
                 minZoom={1}
                 maxZoom={3}
                 objectFit="contain"
                 onCropChange={setCrop}
-                onZoomChange={setZoom}
+                onZoomChange={handleZoomChange}
                 onCropComplete={handleCropComplete}
                 style={{
                   containerStyle: { 
                     backgroundColor: "var(--bg)", 
                     width: "100%", 
-                    height: "100%",
-                    borderRadius: "0"
+                    height: "100%"
                   },
                   cropAreaStyle: { 
                     backgroundColor: "transparent", 
-                    border: "2px solid var(--primary)",
-                    borderRadius: "8px"
-                  },
+                    border: "var(--space-2) solid var(--primary)",
+                    borderRadius: "var(--space-8)"
+                  }
                 }}
               />
             )}
           </div>
           
           <div className="crop-controls">
-            <div className="zoom-controls">
-              <span>Zoom:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-16)' }}>
+              <label style={{ fontSize: 'var(--space-14)', fontWeight: '500', color: 'var(--text)' }}>
+                Zoom: {Math.round(zoom * 100)}%
+              </label>
               <input
                 type="range"
-                min="1"
-                max="3"
-                step="0.1"
-                value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
                 className="zoom-slider"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => handleZoomChange(Number(e.target.value))}
               />
-              <span>{Math.round(zoom * 100)}%</span>
             </div>
             
-            <div className="crop-actions">
+            <div style={{ display: 'flex', gap: 'var(--space-16)' }}>
               <button
+                className="tui-button"
                 onClick={onCancel}
-                className="btn btn-secondary"
               >
                 Cancel
               </button>
               <button
+                className="tui-button"
                 onClick={handleConfirm}
                 disabled={loading || !croppedAreaPixels}
-                className="btn btn-primary"
               >
                 {loading ? "Applying…" : "Apply Crop"}
               </button>

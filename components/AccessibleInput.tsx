@@ -35,7 +35,7 @@ export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps
   const containerStyles = {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '0.25rem',
+    gap: 'var(--space-1)',
   };
 
   const labelStyles = {
@@ -44,7 +44,7 @@ export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps
     color: hasError ? '#dc3545' : '#333',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.25rem',
+    gap: 'var(--space-1)',
   };
 
   const inputContainerStyles = {
@@ -55,14 +55,15 @@ export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps
 
   const inputStyles = {
     width: '100%',
-    padding: leftIcon ? '0.75rem 0.75rem 0.75rem 2.5rem' : rightIcon ? '0.75rem 2.5rem 0.75rem 0.75rem' : '0.75rem',
-    border: `1px solid ${hasError ? '#dc3545' : hasSuccess ? '#28a745' : '#ddd'}`,
-    borderRadius: '4px',
-    fontSize: '0.875rem',
+    padding: leftIcon ? 'var(--space-3) var(--space-3) var(--space-3) 2.5rem' : rightIcon ? 'var(--space-3) 2.5rem var(--space-3) var(--space-3)' : 'var(--space-3)',
+    border: `1px solid ${hasError ? 'var(--tui-danger)' : hasSuccess ? 'var(--tui-success)' : 'transparent'}`,
+    borderRadius: 'var(--radius-base)',
+    fontSize: 'var(--font-size-base)',
+    fontFamily: 'var(--font-primary)',
     outline: 'none',
-    transition: 'all 0.2s ease',
-    backgroundColor: props.disabled ? '#f8f9fa' : '#fff',
-    color: props.disabled ? '#6c757d' : '#333',
+    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+    backgroundColor: props.disabled ? 'rgba(0, 0, 0, 0.05)' : 'transparent',
+    color: props.disabled ? 'var(--tui-secondary)' : 'inherit',
   };
 
   const iconStyles = {
@@ -70,53 +71,53 @@ export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '20px',
-    height: '20px',
+    width: 'var(--space-20)',
+    height: 'var(--space-20)',
     color: hasError ? '#dc3545' : hasSuccess ? '#28a745' : '#6c757d',
     pointerEvents: 'none' as const,
   };
 
   const leftIconStyles = {
     ...iconStyles,
-    left: '0.75rem',
+    left: 'var(--space-3)',
   };
 
   const rightIconStyles = {
     ...iconStyles,
-    right: '0.75rem',
+    right: 'var(--space-3)',
   };
 
   const hintStyles = {
-    fontSize: '0.75rem',
+    fontSize: 'var(--space-3)',
     color: '#6c757d',
-    marginTop: '0.25rem',
+    marginTop: 'var(--space-1)',
   };
 
   const errorStyles = {
-    fontSize: '0.75rem',
+    fontSize: 'var(--space-3)',
     color: '#dc3545',
-    marginTop: '0.25rem',
+    marginTop: 'var(--space-1)',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.25rem',
+    gap: 'var(--space-1)',
   };
 
   const successStyles = {
-    fontSize: '0.75rem',
+    fontSize: 'var(--space-3)',
     color: '#28a745',
-    marginTop: '0.25rem',
+    marginTop: 'var(--space-1)',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.25rem',
+    gap: 'var(--space-1)',
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = hasError ? '#dc3545' : hasSuccess ? '#28a745' : '#0073aa';
-    e.currentTarget.style.boxShadow = `0 0 0 2px ${hasError ? 'rgba(220, 53, 69, 0.25)' : hasSuccess ? 'rgba(40, 167, 69, 0.25)' : 'rgba(0, 115, 170, 0.25)'}`;
+    e.currentTarget.style.borderColor = hasError ? 'var(--tui-danger)' : hasSuccess ? 'var(--tui-success)' : 'var(--tui-primary)';
+    e.currentTarget.style.boxShadow = `0 0 0 2px ${hasError ? 'rgba(168, 0, 0, 0.1)' : hasSuccess ? 'rgba(0, 168, 0, 0.1)' : 'rgba(0, 0, 168, 0.1)'}`;
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = hasError ? '#dc3545' : hasSuccess ? '#28a745' : '#ddd';
+    e.currentTarget.style.borderColor = hasError ? 'var(--tui-danger)' : hasSuccess ? 'var(--tui-success)' : 'transparent';
     e.currentTarget.style.boxShadow = 'none';
   };
 
@@ -170,14 +171,14 @@ export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps
       
       {hasError && (
         <div id={errorId} style={errorStyles} role="alert">
-          <AlertCircle style={{ width: '14px', height: '14px' }} />
+          <AlertCircle style={{ width: 'var(--space-14)', height: 'var(--space-14)' }} />
           {error}
         </div>
       )}
       
       {hasSuccess && !hasError && (
         <div style={successStyles}>
-          <CheckCircle style={{ width: '14px', height: '14px' }} />
+          <CheckCircle style={{ width: 'var(--space-14)', height: 'var(--space-14)' }} />
           {success}
         </div>
       )}

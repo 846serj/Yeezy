@@ -5,7 +5,7 @@ import { addCorsHeaders } from '../auth/middleware';
 
 // Define allowed methods
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const preferredRegion = 'iad1';
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -18,7 +18,7 @@ async function getUserIdFromToken(request: NextRequest) {
   
   try {
     const { payload } = await jose.jwtVerify(token, JWT_SECRET);
-    return payload.userId as string;
+    return String(payload.userId); // Ensure it's always a string
   } catch {
     return null;
   }
@@ -56,17 +56,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const { siteUrl, username, appPassword, siteName } = await request.json();
+    const siteData = await request.json();
 
-    if (!siteUrl || !username || !appPassword) {
+    if (!siteData.site_url || !siteData.username || !siteData.app_password) {
       return NextResponse.json({ error: 'Site URL, username, and app password are required' }, { status: 400 });
     }
 
-    const result = await addUserSite(userId, siteUrl, username, appPassword, siteName);
+    const result = await addUserSite(
+      userId, 
+      siteData.site_url, 
+      siteData.username, 
+      siteData.app_password, 
+      siteData.site_name
+    );
     
     return addCorsHeaders(NextResponse.json({ 
       message: 'Site added successfully',
-      site: { id: result.id, siteUrl, username, siteName }
+      site: result
     }));
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

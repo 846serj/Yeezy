@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  console.log('🔍 Search API called');
+  
   
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('query') || '';
@@ -9,11 +9,11 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1');
   const perPage = parseInt(searchParams.get('perPage') || '20');
   
-  console.log('🔍 Search parameters:', { query, sources, page, perPage });
+  
   
   try {
     const images = await searchImages(query, sources, page, perPage);
-    console.log('✅ Returning real images:', { imageCount: images.length });
+    
     
     return NextResponse.json({
       images,
@@ -26,16 +26,16 @@ export async function GET(request: NextRequest) {
     // Return mock data as fallback
     const mockImages = [
       {
-        url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/300px-Lion_%28Panthera_leo%29_male_Head_01.jpg',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/var(--space-300)-Lion_%28Panthera_leo%29_male_Head_01.jpg',
         full: 'https://upload.wikimedia.org/wikipedia/commons/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg',
         caption: 'Lion (Panthera leo) male Head',
         source: 'wikiCommons',
-        thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/150px-Lion_%28Panthera_leo%29_male_Head_01.jpg',
+        thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/var(--space-150)-Lion_%28Panthera_leo%29_male_Head_01.jpg',
         attribution: 'Photo by Unknown, via Wikimedia Commons'
       }
     ];
     
-    console.log('⚠️ Returning fallback mock images:', { imageCount: mockImages.length });
+    
     
     return NextResponse.json({
       images: mockImages,
@@ -51,9 +51,9 @@ async function searchImages(query: string, sources: string[], page: number, perP
   // Search Unsplash
   if (sources.includes('all') || sources.includes('unsplash')) {
     try {
-      console.log('🔍 Searching Unsplash...');
+      
       const unsplashImages = await searchUnsplash(query, page, perPage);
-      console.log('✅ Unsplash found:', unsplashImages.length, 'images');
+      
       allImages.push(...unsplashImages);
     } catch (error) {
       console.error('❌ Unsplash search error:', error);
@@ -63,9 +63,9 @@ async function searchImages(query: string, sources: string[], page: number, perP
   // Search Pexels
   if (sources.includes('all') || sources.includes('pexels')) {
     try {
-      console.log('🔍 Searching Pexels...');
+      
       const pexelsImages = await searchPexels(query, page, perPage);
-      console.log('✅ Pexels found:', pexelsImages.length, 'images');
+      
       allImages.push(...pexelsImages);
     } catch (error) {
       console.error('❌ Pexels search error:', error);
@@ -75,9 +75,9 @@ async function searchImages(query: string, sources: string[], page: number, perP
   // Search Wiki Commons
   if (sources.includes('all') || sources.includes('wikiCommons')) {
     try {
-      console.log('🔍 Searching Wiki Commons...');
+      
       const wikiImages = await searchWikiCommons(query, page, perPage);
-      console.log('✅ Wiki Commons found:', wikiImages.length, 'images');
+      
       allImages.push(...wikiImages);
     } catch (error) {
       console.error('❌ Wiki Commons search error:', error);
@@ -141,7 +141,7 @@ async function searchPexels(query: string, page: number, perPage: number) {
 }
 
 async function searchWikiCommons(query: string, page: number, perPage: number) {
-  console.log('🔍 Starting Wiki Commons search for:', query);
+  
   
   // Add timeout to prevent hanging
   const controller = new AbortController();
@@ -150,24 +150,24 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
   try {
     // First, search for files
     const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&list=search&srsearch=${encodeURIComponent(query)}&srnamespace=6&srlimit=${perPage}&sroffset=${(page - 1) * perPage}`;
-    console.log('🔍 Wiki Commons search URL:', searchUrl);
+    
     
     const searchResponse = await fetch(searchUrl, { signal: controller.signal });
 
     clearTimeout(timeoutId);
 
-    console.log('🔍 Wiki Commons search response status:', searchResponse.status);
+    
 
     if (!searchResponse.ok) {
-      console.log('❌ Wiki Commons search response not ok:', searchResponse.status);
+      
       // Return mock data as fallback
       return [
         {
-          url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/300px-Lion_%28Panthera_leo%29_male_Head_01.jpg',
+          url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/var(--space-300)-Lion_%28Panthera_leo%29_male_Head_01.jpg',
           full: 'https://upload.wikimedia.org/wikipedia/commons/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg',
           caption: 'Lion (Panthera leo) male Head',
           source: 'wikiCommons',
-          thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/150px-Lion_%28Panthera_leo%29_male_Head_01.jpg',
+          thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/var(--space-150)-Lion_%28Panthera_leo%29_male_Head_01.jpg',
           attribution: 'Photo by Unknown, via Wikimedia Commons'
         }
       ];
@@ -177,7 +177,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
     const searchResults = searchData.query?.search || [];
     
     if (searchResults.length === 0) {
-      console.log('⚠️ No Wiki Commons search results found');
+      
       return [];
     }
 
@@ -189,7 +189,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
     );
 
     if (!imageResponse.ok) {
-      console.log('❌ Wiki Commons image response not ok:', imageResponse.status);
+      
       return [];
     }
 
@@ -205,7 +205,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
       // Use the actual image URL if available, otherwise fallback to the page URL
       const imageUrl = imageInfo?.url || `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(result.title)}`;
       
-      // Get thumbnail URL (300px width) for faster loading in search results
+      // Get thumbnail URL (var(--space-300) width) for faster loading in search results
       const thumbnailUrl = imageInfo?.thumburl || imageUrl;
       
       // Extract author/creator information
@@ -235,26 +235,26 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
-      console.log('⏰ Wiki Commons search timed out, returning mock data');
+      
     } else {
       console.error('❌ Wiki Commons search error:', error);
     }
     // Return mock data as fallback
     return [
       {
-        url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/300px-Lion_%28Panthera_leo%29_male_Head_01.jpg',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/var(--space-300)-Lion_%28Panthera_leo%29_male_Head_01.jpg',
         full: 'https://upload.wikimedia.org/wikipedia/commons/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg',
         caption: 'Lion (Panthera leo) male Head',
         source: 'wikiCommons',
-        thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/150px-Lion_%28Panthera_leo%29_male_Head_01.jpg',
+        thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/var(--space-150)-Lion_%28Panthera_leo%29_male_Head_01.jpg',
         attribution: 'Photo by Unknown, via Wikimedia Commons'
       },
       {
-        url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Lion_waiting_in_Namibia.jpg/300px-Lion_waiting_in_Namibia.jpg',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Lion_waiting_in_Namibia.jpg/var(--space-300)-Lion_waiting_in_Namibia.jpg',
         full: 'https://upload.wikimedia.org/wikipedia/commons/5/50/Lion_waiting_in_Namibia.jpg',
         caption: 'Lion waiting in Namibia',
         source: 'wikiCommons',
-        thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Lion_waiting_in_Namibia.jpg/150px-Lion_waiting_in_Namibia.jpg',
+        thumbnail: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Lion_waiting_in_Namibia.jpg/var(--space-150)-Lion_waiting_in_Namibia.jpg',
         attribution: 'Photo by Unknown, via Wikimedia Commons'
       }
     ];

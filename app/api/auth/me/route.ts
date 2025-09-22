@@ -4,7 +4,7 @@ import * as jose from 'jose';
 
 // Define allowed methods
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const preferredRegion = 'iad1';
 
 const JWT_SECRET = new TextEncoder().encode(

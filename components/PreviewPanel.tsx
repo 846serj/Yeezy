@@ -62,7 +62,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const openInNewTab = () => {
     if (postId && site?.isConnected) {
       // Open the actual WordPress post in a new tab
-      const postUrl = `${site.url}/wp-admin/post.php?post=${postId}&action=edit`;
+      const postUrl = `${site.site_url}/wp-admin/post.php?post=${postId}&action=edit`;
       window.open(postUrl, '_blank');
     } else {
       // For new posts, we can't open in WordPress admin yet
@@ -88,11 +88,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0.75rem',
-        borderBottom: '1px solid #ddd',
+        padding: 'var(--space-3)',
+        borderBottom: 'var(--space-1) solid #ddd',
         background: '#f9f9f9'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
           <Eye className="h-4 w-4" />
           <span style={{ fontWeight: '600', fontSize: '0.875rem' }}>
             Preview
@@ -102,16 +102,16 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           )}
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
           <button
             onClick={() => setShowPreview(!showPreview)}
             style={{
-              padding: '0.25rem 0.5rem',
-              fontSize: '0.75rem',
-              border: '1px solid #ddd',
+              padding: 'var(--space-1) var(--space-2)',
+              fontSize: 'var(--space-3)',
+              border: 'var(--space-1) solid #ddd',
               background: showPreview ? '#0073aa' : '#fff',
               color: showPreview ? '#fff' : '#333',
-              borderRadius: '4px',
+              borderRadius: 'var(--space-4)',
               cursor: 'pointer'
             }}
           >
@@ -122,12 +122,12 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             onClick={refreshPreview}
             disabled={isLoading}
             style={{
-              padding: '0.25rem 0.5rem',
-              fontSize: '0.75rem',
-              border: '1px solid #ddd',
+              padding: 'var(--space-1) var(--space-2)',
+              fontSize: 'var(--space-3)',
+              border: 'var(--space-1) solid #ddd',
               background: '#fff',
               color: '#333',
-              borderRadius: '4px',
+              borderRadius: 'var(--space-4)',
               cursor: isLoading ? 'not-allowed' : 'pointer',
               opacity: isLoading ? 0.6 : 1
             }}
@@ -139,16 +139,16 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             <button
               onClick={openInNewTab}
               style={{
-                padding: '0.25rem 0.5rem',
-                fontSize: '0.75rem',
-                border: '1px solid #ddd',
+                padding: 'var(--space-1) var(--space-2)',
+                fontSize: 'var(--space-3)',
+                border: 'var(--space-1) solid #ddd',
                 background: '#fff',
                 color: '#333',
-                borderRadius: '4px',
+                borderRadius: 'var(--space-4)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.25rem'
+                gap: 'var(--space-1)'
               }}
             >
               <ExternalLink className="h-3 w-3" />
@@ -160,19 +160,19 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
       {/* Preview Content */}
       <div className="preview-content" style={{
-        padding: '1rem',
-        minHeight: '200px',
-        maxHeight: '600px',
+        padding: 'var(--space-4)',
+        minHeight: 'var(--space-200)',
+        maxHeight: 'var(--space-600)',
         overflowY: 'auto',
         background: '#fff'
       }}>
         {error && (
           <div style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
+            padding: 'var(--space-3)',
+            marginBottom: 'var(--space-4)',
             background: '#fff3cd',
-            border: '1px solid #ffeaa7',
-            borderRadius: '4px',
+            border: 'var(--space-1) solid #ffeaa7',
+            borderRadius: 'var(--space-4)',
             color: '#856404',
             fontSize: '0.875rem'
           }}>
@@ -185,19 +185,19 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '2rem',
+            padding: 'var(--space-8)',
             color: '#666'
           }}>
-            <RefreshCw className="h-6 w-6 animate-spin" style={{ marginRight: '0.5rem' }} />
+            <RefreshCw className="h-6 w-6 animate-spin" style={{ marginRight: 'var(--space-2)' }} />
             Loading preview...
           </div>
         ) : (
           <div>
             {/* Preview Title */}
             <h1 style={{
-              fontSize: '2rem',
+              fontSize: 'var(--space-8)',
               fontWeight: '600',
-              marginBottom: '1rem',
+              marginBottom: 'var(--space-4)',
               color: '#1e1e1e',
               lineHeight: '1.3'
             }}>
@@ -209,7 +209,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               dangerouslySetInnerHTML={{ __html: displayContent }}
               style={{
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-                fontSize: '14px',
+                fontSize: 'var(--space-14)',
                 lineHeight: '1.6',
                 color: '#1e1e1e'
               }}

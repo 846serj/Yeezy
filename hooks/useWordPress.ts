@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { WordPressAPIV2Fallback, createWordPressAPIV2Fallback, validateWordPressUrl, testWordPressRESTAPI } from '@/lib/wordpress-api-v2-fallback';
 import { WordPressSite, WordPressPost, WordPressMedia, WordPressCategory, WordPressTag, EditorContent } from '@/types';
 import { useWordPressStore } from '@/lib/store';
@@ -38,44 +38,100 @@ export const useWordPress = () => {
     reset,
   } = useWordPressStore();
 
+  // Load saved sites on initialization
+  useEffect(() => {
+    const loadSavedSites = async () => {
+      try {
+        const response = await fetch('/api/sites');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.sites && data.sites.length > 0) {
+            // Use the first saved site
+            const savedSite = data.sites[0];
+            const newApi = createWordPressAPIV2Fallback(
+              savedSite.site_url, 
+              savedSite.username, 
+              savedSite.app_password
+            );
+            setSite(savedSite);
+            setApi(newApi);
+            setConnected(true);
+            
+          }
+        }
+      } catch (error) {
+        
+      }
+    };
+
+    loadSavedSites();
+  }, [setSite, setApi, setConnected]);
+
   // Connect to WordPress site
   const connect = useCallback(async (siteUrl: string, username: string, appPassword: string) => {
     setLoading(true);
     setError(null);
 
     try {
+      
+      
       // Validate URL format
       if (!validateWordPressUrl(siteUrl)) {
         throw new Error('Please enter a valid URL (e.g., https://yoursite.com)');
       }
 
       // Test REST API availability
+      
       const isRESTAPIAvailable = await testWordPressRESTAPI(siteUrl);
       if (!isRESTAPIAvailable) {
         throw new Error('WordPress REST API is not available on this site. Please ensure your WordPress site is up to date and REST API is enabled.');
       }
+      
 
       // Create API instance
+      
       const newApi = createWordPressAPIV2Fallback(siteUrl, username, appPassword);
 
       // Test connection
+      
       const isConnected = await newApi.testConnection();
       if (!isConnected) {
         throw new Error('Failed to connect. Please check your credentials and try again.');
       }
+      
 
       // Get user information
       const user = await newApi.getCurrentUser();
 
-      // Update state
+      // Extract site name from URL
+      const siteName = new URL(siteUrl).hostname;
+
+      const newSite: WordPressSite = {
+        id: Date.now(), // Temporary ID for new connection
+        user_id: user.id,
+        site_url: siteUrl,
+        username: username,
+        app_password: appPassword,
+        site_name: siteName,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      // Save site to backend
+      const savedSite = await fetch('/api/sites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newSite),
+      }).then(res => res.json());
+
+      if (savedSite.error) {
+        throw new Error(savedSite.error);
+      }
+
+      setSite(savedSite);
       setApi(newApi);
-      setSite({
-        url: siteUrl,
-        username,
-        appPassword,
-        isConnected: true,
-        user,
-      });
       setConnected(true);
 
       // Load articles, categories, and tags after successful connection

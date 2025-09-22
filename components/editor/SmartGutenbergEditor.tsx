@@ -1,21 +1,49 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { ClientOnlyGutenbergEditorProps } from './types';
 import { EDITOR_CONFIG } from './config';
-import ClientOnlyGutenbergEditor from './ClientOnlyGutenbergEditor';
-import WordPressBlockEditor from './components/WordPressBlockEditor';
+import ClientOnlyGutenbergEditor, { ClientOnlyGutenbergEditorRef } from './ClientOnlyGutenbergEditor';
+import WordPressBlockEditor, { WordPressBlockEditorRef } from './components/WordPressBlockEditor';
 
-export default function SmartGutenbergEditor(props: ClientOnlyGutenbergEditorProps) {
+export interface SmartGutenbergEditorRef {
+  handleSaveWithUploadCheck: () => Promise<void>;
+  getUploadState: () => { hasUploadingImages: boolean; isSaving: boolean } | null;
+}
+
+const SmartGutenbergEditor = forwardRef<SmartGutenbergEditorRef, ClientOnlyGutenbergEditorProps>((props, ref) => {
   const [useWordPressOfficial, setUseWordPressOfficial] = useState<boolean>(EDITOR_CONFIG.USE_WORDPRESS_OFFICIAL);
   const [wordPressComponentsLoaded, setWordPressComponentsLoaded] = useState(false);
   const [fallbackToCustom, setFallbackToCustom] = useState(false);
+  const [wordPressEditorRef, setWordPressEditorRef] = useState<WordPressBlockEditorRef | null>(null);
+  const [clientOnlyEditorRef, setClientOnlyEditorRef] = useState<ClientOnlyGutenbergEditorRef | null>(null);
+
+  // Expose the save function through ref
+  useImperativeHandle(ref, () => ({
+    handleSaveWithUploadCheck: async () => {
+      if (wordPressEditorRef) {
+        await wordPressEditorRef.handleSaveWithUploadCheck();
+      } else if (clientOnlyEditorRef) {
+        await clientOnlyEditorRef.handleSaveWithUploadCheck();
+      } else {
+        console.warn('⚠️ WordPress editor ref not available');
+      }
+    },
+    getUploadState: () => {
+      if (wordPressEditorRef) {
+        return wordPressEditorRef.getUploadState();
+      } else if (clientOnlyEditorRef) {
+        return clientOnlyEditorRef.getUploadState();
+      }
+      return null;
+    }
+  }), [wordPressEditorRef, clientOnlyEditorRef]);
 
   useEffect(() => {
     // Test if WordPress components can be loaded
     const testWordPressComponents = async () => {
       try {
-        console.log('🔍 Testing WordPress components availability...');
+        
         const [blockEditor, components, blocks] = await Promise.all([
           import('@wordpress/block-editor').catch(err => {
             console.warn('Failed to load @wordpress/block-editor:', err);
@@ -33,7 +61,7 @@ export default function SmartGutenbergEditor(props: ClientOnlyGutenbergEditorPro
         
         if (blockEditor && components && blocks) {
           setWordPressComponentsLoaded(true);
-          console.log('✅ WordPress components loaded successfully');
+          
         } else {
           throw new Error('One or more WordPress modules failed to load');
         }
@@ -76,10 +104,12 @@ export default function SmartGutenbergEditor(props: ClientOnlyGutenbergEditorPro
 
   // Choose the appropriate editor
   if (useWordPressOfficial && wordPressComponentsLoaded) {
-    console.log('🎯 Using WordPress Official Block Editor');
-    return <WordPressBlockEditor {...props} />;
+    
+    return <WordPressBlockEditor ref={setWordPressEditorRef} {...props} />;
   } else {
-    console.log('🎯 Using Custom Block Editor');
-    return <ClientOnlyGutenbergEditor {...props} />;
+    
+    return <ClientOnlyGutenbergEditor ref={setClientOnlyEditorRef} {...props} />;
   }
-}
+});
+
+export default SmartGutenbergEditor;

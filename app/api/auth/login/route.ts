@@ -5,7 +5,7 @@ import * as jose from 'jose';
 
 // Define allowed methods
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const preferredRegion = 'iad1';
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -34,21 +34,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    console.log('🔍 Login attempt for email:', email);
+    
     const user = await getUserByEmail(email);
-    console.log('👤 User found:', user ? 'Yes' : 'No');
+    
     
     if (!user) {
-      console.log('❌ User not found in database');
+      
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    console.log('🔐 Verifying password...');
+    
     const isValidPassword = verifyPassword(password, user.password_hash);
-    console.log('✅ Password valid:', isValidPassword);
+    
     
     if (!isValidPassword) {
-      console.log('❌ Invalid password');
+      
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 

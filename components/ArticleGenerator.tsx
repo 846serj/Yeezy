@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Plus, Loader2, ArrowLeft } from 'lucide-react';
+import { WORD_RANGES, DEFAULT_WORDS } from '@/constants/lengthOptions';
 
 interface ArticleGeneratorProps {
   onBack: () => void;
@@ -26,6 +27,23 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
   const [modelVersion, setModelVersion] = useState('gpt-4o-mini');
   const [useSerpApi, setUseSerpApi] = useState(true);
   const [includeLinks, setIncludeLinks] = useState(true);
+
+
+  // Helper function to get word count display
+  const getWordCountDisplay = (option: string) => {
+    if (option === 'default') {
+      return `~${DEFAULT_WORDS} words`;
+    }
+    if (option === 'custom') {
+      return `${customSections} sections`;
+    }
+    const range = WORD_RANGES[option];
+    if (range) {
+      return `${range[0]}-${range[1]} words`;
+    }
+    return '';
+  };
+
 
   const handleGenerate = async () => {
     if (!title.trim()) {
@@ -77,8 +95,8 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
       clearTimeout(timeoutId);
       setProgress('Processing AI response...');
 
-      console.log('📡 API Response status:', response.status);
-      console.log('📡 API Response headers:', response.headers);
+      
+      
       
       // Handle different error status codes
       if (response.status === 504) {
@@ -94,7 +112,7 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
       }
       
       const data = await response.json();
-      console.log('📡 API Response data:', data);
+      
 
       if (!response.ok || !data.content) {
         throw new Error(data.error || 'Failed to generate article');
@@ -119,220 +137,196 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
     }
   };
 
-  const labelStyle = 'block text-sm font-medium text-gray-700 mb-2';
-  const inputStyle = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500';
-
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="mb-6">
-        <button
-          onClick={onBack}
-          className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Articles
-        </button>
-        <h2 className="text-2xl font-bold">Generate New Article</h2>
-        <p className="text-gray-600 mt-2">Create AI-generated content for your WordPress site</p>
-      </div>
-
-      <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
-        {/* Title */}
-        <div>
-          <label className={labelStyle}>Article Title *</label>
-          <input
-            type="text"
-            className={inputStyle}
-            placeholder="Enter your article title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-        {/* Article Type */}
-        <div>
-          <label className={labelStyle}>Article Type</label>
-          <select
-            className={inputStyle}
-            value={articleType}
-            onChange={(e) => setArticleType(e.target.value as any)}
-          >
-            <option value="Blog post">Blog post</option>
-            <option value="Listicle/Gallery">Listicle/Gallery</option>
-            <option value="Rewrite blog post">Rewrite blog post</option>
-          </select>
-        </div>
-
-        {/* Custom Instructions */}
-        <div>
-          <label className={labelStyle}>Custom Instructions (optional)</label>
-          <textarea
-            className={inputStyle}
-            rows={3}
-            placeholder="Any specific guidance for the article"
-            value={customInstructions}
-            onChange={(e) => setCustomInstructions(e.target.value)}
-          />
-        </div>
-
-        {/* Blog Link for Rewrite */}
-        {articleType === 'Rewrite blog post' && (
-          <div>
-            <label className={labelStyle}>Blog Post URL *</label>
-            <input
-              type="url"
-              className={inputStyle}
-              placeholder="https://example.com/your-post"
-              value={blogLink}
-              onChange={(e) => setBlogLink(e.target.value)}
-            />
-          </div>
-        )}
-
-        {/* Length Options for Blog posts */}
-        {articleType === 'Blog post' && (
-          <div>
-            <label className={labelStyle}>Article Length</label>
-            <select
-              className={inputStyle}
-              value={lengthOption}
-              onChange={(e) => setLengthOption(e.target.value as any)}
+    <div style={{ 
+      height: '100%', 
+      background: 'transparent',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <div style={{ 
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: 'column',
+        minHeight: 'var(--space-600)'
+      }}>
+          {/* Header with Back Button */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-10)' }}>
+            <button
+              className="tui-button"
+              onClick={onBack}
+              title="Back to Dashboard"
             >
-              <option value="default">Default (~1,900 words)</option>
-              <option value="shorter">Shorter (450-900 words)</option>
-              <option value="short">Short (950-1,350 words)</option>
-              <option value="medium">Medium (1,350-1,870 words)</option>
-              <option value="longForm">Long Form (1,900-2,440 words)</option>
-              <option value="longer">Longer (2,350-2,940 words)</option>
-              <option value="custom">Custom</option>
-            </select>
-            {lengthOption === 'custom' && (
-              <input
-                type="number"
-                className={`${inputStyle} mt-2`}
-                placeholder="Number of sections"
-                value={customSections}
-                onChange={(e) => setCustomSections(Number(e.target.value))}
-                min="1"
-              />
-            )}
-          </div>
-        )}
-
-        {/* Tone of Voice */}
-        <div>
-          <label className={labelStyle}>Tone of Voice</label>
-          <select
-            className={inputStyle}
-            value={toneOfVoice}
-            onChange={(e) => setToneOfVoice(e.target.value)}
-          >
-            <option value="SEO Optimized (Confident, Knowledgeable, Neutral, and Clear)">SEO Optimized</option>
-            <option value="Professional">Professional</option>
-            <option value="Friendly">Friendly</option>
-            <option value="Casual">Casual</option>
-            <option value="Formal">Formal</option>
-            <option value="Excited">Excited</option>
-            <option value="Humorous">Humorous</option>
-          </select>
-        </div>
-
-        {/* Point of View */}
-        <div>
-          <label className={labelStyle}>Point of View</label>
-          <select
-            className={inputStyle}
-            value={pointOfView}
-            onChange={(e) => setPointOfView(e.target.value)}
-          >
-            <option value="First Person Singular">First Person Singular (I, me, my)</option>
-            <option value="First Person Plural">First Person Plural (we, us, our)</option>
-            <option value="Second Person">Second Person (you, your)</option>
-            <option value="Third Person">Third Person (he, she, it, they)</option>
-          </select>
-        </div>
-
-        {/* Model Version */}
-        <div>
-          <label className={labelStyle}>AI Model</label>
-          <select
-            className={inputStyle}
-            value={modelVersion}
-            onChange={(e) => setModelVersion(e.target.value)}
-          >
-            <option value="gpt-4o">GPT-4o (Most capable)</option>
-            <option value="gpt-4o-mini">GPT-4o Mini (Faster, cheaper)</option>
-            <option value="gpt-4">GPT-4 (Classic)</option>
-            <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Fastest)</option>
-          </select>
-        </div>
-
-        {/* SERP API Options */}
-        <div className="space-y-3">
-          <div className="flex items-center">
-            <input
-              id="use-serp-api"
-              type="checkbox"
-              checked={useSerpApi}
-              onChange={(e) => setUseSerpApi(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="use-serp-api" className="ml-2 text-sm font-medium text-gray-700">
-              Use SERP API for sources and research
-            </label>
+              &lt;
+            </button>
           </div>
           
-          <div className="flex items-center">
-            <input
-              id="include-links"
-              type="checkbox"
-              checked={includeLinks}
-              onChange={(e) => setIncludeLinks(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="include-links" className="ml-2 text-sm font-medium text-gray-700">
-              Include external links in the article
-            </label>
-          </div>
-        </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-16)' }}>
+            {/* Title */}
+            <fieldset className="tui-input-fieldset">
+              <legend>Article Title *</legend>
+              <input
+                type="text"
+                className="tui-input"
+                placeholder="Enter your article title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                style={{
+                  width: '100%' // 1/3 wider (100% + 33.33% = 133.33%)
+                }}
+              />
+            </fieldset>
 
-        {/* Progress Message */}
-        {loading && progress && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
-            <div className="flex items-center">
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              {progress}
+            {/* Article Type */}
+            <fieldset className="tui-input-fieldset">
+              <legend>Article Type</legend>
+              <select
+                className="tui-select"
+                value={articleType}
+                onChange={(e) => setArticleType(e.target.value as 'Blog post' | 'Listicle/Gallery' | 'Rewrite blog post')}
+                style={{ width: '100%' }}
+              >
+                <option value="Blog post">Blog post</option>
+                <option value="Listicle/Gallery">Listicle/Gallery</option>
+                <option value="Rewrite blog post">Rewrite blog post</option>
+              </select>
+            </fieldset>
+
+            {/* Custom Instructions */}
+            <fieldset className="tui-input-fieldset">
+              <legend>Custom Instructions (optional)</legend>
+              <textarea
+                className="tui-textarea"
+                placeholder="Any specific guidance for the article"
+                value={customInstructions}
+                onChange={(e) => setCustomInstructions(e.target.value)}
+                rows={3}
+                style={{
+                  color: '#000' // Black text instead of yellow
+                }}
+              />
+            </fieldset>
+
+            {/* Blog Link for Rewrite */}
+            {articleType === 'Rewrite blog post' && (
+              <fieldset className="tui-input-fieldset">
+                <legend>Blog Post URL *</legend>
+                <input
+                  type="url"
+                  className="tui-input"
+                  placeholder="https://example.com/your-post"
+                  value={blogLink}
+                  onChange={(e) => setBlogLink(e.target.value)}
+                />
+              </fieldset>
+            )}
+
+            {/* Length Options for Blog posts */}
+            {articleType === 'Blog post' && (
+              <fieldset className="tui-input-fieldset">
+                <legend>Article Length</legend>
+                <select
+                  className="tui-select"
+                  value={lengthOption}
+                  onChange={(e) => setLengthOption(e.target.value as 'default' | 'custom' | 'shorter' | 'short' | 'medium' | 'longForm' | 'longer')}
+                  style={{ width: '100%', marginBottom: 'var(--space-12)' }}
+                >
+                  <option value="default">Default - {getWordCountDisplay('default')}</option>
+                  <option value="shorter">Shorter - {getWordCountDisplay('shorter')}</option>
+                  <option value="short">Short - {getWordCountDisplay('short')}</option>
+                  <option value="medium">Medium - {getWordCountDisplay('medium')}</option>
+                  <option value="longForm">Long Form - {getWordCountDisplay('longForm')}</option>
+                  <option value="longer">Longer - {getWordCountDisplay('longer')}</option>
+                  <option value="custom">Custom - {getWordCountDisplay('custom')}</option>
+                </select>
+                {lengthOption === 'custom' && (
+                  <div>
+                    <label>Number of sections:</label>
+                    <input
+                      type="number"
+                      className="tui-input"
+                      min="1"
+                      max="20"
+                      value={customSections}
+                      onChange={(e) => setCustomSections(parseInt(e.target.value) || 5)}
+                    />
+                  </div>
+                )}
+              </fieldset>
+            )}
+
+            {/* Link Options for Blog posts */}
+            {articleType === 'Blog post' && (
+              <fieldset className="tui-input-fieldset">
+                <legend>Link Options</legend>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-12)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-8)' }}>
+                    <input
+                      type="checkbox"
+                      checked={useSerpApi}
+                      onChange={(e) => setUseSerpApi(e.target.checked)}
+                      style={{ margin: 0 }}
+                    />
+                    <span>Use SERP API for research</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-8)' }}>
+                    <input
+                      type="checkbox"
+                      checked={includeLinks}
+                      onChange={(e) => setIncludeLinks(e.target.checked)}
+                      style={{ margin: 0 }}
+                    />
+                    <span>Include external links in article</span>
+                  </label>
+                </div>
+              </fieldset>
+            )}
+
+            {/* Progress indicator */}
+            {loading && (
+              <div className="tui-fieldset">
+                <legend>Generation Progress</legend>
+                <div className="tui-progress-bar">
+                  <div className="tui-progress" style={{ width: '50%' }}></div>
+                </div>
+                <p>{progress}</p>
+              </div>
+            )}
+
+            {/* Error display */}
+            {error && (
+              <div style={{
+                padding: 'var(--space-10)',
+                backgroundColor: '#ffebee',
+                border: 'var(--space-1) solid #f44336',
+                borderRadius: 'var(--space-4)',
+                color: '#c62828'
+              }}>
+                {error}
+              </div>
+            )}
+
+            {/* Generate Button */}
+            <div>
+              <button
+                className="tui-button"
+                onClick={handleGenerate}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 me-2 animate-spin" />
+                    Generating Article...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 me-2" />
+                    Generate Article
+                  </>
+                )}
+              </button>
             </div>
           </div>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
-
-        {/* Generate Button */}
-        <div className="pt-4">
-          <button
-            onClick={handleGenerate}
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-md flex items-center justify-center"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating Article...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4 mr-2" />
-                Generate Article
-              </>
-            )}
-          </button>
-        </div>
       </div>
     </div>
   );

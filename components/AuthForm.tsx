@@ -2,16 +2,20 @@
 
 import React, { useState } from 'react';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { TuiCheckbox } from './TuiFormElements';
 
 interface AuthFormProps {
   onSuccess: (user: { id: number; email: string }) => void;
 }
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
+  const { login, signup } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    rememberMe: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,27 +23,37 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return;
+    }
+    
+    if (!formData.password.trim()) {
+      setError('Password is required');
+      return;
+    }
+    
+    if (!isLogin && formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const result = isLogin 
+        ? await login(formData.email, formData.password)
+        : await signup(formData.email, formData.password);
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (result.success) {
         setSuccess(isLogin ? 'Login successful!' : 'Account created successfully!');
-        onSuccess(data.user);
+        onSuccess({ id: 0, email: formData.email }); // The user will be set by the hook
       } else {
-        setError(data.error || 'Something went wrong');
+        setError(result.error || 'An error occurred');
       }
     } catch (err) {
       setError('Network error. Please try again.');
@@ -49,129 +63,103 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
-    }));
+    });
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setError(null);
+    setSuccess(null);
   };
 
   return (
-    <div className="App mq--dt mq--above-sm mq--above-md mq--below-lg mq--below-xl mq--above-xs">
-
-      <main className="view__inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 0' }}>
-        <div className="container">
-          <div className="editor-card" style={{ maxWidth: '400px', margin: '0 auto' }}>
-            <div className="editor-head">
-              <div className="title-left">
-                <h2 className="post-title">{isLogin ? 'Sign In' : 'Sign Up'}</h2>
-              </div>
-            </div>
-            
-            <p className="muted" style={{ marginBottom: '2rem' }}>
-              {isLogin ? 'Enter your email to access your WordPress sites' : 'Create an account to save your WordPress sites'}
-            </p>
-
-            <form onSubmit={handleSubmit}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {/* Email */}
-                <div>
-                  <label htmlFor="email" style={{ display: 'block', fontWeight: '800', marginBottom: '0.5rem' }}>
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="your@email.com"
-                    className="input"
-                  />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label htmlFor="password" style={{ display: 'block', fontWeight: '800', marginBottom: '0.5rem' }}>
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder="Enter your password"
-                    className="input"
-                  />
-                  {!isLogin && (
-                    <p className="muted" style={{ marginTop: '0.25rem', fontSize: '0.8rem' }}>
-                      Password must be at least 6 characters
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Error Message */}
-              {error && (
-                <div className="error" style={{ marginTop: '1rem' }}>
-                  <AlertCircle className="h-4 w-4 inline mr-2" />
-                  {error}
-                </div>
-              )}
-
-              {/* Success Message */}
-              {success && (
-                <div style={{ marginTop: '1rem', color: '#16a34a', display: 'flex', alignItems: 'center' }}>
-                  <CheckCircle className="h-4 w-4 inline mr-2" />
-                  {success}
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <div className="actions" style={{ marginTop: '2rem' }}>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn btn-primary"
-                  style={{ width: '100%' }}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      {isLogin ? 'Signing In...' : 'Creating Account...'}
-                    </>
-                  ) : (
-                    isLogin ? 'Sign In' : 'Create Account'
-                  )}
-                </button>
-              </div>
-
-              {/* Toggle between login and signup */}
-              <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsLogin(!isLogin);
-                    setError(null);
-                    setSuccess(null);
-                  }}
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    color: '#3b82f6', 
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
-                >
-                  {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-                </button>
-              </div>
-            </form>
-          </div>
+    <div>
+      {error && (
+        <div>
+          <AlertCircle className="me-2" size={20} />
+          {error}
         </div>
-      </main>
+      )}
+
+      {success && (
+        <div>
+          <CheckCircle className="me-2" size={20} />
+          {success}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <fieldset className="tui-input-fieldset">
+          <legend>Email</legend>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            className="tui-input"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+            placeholder="your@email.com"
+            autoComplete="email"
+          />
+        </fieldset>
+
+        <fieldset className="tui-input-fieldset">
+          <legend>Password</legend>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            className="tui-input"
+            value={formData.password}
+            onChange={handleInputChange}
+            required
+            placeholder="Enter your password"
+            autoComplete={isLogin ? "current-password" : "new-password"}
+          />
+        </fieldset>
+
+        {isLogin && (
+          <div style={{ marginBottom: 'var(--space-16)' }}>
+            <TuiCheckbox
+              id="rememberMe"
+              label="Remember me"
+              checked={formData.rememberMe}
+              onChange={(checked) => setFormData({ ...formData, rememberMe: checked })}
+            />
+          </div>
+        )}
+
+        <div>
+          <button
+            type="submit"
+            className="tui-button"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="me-2" size={16} />
+                {isLogin ? 'Signing In...' : 'Creating Account...'}
+              </>
+            ) : (
+              isLogin ? 'Sign In' : 'Sign Up'
+            )}
+          </button>
+        </div>
+
+        <div className="center">
+          <button
+            type="button"
+            className="tui-button"
+            onClick={toggleMode}
+          >
+            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

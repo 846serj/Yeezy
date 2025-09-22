@@ -1,17 +1,77 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, forwardRef, useImperativeHandle } from 'react';
 import { ClientOnlyGutenbergEditorProps, GutenbergBlock, ImageResult } from '../types';
 import { useWordPressComponents } from '../hooks/useWordPressComponents';
 import { useBlockManagement } from '../hooks/useBlockManagement';
 import { useImageSearch } from '../hooks/useImageSearch';
 import { convertHtmlToBlocks } from '../utils/htmlParser';
 import { getBlockEditorSettings } from '../utils/blockEditorSettings';
+import { useContentEditable } from '../../../hooks/useContentEditable';
+
+// ContentEditableHeading component
+interface ContentEditableHeadingProps {
+  block: GutenbergBlock;
+  onContentChange: (content: string) => void;
+  onDelete: () => void;
+}
+
+const ContentEditableHeading: React.FC<ContentEditableHeadingProps> = ({ block, onContentChange, onDelete }) => {
+  const { ref, onInput, onCompositionStart, onCompositionEnd, onKeyDown } = useContentEditable({
+    value: block.attributes.content || '',
+    onChange: onContentChange,
+    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+      try {
+        if (e.key === 'Backspace' && e.currentTarget.textContent === '') {
+          onDelete();
+        }
+      } catch (error) {
+        console.warn('ContentEditable keydown error:', error);
+      }
+    }
+  });
+
+  return (
+    <div
+      ref={ref}
+      role="document"
+      aria-multiline="true"
+      className={`block-editor-rich-text__editable block-editor-block-list__block wp-block is-selected wp-block-heading rich-text heading-input heading-input--h${block.attributes.level || 2}`}
+      id={`block-${block.clientId}`}
+      aria-label="Block: Heading"
+      data-block={block.clientId}
+      data-type="core/heading"
+      data-title="Heading"
+      contentEditable={true}
+      data-wp-block-attribute-key="content"
+      style={{
+        whiteSpace: 'pre-wrap',
+        minWidth: '1px',
+        overflowWrap: 'break-word',
+        lineBreak: 'after-white-space' as any,
+        ...({
+          WebkitNbspMode: 'space',
+          WebkitUserModify: 'read-write'
+        } as any)
+      }}
+      onInput={onInput}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={onCompositionEnd}
+      onKeyDown={onKeyDown}
+      suppressContentEditableWarning={true}
+    />
+  );
+};
 
 // Import existing components
 import ImageSearchModal from '../../ImageSearchModal';
 import CropModal from '../../CropModal';
 import SimpleImageToolbar from '../../SimpleImageToolbar';
+
+export interface WordPressBlockEditorRef {
+  handleSaveWithUploadCheck: () => Promise<void>;
+  getUploadState: () => { hasUploadingImages: boolean; isSaving: boolean } | null;
+}
 
 // Debounce utility function
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T & { cancel: () => void } {
@@ -28,11 +88,11 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T &
   return debounced;
 }
 
-function WordPressBlockEditor({ 
+const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGutenbergEditorProps>(({ 
   post, 
   onSave, 
   onCancel 
-}: ClientOnlyGutenbergEditorProps) {
+}, ref) => {
   
   const [isClient, setIsClient] = useState(false);
   const [showCropModal, setShowCropModal] = useState(false);
@@ -147,29 +207,9 @@ function WordPressBlockEditor({
     },
   ];
 
-  // Position popup at the top of the content container
+  // Industry standard: Use CSS transforms for perfect centering
   const calculatePopupPosition = () => {
-    const popupWidth = 900;
-    const margin = 20;
-    
-    // Get viewport dimensions
-    const viewportWidth = window.innerWidth;
-    
-    // Calculate horizontal position (centered)
-    let popupX = (viewportWidth - popupWidth) / 2;
-    
-    // Ensure popup doesn't go off the edges
-    if (popupX < margin) {
-      popupX = margin;
-    }
-    if (popupX + popupWidth > viewportWidth - margin) {
-      popupX = viewportWidth - popupWidth - margin;
-    }
-    
-    // Position at the top of the content area
-    const popupY = 100; // Fixed position from top of viewport
-    
-    return { popupX, popupY };
+    return { popupX: 0, popupY: 0 }; // Will be overridden by CSS transforms
   };
 
   // Calculate toolbar position based on click coordinates
@@ -273,7 +313,7 @@ function WordPressBlockEditor({
 
       // Handle image toolbar
       if (showImageToolbar && 
-          !(event.target as Element).closest('.image-toolbar') && 
+          !(event.target as Element).closest('.image-toolbar-overlay') && 
           !(event.target as Element).matches('img')) {
         setShowImageToolbar(false);
         // Clear image selection
@@ -578,6 +618,17 @@ function WordPressBlockEditor({
       setIsSaving(false);
     }
   }, [handleSave, hasUploadingImages, uploadingImages]);
+
+  // Expose methods through ref
+  useImperativeHandle(ref, () => ({
+    handleSaveWithUploadCheck: async () => {
+      await handleSaveWithUploadCheck();
+    },
+    getUploadState: () => ({
+      hasUploadingImages: hasUploadingImages,
+      isSaving: isSaving
+    })
+  }), [handleSaveWithUploadCheck, hasUploadingImages, isSaving]);
 
   // Handle keyboard events for image deletion and Enter key
   useEffect(() => {
@@ -1659,44 +1710,6 @@ function WordPressBlockEditor({
               </div>
             </div> */}
             
-            <div className="editor-header__settings">
-              {hasUploadingImages && (
-                <div className="upload-indicator" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginRight: '12px',
-                  fontSize: '12px',
-                  color: '#666'
-                }}>
-                  <div className="spinner" style={{
-                    width: '12px',
-                    height: '12px',
-                    border: '2px solid #f3f3f3',
-                    borderTop: '2px solid #0073aa',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  Uploading {uploadingImages.size} image{uploadingImages.size > 1 ? 's' : ''}...
-                </div>
-              )}
-              <button 
-                onClick={handleSaveWithUploadCheck}
-                disabled={hasUploadingImages || isSaving}
-                className={`components-button editor-post-publish-button editor-post-publish-button__button is-primary is-compact ${
-                  hasUploadingImages || isSaving ? 'is-disabled' : ''
-                }`}
-                title={hasUploadingImages ? 'Please wait for images to finish uploading...' : ''}
-              >
-                {isSaving ? 'Saving...' : 'Save'}
-              </button>
-              <button 
-                onClick={onCancel}
-                className="components-button is-compact"
-              >
-                Cancel
-              </button>
-            </div>
           </div>
         </div>
 
@@ -1722,27 +1735,33 @@ function WordPressBlockEditor({
                         padding: '0 20px'
                       }}
                     >
-                      <input
-                        type="text"
-                        value={title || ''}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="wp-block wp-block-post-title block-editor-block-list__block editor-post-title editor-post-title__input rich-text"
+                      <div
+                        role="document"
+                        aria-multiline="true"
+                        className="wp-block wp-block-post-title block-editor-block-list__block editor-post-title editor-post-title__input rich-text article-title"
                         aria-label="Add title"
-                        placeholder="Add title"
-                        style={{ 
-                          fontSize: 'var(--wp--preset--font-size--x-large)',
-                          fontWeight: 'bold',
-                          lineHeight: '1.2',
-                          margin: '0',
-                          padding: '0',
-                          border: 'none',
-                          outline: 'none',
-                          backgroundColor: 'transparent',
+                        contentEditable={true}
+                        data-wp-block-attribute-key="title"
+                        style={{
                           textAlign: 'left',
-                          minHeight: '1.2em',
-                          width: '100%'
+                          width: '100%',
+                          whiteSpace: 'pre-wrap',
+                          minWidth: '1px',
+                          overflowWrap: 'break-word',
+                          lineBreak: 'after-white-space' as any,
+                          ...({
+                            WebkitNbspMode: 'space',
+                            WebkitUserModify: 'read-write'
+                          } as any)
                         }}
-                      />
+                        onInput={(e) => {
+                          const content = e.currentTarget.textContent || '';
+                          setTitle(content);
+                        }}
+                        suppressContentEditableWarning={true}
+                      >
+                        {title || ''}
+                      </div>
                     </div>
 
                     {/* Featured Image Section */}
@@ -1803,7 +1822,8 @@ function WordPressBlockEditor({
                                     border: '1px solid white',
                                     borderTop: '1px solid transparent',
                                     borderRadius: '50%',
-                                    animation: 'spin 1s linear infinite'
+                                    animation: 'spin 1s linear infinite',
+                                    transformOrigin: 'center'
                                   }} />
                                 </div>
                               )}
@@ -1964,22 +1984,89 @@ function WordPressBlockEditor({
                                 {/* Insertion point before each block */}
                                 <div 
                                   className="block-editor-block-list__insertion-point"
-                                  onClick={(e) => {
-                                    const rect = e.currentTarget.getBoundingClientRect();
-                                    const clickX = rect.left + rect.width / 2;
-                                    const clickY = rect.top;
-                                    const { popupX, popupY } = calculatePopupPosition();
-                                    
-                                    setInserterPosition({ 
-                                      index, 
-                                      x: clickX, 
-                                      y: clickY,
-                                      popupX,
-                                      popupY
-                                    });
-                                    setShowBlockInserter(true);
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.opacity = '1';
                                   }}
-                                />
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.opacity = '0';
+                                  }}
+                                  style={{
+                                    height: '20px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    margin: '4px 0',
+                                    opacity: 0,
+                                    transition: 'opacity 0.2s ease'
+                                  }}
+                                >
+                                  <div style={{
+                                    width: '100%',
+                                    height: '2px',
+                                    backgroundColor: '#007cba',
+                                    borderRadius: '1px',
+                                    position: 'relative'
+                                  }}>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        const clickX = rect.left + rect.width / 2;
+                                        const clickY = rect.top;
+                                        const { popupX, popupY } = calculatePopupPosition();
+                                        
+                                        setInserterPosition({ 
+                                          index, 
+                                          x: clickX, 
+                                          y: clickY,
+                                          popupX,
+                                          popupY
+                                        });
+                                        setShowBlockInserter(true);
+                                        setShowImageResults(false);
+                                        setInserterSearchQuery('');
+                                        setPendingImageInsertion(null);
+                                        setInserterImages([]);
+                                        setInserterPage(1);
+                                        setInserterHasMore(false);
+                                      }}
+                                      style={{
+                                        position: 'absolute',
+                                        left: '50%',
+                                        top: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        width: '20px',
+                                        height: '20px',
+                                        backgroundColor: '#00a800',
+                                        borderRadius: '0',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: 'white',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        border: '2px solid white',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: '0 2px 8px rgba(0, 0, 170, 0.3)'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#0000ff';
+                                        e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 170, 0.5)';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#00a800';
+                                        e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
+                                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 170, 0.3)';
+                                      }}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
                                 
                                 {/* Block content */}
                                 <div style={{ marginBottom: '4px' }} data-block-id={block.clientId}>
@@ -2004,69 +2091,17 @@ function WordPressBlockEditor({
                                           setBlocks(prevBlocks => prevBlocks.filter(prevBlock => prevBlock.clientId !== block.clientId));
                                         }
                                       }}
-                                      onFocus={(e) => {
-                                        e.currentTarget.style.border = '1px solid #007cba';
-                                      }}
-                                      onBlur={(e) => {
-                                        e.currentTarget.style.border = '1px solid transparent';
-                                      }}
                                       placeholder="Start writing..."
-                                      style={{
-                                        minHeight: '1.5em',
-                                        outline: 'none',
-                                        border: '1px solid transparent',
-                                        background: 'transparent',
-                                        width: '100%',
-                                        fontSize: 'var(--wp--preset--font-size--medium)',
-                                        lineHeight: '1.5',
-                                        padding: '0px 0px',
-                                        borderRadius: '2px',
-                                        margin: '0',
-                                        resize: 'none',
-                                        overflow: 'hidden',
-                                        textAlign: 'left',
-                                        whiteSpace: 'pre-wrap',
-                                        wordWrap: 'break-word'
-                                      }}
+                                      className="paragraph-input"
                                     />
                                   )}
 
                                   {block.name === 'core/heading' && (
-                                    <input
+                                    <ContentEditableHeading
                                       key={`heading-${block.clientId}`}
-                                      type="text"
-                                      value={block.attributes.content || ''}
-                                      onChange={(e) => {
-                                        handleTextareaChange(e as any, block.clientId, 'content');
-                                      }}
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Backspace' && e.currentTarget.value === '') {
-                                          setBlocks(prevBlocks => prevBlocks.filter(prevBlock => prevBlock.clientId !== block.clientId));
-                                        }
-                                      }}
-                                      onFocus={(e) => {
-                                        e.currentTarget.style.border = '1px solid #007cba';
-                                      }}
-                                      onBlur={(e) => {
-                                        e.currentTarget.style.border = '1px solid transparent';
-                                      }}
-                                      placeholder="Heading"
-                                      style={{
-                                        minHeight: '1.2em',
-                                        outline: 'none',
-                                        border: '1px solid transparent',
-                                        background: 'transparent',
-                                        width: '100%',
-                                        fontSize: 'var(--wp--preset--font-size--large)',
-                                        fontWeight: '800',
-                                        lineHeight: '1.2',
-                                        padding: '0px 0px',
-                                        borderRadius: '2px',
-                                        margin: '0',
-                                        resize: 'none',
-                                        overflow: 'hidden',
-                                        textAlign: 'left'
-                                      }}
+                                      block={block}
+                                      onContentChange={(content) => handleTextareaChange({ target: { value: content } } as any, block.clientId, 'content')}
+                                      onDelete={() => setBlocks(prevBlocks => prevBlocks.filter(prevBlock => prevBlock.clientId !== block.clientId))}
                                     />
                                   )}
 
@@ -2258,24 +2293,91 @@ function WordPressBlockEditor({
                             ))}
                             
                             {/* Insertion point after the last block */}
-                            <div 
-                              className="block-editor-block-list__insertion-point"
-                              onClick={(e) => {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                const clickX = rect.left + rect.width / 2;
-                                const clickY = rect.top;
-                                const { popupX, popupY } = calculatePopupPosition();
-                                
-                                setInserterPosition({ 
-                                  index: blocks.length, 
-                                  x: clickX, 
-                                  y: clickY,
-                                  popupX,
-                                  popupY
-                                });
-                                setShowBlockInserter(true);
-                              }}
-                            />
+                              <div 
+                                className="block-editor-block-list__insertion-point"
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.opacity = '1';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.opacity = '0.6';
+                                }}
+                                style={{
+                                  height: '20px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  position: 'relative',
+                                  margin: '4px 0',
+                                  opacity: 0.6,
+                                  transition: 'opacity 0.2s ease'
+                                }}
+                              >
+                                <div style={{
+                                  width: '100%',
+                                  height: '2px',
+                                  backgroundColor: '#007cba',
+                                  borderRadius: '1px',
+                                  position: 'relative'
+                                }}>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const rect = e.currentTarget.getBoundingClientRect();
+                                      const clickX = rect.left + rect.width / 2;
+                                      const clickY = rect.top;
+                                      const { popupX, popupY } = calculatePopupPosition();
+                                      
+                                      setInserterPosition({ 
+                                        index: blocks.length, 
+                                        x: clickX, 
+                                        y: clickY,
+                                        popupX,
+                                        popupY
+                                      });
+                                      setShowBlockInserter(true);
+                                      setShowImageResults(false);
+                                      setInserterSearchQuery('');
+                                      setPendingImageInsertion(null);
+                                      setInserterImages([]);
+                                      setInserterPage(1);
+                                      setInserterHasMore(false);
+                                    }}
+                                    style={{
+                                      position: 'absolute',
+                                      left: '50%',
+                                      top: '50%',
+                                      transform: 'translate(-50%, -50%)',
+                                      width: '20px',
+                                      height: '20px',
+                                      backgroundColor: '#00a800',
+                                      borderRadius: '0',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      color: 'white',
+                                      fontSize: '12px',
+                                      fontWeight: 'bold',
+                                      border: '2px solid white',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.2s ease',
+                                      boxShadow: '0 2px 8px rgba(0, 0, 170, 0.3)'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.backgroundColor = '#0000ff';
+                                      e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 170, 0.5)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.backgroundColor = '#00a800';
+                                      e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
+                                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 170, 0.3)';
+                                    }}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
                       </div>
                     </div>
                   </div>
@@ -2292,8 +2394,9 @@ function WordPressBlockEditor({
           className="components-popover block-editor-inserter__popover"
           style={{
             position: 'fixed',
-            top: inserterPosition.popupY,
-            left: inserterPosition.popupX,
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             zIndex: 1000000,
             width: '900px',
             maxWidth: '90vw',
@@ -2746,6 +2849,9 @@ function WordPressBlockEditor({
       )}
     </div>
   );
-}
+});
+
+WordPressBlockEditor.displayName = 'WordPressBlockEditor';
 
 export default WordPressBlockEditor;
+

@@ -7,11 +7,11 @@ export const useWordPressComponents = () => {
   useEffect(() => {
     const loadWordPressComponents = async () => {
       try {
-        console.log('🎨 Loading WordPress CSS...');
-        // Load CSS first
-        console.log('✅ WordPress CSS loaded');
         
-        console.log('📚 Loading WordPress components...');
+        // Load CSS first
+        
+        
+        
         const [
           blockEditorModule,
           componentsModule,
@@ -49,10 +49,10 @@ export const useWordPressComponents = () => {
         const { Popover, SlotFillProvider, Button } = componentsModule;
         const { parse, serialize, rawHandler, registerBlockType } = blocksModule;
 
-        console.log('✅ WordPress components loaded successfully');
+        
         
         // Register core blocks with proper edit/save functions
-        console.log('🔧 Registering core blocks...');
+        
         
         // Register paragraph block
         registerBlockType('core/paragraph', {
@@ -92,7 +92,7 @@ export const useWordPressComponents = () => {
                 border: 'none',
                 background: 'transparent',
                 width: '100%',
-                fontSize: 'var(--wp--preset--font-size--medium)',
+                fontSize: 'var(--font-size-base)',
                 lineHeight: '1.5',
                 direction: 'ltr',
                 unicodeBidi: 'normal',
@@ -143,7 +143,7 @@ export const useWordPressComponents = () => {
                 border: 'none',
                 background: 'transparent',
                 width: '100%',
-                fontSize: `var(--wp--preset--font-size--${attributes.level === 1 ? 'x-large' : attributes.level === 2 ? 'large' : 'medium'})`,
+                fontSize: `var(--font-size-${attributes.level === 1 ? '4xl' : attributes.level === 2 ? '3xl' : 'base'})`,
                 fontWeight: '800',
                 lineHeight: '1.2',
                 margin: '0',
@@ -200,8 +200,8 @@ export const useWordPressComponents = () => {
                 })
               : React.createElement('div', {
                   style: { 
-                    border: '2px dashed #ccc', 
-                    padding: '40px', 
+                    border: 'var(--space-2) dashed #ccc', 
+                    padding: 'var(--space-40)', 
                     textAlign: 'center',
                     backgroundColor: '#f9f9f9',
                     color: '#666'
@@ -214,7 +214,7 @@ export const useWordPressComponents = () => {
                   suppressContentEditableWarning: true,
                   onInput: (e: any) => setAttributes({ caption: e.currentTarget.textContent || '' }),
                   style: { 
-                    fontSize: 'var(--wp--preset--font-size--x-small)',
+                    fontSize: 'var(--font-size-xs)',
                     color: 'var(--wp--preset--color--contrast)',
                     marginTop: 'var(--wp--preset--spacing--30)',
                     textAlign: 'center',
@@ -274,7 +274,7 @@ export const useWordPressComponents = () => {
                 border: 'none',
                 background: 'transparent',
                 width: '100%',
-                fontSize: 'var(--wp--preset--font-size--medium)',
+                fontSize: 'var(--font-size-base)',
                 lineHeight: '1.5',
                 paddingLeft: '1.5em'
               },
@@ -334,7 +334,7 @@ export const useWordPressComponents = () => {
                   style: { 
                     display: 'block',
                     marginTop: 'var(--wp--preset--spacing--30)',
-                    fontSize: 'var(--wp--preset--font-size--small)',
+                    fontSize: 'var(--font-size-sm)',
                     fontStyle: 'normal',
                     outline: 'none',
                     border: 'none',
@@ -346,11 +346,11 @@ export const useWordPressComponents = () => {
 
             return React.createElement('blockquote', {
               style: { 
-                borderLeft: '4px solid var(--wp--preset--color--primary)',
+                borderLeft: 'var(--space-4) solid var(--wp--preset--color--primary)',
                 paddingLeft: 'var(--wp--preset--spacing--40)',
                 margin: 'var(--wp--style--block-gap) 0',
                 fontStyle: 'italic',
-                fontSize: 'var(--wp--preset--font-size--medium)',
+                fontSize: 'var(--font-size-base)',
                 lineHeight: '1.6'
               }
             }, paragraphElement, citationElement);
@@ -369,7 +369,7 @@ export const useWordPressComponents = () => {
           },
         });
 
-        console.log('✅ Core blocks registered successfully');
+        
 
         setComponents({
           BlockEditorProvider: BlockEditorProvider,

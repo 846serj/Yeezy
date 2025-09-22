@@ -107,9 +107,9 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
            style={{ 
              opacity: showInserter ? 1 : 0.3,
              transform: 'none',
-             height: '2px',
+             height: 'var(--space-2)',
              backgroundColor: '#007cba',
-             margin: '8px 0'
+             margin: 'var(--space-8) 0'
            }} 
       />
       <div className="block-editor-block-list__insertion-point-inserter" 
@@ -119,31 +119,31 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
             type="button"
             aria-haspopup="true"
             aria-expanded={showInserter}
-            className="components-button block-editor-inserter__toggle is-next-40px-default-size has-icon"
+            className="components-button block-editor-inserter__toggle is-next-var(--space-40)-default-size has-icon"
             aria-label="Add block"
             onClick={handleClick}
             style={{
-              backgroundColor: '#007cba',
+              backgroundColor: '#00a800',
               color: 'white',
               border: 'none',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
+              borderRadius: '0',
+              width: 'var(--space-40)',
+              height: 'var(--space-40)',
               padding: '0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+              boxShadow: '0 var(--space-2) var(--space-8) rgba(0, 0, 0, 0.15)',
               transition: 'all 0.2s ease',
-              fontSize: '13px'
+              fontSize: 'var(--space-13)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#005a87';
+              e.currentTarget.style.backgroundColor = '#008000';
               e.currentTarget.style.transform = 'scale(1.1)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#007cba';
+              e.currentTarget.style.backgroundColor = '#00a800';
               e.currentTarget.style.transform = 'scale(1)';
             }}
             onMouseDown={(e) => {
@@ -167,22 +167,22 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                 position: 'absolute',
                 top: '100%',
                 left: '50%',
-                transform: 'translateX(-50%) translateY(8px)',
+                transform: 'translateX(-50%) translateY(var(--space-8))',
                 opacity: 1,
                 zIndex: 1000000,
                 margin: 0,
-                width: '900px',
+                width: 'var(--space-900)',
                 maxWidth: '90vw',
-                boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
-                borderRadius: '8px',
-                border: '1px solid #ddd',
+                boxShadow: '0 var(--space-3) var(--space-30) rgba(25, 30, 35, 0.2)',
+                borderRadius: 'var(--space-8)',
+                border: 'var(--space-1) solid #ddd',
                 backgroundColor: 'white'
               }}
             >
               <div className="components-popover__content" style={{ 
-                maxHeight: '473px', 
+                maxHeight: 'var(--space-473)', 
                 overflow: 'auto',
-                borderRadius: '8px'
+                borderRadius: 'var(--space-8)'
               }}>
                 <div className="block-editor-inserter__quick-inserter has-search has-expand">
                   {/* Search Control */}
@@ -199,11 +199,11 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                             type="search"
                             placeholder="Search for a block"
                             style={{
-                              border: '1px solid #ddd',
-                              borderRadius: '4px',
-                              fontSize: '13px',
+                              border: 'var(--space-1) solid #ddd',
+                              borderRadius: 'var(--space-4)',
+                              fontSize: 'var(--space-13)',
                               lineHeight: '1.4',
-                              padding: '8px 12px',
+                              padding: 'var(--space-8) var(--space-12)',
                               width: '100%',
                               background: 'white',
                               color: '#1e1e1e'
@@ -225,8 +225,8 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                     <div className="block-editor-block-types-list" style={{
                       display: 'grid',
                       gridTemplateColumns: 'repeat(3, 1fr)',
-                      gap: '8px',
-                      padding: '16px'
+                      gap: 'var(--space-8)',
+                      padding: 'var(--space-16)'
                     }}>
                       {blockTypes.map((block) => (
                         <button
@@ -238,7 +238,7 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                           onClick={() => handleInsertBlock(block.name, { content: `New ${block.title.toLowerCase()} block` })}
                           style={{
                             width: '100%',
-                            padding: '16px 12px',
+                            padding: 'var(--space-16) var(--space-12)',
                             border: 'none',
                             background: 'transparent',
                             textAlign: 'center',
@@ -246,16 +246,16 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            gap: '8px',
-                            borderRadius: '4px',
+                            gap: 'var(--space-8)',
+                            borderRadius: 'var(--space-4)',
                             transition: 'all 0.15s ease',
-                            fontSize: '13px',
+                            fontSize: 'var(--space-13)',
                             lineHeight: '1.4',
                             color: '#1e1e1e',
-                            minHeight: '100px'
+                            minHeight: 'var(--space-100)'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f0f0f0';
+                            e.currentTarget.style.backgroundColor = 'var(--color-gray-100)';
                             e.currentTarget.style.color = '#007cba';
                           }}
                           onMouseLeave={(e) => {
@@ -263,7 +263,7 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                             e.currentTarget.style.color = '#1e1e1e';
                           }}
                           onFocus={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f0f0f0';
+                            e.currentTarget.style.backgroundColor = 'var(--color-gray-100)';
                             e.currentTarget.style.color = '#007cba';
                           }}
                           onBlur={(e) => {
@@ -272,8 +272,8 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                           }}
                         >
                           <span className="block-editor-block-types-list__item-icon" style={{
-                            width: '32px',
-                            height: '32px',
+                            width: 'var(--space-32)',
+                            height: 'var(--space-32)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center'
@@ -286,19 +286,19 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            gap: '4px',
+                            gap: 'var(--space-4)',
                             width: '100%'
                           }}>
                             <div style={{ 
                               fontWeight: '500', 
-                              fontSize: '13px',
+                              fontSize: 'var(--space-13)',
                               lineHeight: '1.4',
                               textAlign: 'center'
                             }}>
                               {block.title}
                             </div>
                             <div style={{ 
-                              fontSize: '11px', 
+                              fontSize: 'var(--space-11)', 
                               color: '#666',
                               lineHeight: '1.3',
                               textAlign: 'center',

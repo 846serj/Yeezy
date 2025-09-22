@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useState } from "react";
+import React, { FC, useState, useCallback, useEffect } from "react";
 import { createPortal } from 'react-dom';
 
 const sourceLabels: Record<string, string> = {
@@ -54,114 +54,116 @@ const ImageSearchModal: FC<Props> = ({
 }) => {
   const [query, setQuery] = useState("");
 
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (searchQuery: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          if (searchQuery.trim()) {
+            onSearch(searchQuery);
+          }
+        }, 300);
+      };
+    })(),
+    []
+  );
 
-  // Note: Auto-search is now handled by the parent component
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchQuery = e.target.value;
+    setQuery(searchQuery);
+    debouncedSearch(searchQuery);
+  };
+
+  // Re-search when selectedSources changes and there's an active search
+  useEffect(() => {
+    if (query.trim()) {
+      onSearch(query);
+    }
+  }, [selectedSources, query]);
+
+  // Handle escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
 
   return createPortal(
     isOpen ? (
       <div
-        className="components-popover block-editor-inserter__popover"
         style={{
           position: 'fixed',
-          top: '100px',
-          left: '50%',
-          transform: 'translateX(-50%)',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           zIndex: 1000000,
-          width: '66.666vw',
-          minWidth: '600px',
-          maxWidth: '90vw',
-          boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
-          borderRadius: '8px',
-          backgroundColor: '#ffffff',
-          border: '1px solid #e0e0e0'
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
         }}
+        onClick={onClose}
       >
-      <div className="components-popover__content" style={{ 
-        maxHeight: '600px', 
-        overflow: 'auto',
-        borderRadius: '8px'
-      }}>
-        <div className="block-editor-inserter__quick-inserter has-search has-expand">
-          <div className="block-editor-inserter__panel-header">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="block-editor-inserter__panel-title text-lg font-semibold">Select Featured Image</h2>
-              <button
-                onClick={onClose}
-                className="components-button is-tertiary"
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '14px',
-                  color: '#666',
-                  border: 'none',
-                  background: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                ×
-              </button>
-            </div>
-          </div>
-
-        {/* Sources - Hidden old checkbox interface */}
-        <div className="hidden grid-cols-5 gap-2 mb-4">
-          {Object.entries(sourceLabels).map(([key, label]) => (
-            <label key={key} className="flex items-center">
-              <input
-                type="checkbox"
-                checked={selectedSources.includes(key)}
-                onChange={() => onSourceToggle(key)}
-                className="mr-2 accent-indigo-600"
-              />
-              {label}
-            </label>
-          ))}
+        <div
+          className="components-popover components-dropdown__content block-editor-inserter__popover is-quick is-positioned"
+          style={{
+            position: 'relative',
+            opacity: 1,
+            margin: 0,
+            width: '900px',
+            maxWidth: '90vw',
+            boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
+            borderRadius: '8px',
+            border: '1px solid #ddd',
+            backgroundColor: 'white',
+            padding: '16px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+      <div className="block-editor-inserter__quick-inserter">
+        {/* Search Input */}
+        <div className="block-editor-inserter__search" style={{ marginBottom: '8px' }}>
+          <input
+            type="text"
+            placeholder="Search for an image..."
+            value={query}
+            onChange={handleSearchChange}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '14px',
+              outline: 'none'
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = '#007cba'}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#ddd'}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                onSearch(query);
+              }
+            }}
+          />
         </div>
-
-          <div className="block-editor-inserter__panel-content">
-            {/* Search */}
-            <div className="components-base-control components-input-control components-search-control block-editor-inserter__search">
-              <div className="components-base-control__field">
-                <div className="components-input-control__container">
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search for images..."
-                    className="components-input-control__input"
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      fontSize: '14px'
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        onSearch(query);
-                      }
-                    }}
-                  />
-                  <button
-                    onClick={() => onSearch(query)}
-                    disabled={loading}
-                    className="components-button is-primary"
-                    style={{
-                      marginLeft: '8px',
-                      padding: '8px 16px',
-                      fontSize: '14px',
-                      backgroundColor: '#0073aa',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      opacity: loading ? 0.6 : 1
-                    }}
-                  >
-                    {loading ? "Searching…" : "Search"}
-                  </button>
-                </div>
-              </div>
-            </div>
 
         {/* API Selection Buttons */}
         <div className="block-editor-inserter__block-list" style={{ marginBottom: '8px' }}>
@@ -252,100 +254,133 @@ const ImageSearchModal: FC<Props> = ({
           </div>
         </div>
 
-            {/* Images Grid */}
-            <div className="block-editor-inserter__block-list" style={{ marginTop: '16px' }}>
-              <div className="block-editor-block-types-list" style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '12px',
-                padding: '16px'
+        <div className="block-editor-inserter__block-list">
+          {query && images.length > 0 ? (
+            <div>
+              <div style={{ 
+                fontSize: '14px', 
+                fontWeight: '600', 
+                color: '#1e1e1e', 
+                marginBottom: '12px',
+                padding: '8px 0',
+                borderBottom: '1px solid #e5e7eb'
               }}>
-                {images.map((img, index) => (
+                {`Image Results for "${query}"`}
+              </div>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+                gap: '12px',
+                maxHeight: '400px',
+                overflowY: 'auto'
+              }}>
+                {images.map((image, index) => (
                   <div
-                    key={index}
-                    className="block-editor-block-types-list__list-item"
+                    key={`${image.url}-${index}`}
+                    onClick={() => onSelect(image)}
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      textAlign: 'center',
-                      minHeight: '100px',
-                      gap: '8px',
-                      padding: '12px',
-                      border: '1px solid #e0e0e0',
-                      borderRadius: '8px',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      backgroundColor: '#ffffff'
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                      transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#0073aa';
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 115, 170, 0.15)';
+                      e.currentTarget.style.borderColor = '#007cba';
+                      e.currentTarget.style.transform = 'scale(1.02)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#e0e0e0';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelect(img);
+                      e.currentTarget.style.borderColor = '#ddd';
+                      e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
-                    <div style={{ width: '100%', height: '120px', overflow: 'hidden', borderRadius: '4px' }}>
-                      <img
-                        src={img.thumbnail || img.url}
-                        alt={img.caption || "Image"}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                        loading="lazy"
-                      />
-                    </div>
+                    <img
+                      src={image.thumbnail || image.url}
+                      alt={image.caption || 'Image'}
+                      style={{
+                        width: '100%',
+                        height: '160px',
+                        objectFit: 'cover',
+                        display: 'block'
+                      }}
+                    />
                     <div style={{
-                      fontSize: '11px',
+                      padding: '4px 6px',
+                      fontSize: '10px',
                       color: '#666',
-                      lineHeight: '1.3',
-                      maxHeight: '32px',
+                      lineHeight: '1.2',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical'
+                      whiteSpace: 'nowrap'
                     }}>
-                      {img.caption || img.title || "No caption"}
+                      {image.attribution || image.caption || 'Image'}
                     </div>
                   </div>
                 ))}
               </div>
+              
+              {/* Load More Button */}
+              {hasMore && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  marginTop: '12px',
+                  padding: '8px 0',
+                  borderTop: '1px solid #e5e7eb'
+                }}>
+                  <button
+                    onClick={loadMore}
+                    disabled={loading}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: loading ? '#f5f5f5' : '#007cba',
+                      color: loading ? '#999' : 'white',
+                      border: 'none',
+                      borderWidth: '0',
+                      borderStyle: 'none',
+                      borderRadius: '4px',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!loading) {
+                        e.currentTarget.style.backgroundColor = '#005a87';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!loading) {
+                        e.currentTarget.style.backgroundColor = '#007cba';
+                      }
+                    }}
+                  >
+                    {loading ? 'Loading...' : 'Load More Images'}
+                  </button>
+                </div>
+              )}
             </div>
-
-            {hasMore && (
-              <div className="text-center mb-4" style={{ padding: '0 16px' }}>
-                <button
-                  onClick={loadMore}
-                  disabled={loading}
-                  className="components-button is-secondary"
-                  style={{
-                    padding: '8px 16px',
-                    fontSize: '14px',
-                    backgroundColor: '#f0f0f1',
-                    color: '#1e1e1e',
-                    border: '1px solid #c3c4c7',
-                    borderRadius: '4px',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    opacity: loading ? 0.6 : 1
-                  }}
-                >
-                  {loading ? "Loading…" : "Load More"}
-                </button>
-              </div>
-            )}
-          </div>
+          ) : loading ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '20px',
+              color: '#666'
+            }}>
+              Searching for images...
+            </div>
+          ) : query && images.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '20px',
+              color: '#666'
+            }}>
+              {`No images found for "${query}"`}
+            </div>
+          ) : null}
+        </div>
         </div>
       </div>
-    </div>
     ) : null,
     document.body
   );

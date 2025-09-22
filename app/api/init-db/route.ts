@@ -3,9 +3,9 @@ import { initializeDatabase } from '@/lib/database';
 
 export async function POST() {
   try {
-    console.log('🚀 Initializing database...');
+    
     await initializeDatabase();
-    console.log('✅ Database initialized successfully');
+    
     
     return NextResponse.json({ 
       success: true, 

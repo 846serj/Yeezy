@@ -8,7 +8,7 @@ export async function ensureDatabaseInitialized() {
     try {
       await initializeDatabase();
       isInitialized = true;
-      console.log('✅ Database initialization completed');
+      
     } catch (error) {
       console.error('❌ Database initialization failed:', error);
       // Don't throw error in development to allow fallback to in-memory storage

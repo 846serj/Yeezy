@@ -1,7 +1,10 @@
 export const autoResize = (textarea: HTMLTextAreaElement, blockName: string) => {
   if (!textarea || !textarea.style) return;
   
-  const minHeight = blockName === 'core/paragraph' ? 32 : 28;
+  // Calculate min height based on line height for better responsiveness
+  const fontSize = parseInt(getComputedStyle(textarea).fontSize) || 19;
+  const lineHeight = fontSize * 1.2; // Use 1.2 line height for better text wrapping
+  const minHeight = blockName === 'core/paragraph' ? Math.max(32, lineHeight) : Math.max(28, lineHeight);
   
   // Store current scroll position
   const scrollTop = textarea.scrollTop;
@@ -15,20 +18,17 @@ export const autoResize = (textarea: HTMLTextAreaElement, blockName: string) => 
   // Get the scroll height (this accounts for text wrapping)
   const scrollHeight = textarea.scrollHeight;
   
-  // Calculate line height based on font size
-  const fontSize = parseInt(getComputedStyle(textarea).fontSize) || 19;
-  const lineHeight = fontSize * 1.5; // 1.5 line height
-  
   // For empty content, use min height
   if (textarea.value.trim() === '') {
     textarea.style.height = minHeight + 'px';
   } else {
     // Use scrollHeight but ensure it's reasonable
-    // Add a small buffer (4px) to prevent cutting off text
+    // Add a small buffer (var(--space-4)) to prevent cutting off text
     const calculatedHeight = Math.max(minHeight, scrollHeight + 4);
     
-    // Set a reasonable maximum height (e.g., 10 lines)
-    const maxHeight = lineHeight * 10;
+    // Set a more generous maximum height (e.g., 15 lines for headings, 20 for paragraphs)
+    const maxLines = blockName === 'core/heading' ? 15 : 20;
+    const maxHeight = lineHeight * maxLines;
     const finalHeight = Math.min(calculatedHeight, maxHeight);
     
     textarea.style.height = finalHeight + 'px';

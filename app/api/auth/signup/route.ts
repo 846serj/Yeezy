@@ -4,7 +4,7 @@ import { createUser, ensureDatabaseInitialized } from '@/lib/database';
 
 // Define allowed methods
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const preferredRegion = 'iad1';
 
 // Add OPTIONS method handler

@@ -5,7 +5,7 @@ export const useImageSearch = () => {
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [searchImages, setSearchImages] = useState<ImageResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [selectedSources, setSelectedSources] = useState<string[]>(['wikiCommons']);
+  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'wikiCommons']);
   const [hasMoreImages, setHasMoreImages] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
   const [lastSearchQuery, setLastSearchQuery] = useState<string>('');
@@ -52,10 +52,10 @@ export const useImageSearch = () => {
   };
 
   const openImageSearch = (blockId: string) => {
-    console.log('🔍 Opening image search for block:', blockId);
+    
     setShowImageSearch(true);
     setSearchImages([]);
-    console.log('🔍 Image search modal should now be visible');
+    
   };
 
   const closeImageSearch = () => {

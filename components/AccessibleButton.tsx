@@ -25,11 +25,11 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '0.5rem',
-    borderWidth: '1px',
+    gap: 'var(--space-2)',
+    borderWidth: 'var(--space-1)',
     borderStyle: 'solid',
     borderColor: 'transparent',
-    borderRadius: '4px',
+    borderRadius: 'var(--space-4)',
     cursor: disabled || loading ? 'not-allowed' : 'pointer',
     fontWeight: '500',
     textDecoration: 'none',
@@ -41,19 +41,19 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
 
   const sizeStyles = {
     sm: {
-      padding: '0.25rem 0.75rem',
+      padding: 'var(--space-1) var(--space-3)',
       fontSize: '0.875rem',
-      minHeight: '32px',
+      minHeight: 'var(--space-32)',
     },
     md: {
-      padding: '0.5rem 1rem',
+      padding: 'var(--space-2) var(--space-4)',
       fontSize: '0.875rem',
-      minHeight: '40px',
+      minHeight: 'var(--space-40)',
     },
     lg: {
-      padding: '0.75rem 1.5rem',
-      fontSize: '1rem',
-      minHeight: '48px',
+      padding: 'var(--space-3) var(--space-6)',
+      fontSize: 'var(--space-4)',
+      minHeight: 'var(--space-48)',
     },
   };
 
@@ -104,7 +104,7 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
   };
 
   const focusStyles = {
-    boxShadow: '0 0 0 2px rgba(0, 115, 170, 0.25)',
+    boxShadow: '0 0 0 var(--space-2) rgba(0, 115, 170, 0.25)',
   };
 
   const buttonStyles: React.CSSProperties = {
@@ -151,8 +151,8 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
         <Loader2 
           className="animate-spin" 
           style={{ 
-            width: size === 'sm' ? '14px' : size === 'lg' ? '18px' : '16px',
-            height: size === 'sm' ? '14px' : size === 'lg' ? '18px' : '16px'
+            width: size === 'sm' ? 'var(--space-14)' : size === 'lg' ? 'var(--space-18)' : 'var(--space-16)',
+            height: size === 'sm' ? 'var(--space-14)' : size === 'lg' ? 'var(--space-18)' : 'var(--space-16)'
           }} 
         />
       )}

@@ -12,22 +12,14 @@ interface ImageToolbarProps {
 }
 
 const ImageToolbar: React.FC<ImageToolbarProps> = ({ position, isVisible }) => {
-  console.log('🔧 ImageToolbar render called:', { 
-    isVisible, 
-    hasPosition: !!position,
-    position: position ? { x: position.x, y: position.y, popupX: position.popupX, popupY: position.popupY } : null
-  });
+  
   
   if (!isVisible) {
-    console.log('❌ ImageToolbar not visible, returning null');
+    
     return null;
   }
   
-  console.log('✅ ImageToolbar rendering with position:', {
-    top: position.popupY,
-    left: position.popupX,
-    blockId: position.blockId
-  });
+  
 
   return (
     <div
@@ -36,16 +28,16 @@ const ImageToolbar: React.FC<ImageToolbarProps> = ({ position, isVisible }) => {
         position: 'fixed',
         top: position.popupY,
         left: position.popupX,
-        transform: 'translateZ(0px)',
+        transform: 'translateZ(var(--space-0))',
         pointerEvents: 'auto',
         zIndex: 1000000,
-        width: '300px',
+        width: 'var(--space-300)',
         maxWidth: '90vw',
-        boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
-        borderRadius: '8px',
-        border: '1px solid #ddd',
+        boxShadow: '0 var(--space-3) var(--space-30) rgba(25, 30, 35, 0.2)',
+        borderRadius: 'var(--space-8)',
+        border: 'var(--space-1) solid #ddd',
         backgroundColor: 'white',
-        padding: '8px',
+        padding: 'var(--space-8)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
       }}
     >

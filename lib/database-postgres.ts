@@ -54,7 +54,7 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_user_sites_user_id ON user_sites(user_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_user_sites_site_url ON user_sites(site_url)`;
 
-    console.log('✅ Database schema initialized successfully');
+    
   } catch (error) {
     console.error('❌ Error initializing database:', error);
     throw error;
@@ -156,13 +156,13 @@ export async function createTestAccount() {
     // Check if test account already exists
     const existingUser = await getUserByEmail('test@example.com');
     if (existingUser) {
-      console.log('✅ Test account already exists');
+      
       return;
     }
 
     // Create test account
     await createUser('test@example.com', 'password123');
-    console.log('✅ Test account created successfully');
+    
   } catch (error) {
     console.error('Error creating test account:', error);
   }

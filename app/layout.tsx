@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { Navigation } from '@/components/Navigation'
+import '../styles/gutenberg.css'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
-  title: 'WordPress Article Editor',
-  description: 'A modern web app for editing WordPress articles using official WordPress REST API',
+  title: 'WordPress Article Editor - TuiCss',
+  description: 'A DOS-style text-based interface for editing WordPress articles',
 }
 
 export default function RootLayout({
@@ -13,10 +14,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="tui-bg-blue-white">
+      <head>
+        <link rel="stylesheet" href="/tuicss/tuicss.min.css" />
+        {/* Font system is now handled by CSS imports */}
+      </head>
       <body>
-        <Navigation />
         {children}
+        <Script src="/tuicss/tuicss.min.js" />
       </body>
     </html>
   )

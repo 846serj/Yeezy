@@ -110,11 +110,11 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
       alignItems: 'center', 
       justifyContent: 'center', 
       zIndex: 50, 
-      padding: '1rem' 
+      padding: 'var(--space-4)' 
     }}>
       <div style={{ 
         background: '#fff', 
-        border: '2px solid #000', 
+        border: 'var(--space-2) solid #000', 
         maxWidth: '64rem', 
         width: '100%', 
         maxHeight: '80vh', 
@@ -126,14 +126,14 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between', 
-          padding: '1.5rem', 
-          borderBottom: '2px solid #000' 
+          padding: 'var(--space-6)', 
+          borderBottom: 'var(--space-2) solid #000' 
         }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>Media Library</h2>
+          <h2 style={{ fontSize: 'var(--space-5)', fontWeight: '800', margin: 0 }}>Media Library</h2>
           <button
             onClick={onClose}
             style={{ 
-              padding: '0.5rem', 
+              padding: 'var(--space-2)', 
               background: 'transparent', 
               border: 'none', 
               cursor: 'pointer',
@@ -147,12 +147,12 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
         </div>
 
         {/* Upload Area */}
-        <div style={{ padding: '1.5rem', borderBottom: '2px solid #000' }}>
+        <div style={{ padding: 'var(--space-6)', borderBottom: 'var(--space-2) solid #000' }}>
           <div
             {...getRootProps()}
             style={{
-              border: '2px dashed #000',
-              padding: '2rem',
+              border: 'var(--space-2) dashed #000',
+              padding: 'var(--space-8)',
               textAlign: 'center',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
@@ -164,27 +164,27 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
             <input {...getInputProps()} />
             <div>
               <Upload className="h-12 w-12 mx-auto mb-4" style={{ color: '#6b7280' }} />
-              <p style={{ fontSize: '1.125rem', fontWeight: '800', margin: '0 0 0.5rem 0' }}>
+              <p style={{ fontSize: '1.125rem', fontWeight: '800', margin: '0 0 var(--space-2) 0' }}>
                 {isDragActive ? 'Drop images here' : 'Upload images'}
               </p>
-              <p className="muted" style={{ marginBottom: '1rem' }}>
+              <p className="muted" style={{ marginBottom: 'var(--space-4)' }}>
                 Drag & drop images here, or click to select
               </p>
-              <p className="muted" style={{ fontSize: '0.75rem' }}>
+              <p className="muted" style={{ fontSize: 'var(--space-3)' }}>
                 Supports: JPG, PNG, GIF, WebP, SVG (max 10MB each)
               </p>
             </div>
           </div>
 
           {uploading && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: 'var(--space-4)' }}>
               <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between', 
                 fontSize: '0.875rem', 
                 color: '#6b7280', 
-                marginBottom: '0.5rem' 
+                marginBottom: 'var(--space-2)' 
               }}>
                 <span>Uploading...</span>
                 <span>{uploadProgress}%</span>
@@ -192,8 +192,8 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
               <div style={{ 
                 width: '100%', 
                 background: '#f3f4f6', 
-                height: '0.5rem', 
-                border: '1px solid #000' 
+                height: 'var(--space-2)', 
+                border: 'var(--space-1) solid #000' 
               }}>
                 <div
                   style={{ 
@@ -208,7 +208,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
           )}
 
           {error && (
-            <div className="error" style={{ marginTop: '1rem' }}>
+            <div className="error" style={{ marginTop: 'var(--space-4)' }}>
               <AlertCircle className="h-5 w-5 inline mr-2" />
               {error}
             </div>
@@ -219,7 +219,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
         <div style={{ 
           flex: 1, 
           overflowY: 'auto', 
-          padding: '1.5rem' 
+          padding: 'var(--space-6)' 
         }}>
           {loading ? (
             <div style={{ 
@@ -229,19 +229,19 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
               height: '8rem' 
             }}>
               <Loader2 className="h-6 w-6 animate-spin" style={{ color: '#000' }} />
-              <span className="muted" style={{ marginLeft: '0.5rem' }}>Loading media...</span>
+              <span className="muted" style={{ marginLeft: 'var(--space-2)' }}>Loading media...</span>
             </div>
           ) : media.length === 0 ? (
             <div className="center" style={{ padding: '3rem 0' }}>
               <ImageIcon className="h-12 w-12 mx-auto mb-4" style={{ color: '#6b7280' }} />
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '800', margin: '0 0 0.5rem 0' }}>No media found</h3>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '800', margin: '0 0 var(--space-2) 0' }}>No media found</h3>
               <p className="muted">Upload some images to get started</p>
             </div>
           ) : (
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', 
-              gap: '1rem' 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(var(--space-120), 1fr))', 
+              gap: 'var(--space-4)' 
             }}>
               {media.map((item) => (
                 <div
@@ -249,7 +249,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
                   style={{
                     position: 'relative',
                     background: '#f9fafb',
-                    border: '1px solid #000',
+                    border: 'var(--space-1) solid #000',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     overflow: 'hidden'
@@ -294,21 +294,21 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
                     </div>
                   </div>
                   
-                  <div style={{ padding: '0.5rem' }}>
+                  <div style={{ padding: 'var(--space-2)' }}>
                     <p style={{ 
-                      fontSize: '0.75rem', 
+                      fontSize: 'var(--space-3)', 
                       fontWeight: '700', 
-                      margin: '0 0 0.25rem 0', 
+                      margin: '0 0 var(--space-1) 0', 
                       overflow: 'hidden', 
                       textOverflow: 'ellipsis', 
                       whiteSpace: 'nowrap' 
                     }}>
                       {item.title?.rendered || 'Untitled'}
                     </p>
-                    <p className="muted" style={{ fontSize: '0.75rem', margin: '0 0 0.25rem 0' }}>
+                    <p className="muted" style={{ fontSize: 'var(--space-3)', margin: '0 0 var(--space-1) 0' }}>
                       {item.media_details?.width} × {item.media_details?.height}
                     </p>
-                    <p className="muted" style={{ fontSize: '0.75rem', margin: 0 }}>
+                    <p className="muted" style={{ fontSize: 'var(--space-3)', margin: 0 }}>
                       {formatDate(item.date)}
                     </p>
                   </div>
@@ -323,8 +323,8 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between', 
-          padding: '1.5rem', 
-          borderTop: '2px solid #000', 
+          padding: 'var(--space-6)', 
+          borderTop: 'var(--space-2) solid #000', 
           background: '#f9fafb' 
         }}>
           <div className="muted" style={{ fontSize: '0.875rem' }}>

@@ -3,7 +3,7 @@ import { sql } from '@vercel/postgres';
 
 // Types for our database records
 export interface User {
-  id: number;
+  id: number | string; // Allow string for in-memory storage
   email: string;
   password_hash: string;
   created_at: string;
@@ -11,8 +11,8 @@ export interface User {
 }
 
 export interface UserSite {
-  id: number;
-  user_id: number;
+  id: number | string; // Allow string for in-memory storage
+  user_id: number | string; // Allow string for in-memory storage
   site_url: string;
   username: string;
   app_password: string;
@@ -22,22 +22,31 @@ export interface UserSite {
 }
 
 // Fallback in-memory store for development when Postgres is not available
-const users = new Map<string, {
-  id: string;
-  email: string;
-  password_hash: string;
-  created_at: string;
-}>();
+// Using global variables to persist across requests in the same process
+declare global {
+  var __users: Map<string, {
+    id: string;
+    email: string;
+    password_hash: string;
+    created_at: string;
+  }> | undefined;
+  var __userSites: Map<string, Array<{
+    id: string;
+    user_id: string;
+    site_url: string;
+    username: string;
+    app_password: string;
+    site_name: string | null;
+    created_at: string;
+  }>> | undefined;
+}
 
-const userSites = new Map<string, Array<{
-  id: string;
-  user_id: string;
-  site_url: string;
-  username: string;
-  app_password: string;
-  site_name: string | null;
-  created_at: string;
-}>>();
+const users = globalThis.__users || new Map();
+const userSites = globalThis.__userSites || new Map();
+
+// Store references globally to persist across requests
+globalThis.__users = users;
+globalThis.__userSites = userSites;
 
 // Check if we're in production with Postgres available
 const isPostgresAvailable = process.env.POSTGRES_URL || process.env.DATABASE_URL;
@@ -98,10 +107,11 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   } else {
     // Fallback to in-memory storage
     const user = users.get(email);
+    
     if (!user) return null;
     
     return {
-      id: parseInt(user.id) || 0,
+      id: user.id as any, // Keep as string for in-memory storage
       email: user.email,
       password_hash: user.password_hash,
       created_at: user.created_at,
@@ -131,7 +141,7 @@ export async function getUserSites(userId: number | string): Promise<UserSite[]>
   } else {
     // Fallback to in-memory storage
     const sites = userSites.get(userId.toString()) || [];
-    return sites.map(site => ({
+    return sites.map((site: any) => ({
       id: parseInt(site.id) || 0,
       user_id: parseInt(site.user_id) || 0,
       site_url: site.site_url,
@@ -202,7 +212,7 @@ export async function deleteUserSite(userId: number | string, siteId: number | s
   } else {
     // Fallback to in-memory storage
     const sites = userSites.get(userId.toString()) || [];
-    const updatedSites = sites.filter(site => site.id !== siteId.toString());
+    const updatedSites = sites.filter((site: any) => site.id !== siteId.toString());
     userSites.set(userId.toString(), updatedSites);
     return { success: true };
   }
@@ -242,7 +252,7 @@ export async function initializeDatabase() {
       await sql`CREATE INDEX IF NOT EXISTS idx_user_sites_user_id ON user_sites(user_id)`;
       await sql`CREATE INDEX IF NOT EXISTS idx_user_sites_site_url ON user_sites(site_url)`;
 
-      console.log('✅ Database schema initialized successfully');
+      
     } catch (error) {
       console.error('❌ Error initializing database:', error);
       throw error;
@@ -255,7 +265,7 @@ export async function initializeDatabase() {
       const existingUser = await getUserByEmail('test@example.com');
       if (!existingUser) {
         await createUser('test@example.com', 'password123');
-        console.log('✅ Test account created successfully');
+        
       }
     } catch (error) {
       console.error('Error creating test account:', error);
@@ -270,12 +280,12 @@ export async function ensureDatabaseInitialized() {
     try {
       await initializeDatabase();
       isInitialized = true;
-      console.log('✅ Database auto-initialization completed');
+      
     } catch (error) {
       console.error('❌ Database auto-initialization failed:', error);
       // Don't throw error in production to allow fallback to in-memory storage
       if (process.env.NODE_ENV === 'production') {
-        console.log('⚠️ Falling back to in-memory storage due to database initialization failure');
+        
       }
     }
   }

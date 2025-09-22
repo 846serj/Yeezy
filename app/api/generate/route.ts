@@ -256,7 +256,7 @@ export async function POST(request: Request) {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
-  console.log('🚀 Article generation request started');
+  
   
   // Set up timeout handling
   const timeoutId = setTimeout(() => {
@@ -648,7 +648,7 @@ Output raw HTML only:
       getWordBounds(lengthOption, customSections)[0]
     );
     
-    console.log('✅ Article generation completed successfully');
+    
     return NextResponse.json({
       content,
       sources,
