@@ -22,7 +22,7 @@ export default function Generate() {
   }, [authLoading, isAuthenticated, isConnected, router]);
 
   const handleBack = () => {
-    router.push('/dashboard');
+    router.push('/posts');
   };
 
   const handleArticleGenerated = (content: string, title: string, sources: string[]) => {

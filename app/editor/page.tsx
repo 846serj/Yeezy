@@ -138,7 +138,7 @@ function EditorPageContent() {
   };
 
   const handleCancel = () => {
-    router.push('/dashboard');
+    router.push('/posts');
   };
 
   // Show loading while checking authentication
@@ -296,7 +296,7 @@ function EditorPageContent() {
                 e.stopPropagation();
                 
                 try {
-                  router.push('/dashboard');
+                  router.push('/posts');
                   
                 } catch (error) {
                   console.error('❌ Navigation failed:', error);

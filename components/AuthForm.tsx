@@ -106,6 +106,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
             id="email"
             name="email"
             className="tui-input"
+            style={{ width: '100%', minWidth: '300px' }}
             value={formData.email}
             onChange={handleInputChange}
             required
@@ -121,6 +122,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
             id="password"
             name="password"
             className="tui-input"
+            style={{ width: '100%', minWidth: '300px' }}
             value={formData.password}
             onChange={handleInputChange}
             required
@@ -160,7 +162,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
         <div className="center">
           <button
             type="button"
-            className="tui-button"
+            className={`tui-button ${isLogin ? 'tui-button-gray' : 'tui-button-green'}`}
             onClick={toggleMode}
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}

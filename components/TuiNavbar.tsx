@@ -50,15 +50,15 @@ export const TuiNavbar: React.FC<TuiNavbarProps> = ({ className = '' }) => {
       
       {/* Navigation Menu */}
       <ul>
-        <li className={isActive('/')}>
-          <a href="/" onClick={(e) => { e.preventDefault(); router.push('/'); }}>
-            <span className="green-255-text">H</span>ome
+        <li className={isActive('/dashboard')}>
+          <a href="/dashboard" onClick={(e) => { e.preventDefault(); router.push('/dashboard'); }}>
+            <span className="green-255-text">D</span>ashboard
           </a>
         </li>
         
-        <li className={isActive('/dashboard')}>
-          <a href="/dashboard" onClick={(e) => { e.preventDefault(); router.push('/dashboard'); }}>
-            <span className="cyan-255-text">D</span>ashboard
+        <li className={isActive('/posts')}>
+          <a href="/posts" onClick={(e) => { e.preventDefault(); router.push('/posts'); }}>
+            <span className="cyan-255-text">P</span>osts
           </a>
         </li>
         

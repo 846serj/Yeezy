@@ -114,7 +114,7 @@ export default function EditArticle() {
   };
 
   const handleCancel = () => {
-    router.push('/dashboard');
+    router.push('/posts');
   };
 
   // Show loading while checking authentication or loading article
@@ -316,7 +316,7 @@ export default function EditArticle() {
                     e.stopPropagation();
                     
                     try {
-                      router.push('/dashboard');
+                      router.push('/posts');
                       
                     } catch (error) {
                       console.error('❌ Navigation failed:', error);
