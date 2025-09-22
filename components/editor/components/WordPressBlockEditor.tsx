@@ -238,7 +238,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
   // Handle block insertion
   const handleInsertBlock = (blockType: string, index: number) => {
-    console.log('Inserting block:', blockType, 'at index:', index);
     
     let attributes = {};
     switch (blockType) {
@@ -276,8 +275,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
   const handleInserterImageSelect = (image: any) => {
     if (!inserterPosition) return;
     
-    console.log('🖼️ Image selected for cropping:', image);
-    console.log('📍 Insertion position:', inserterPosition);
     
     // Set the image for cropping and the target block ID
     setCurrentImageToCrop(image);
@@ -291,7 +288,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
     setInserterSearchQuery('');
     setShowCropModal(true);
     
-    console.log('🎬 Crop modal should now be open');
   };
 
   // Handle click outside to close inserter and image toolbar
@@ -1267,7 +1263,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
       setShowImageSearch(false);
       setShowCropModal(true);
       
-      console.log('🎬 Crop modal should now be open');
     } else {
       // Fallback: just open crop modal
       setCurrentImageToCrop(image);
