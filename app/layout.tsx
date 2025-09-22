@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import '../styles/gutenberg.css'
 import Script from 'next/script'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata: Metadata = {
   title: 'WordPress Article Editor - TuiCss',
@@ -20,7 +21,9 @@ export default function RootLayout({
         {/* Font system is now handled by CSS imports */}
       </head>
       <body>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <Script src="/tuicss/tuicss.min.js" />
       </body>
     </html>

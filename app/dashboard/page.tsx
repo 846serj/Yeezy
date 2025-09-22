@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { SiteSelector } from '@/components/SiteSelector';
 import { AuthForm } from '@/components/AuthForm';
 import { useWordPress } from '@/hooks/useWordPress';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Dashboard() {
   const router = useRouter();

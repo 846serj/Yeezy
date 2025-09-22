@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArticleGenerator } from '@/components/ArticleGenerator';
 import { useWordPress } from '@/hooks/useWordPress';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { WordPressPost } from '@/types';
 
 export default function Generate() {

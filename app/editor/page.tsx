@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ClientOnlyGutenbergEditor } from '@/components/editor';
 import SmartGutenbergEditor, { SmartGutenbergEditorRef } from '@/components/editor/SmartGutenbergEditor';
 import { useWordPress } from '@/hooks/useWordPress';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { EditorContent } from '@/types';
 import { TuiLayout } from '@/components/TuiLayout';
 

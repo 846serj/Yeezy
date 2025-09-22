@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArticleList } from '@/components/ArticleList';
 import { useWordPress } from '@/hooks/useWordPress';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { WordPressPost } from '@/types';
 import { TuiPanel, TuiInfoPanel, TuiStatsPanel } from '@/components/TuiPanel';
 import { TuiRadio } from '@/components/TuiFormElements';
