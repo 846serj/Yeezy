@@ -6,8 +6,6 @@ import { ArticleList } from '@/components/ArticleList';
 import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/contexts/AuthContext';
 import { WordPressPost } from '@/types';
-import { TuiPanel, TuiInfoPanel, TuiStatsPanel } from '@/components/TuiPanel';
-import { TuiRadio } from '@/components/TuiFormElements';
 
 function PostsContent() {
   const router = useRouter();
@@ -15,7 +13,6 @@ function PostsContent() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { isConnected, site, connect } = useWordPress();
   const [statusFilter, setStatusFilter] = useState('all');
-  // Note: Site connection is now handled by useWordPress hook automatically
 
   // Redirect to site selection if not authenticated
   useEffect(() => {
@@ -30,10 +27,6 @@ function PostsContent() {
       router.push('/dashboard');
     }
   }, [isAuthenticated, isConnected, router]);
-
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value);
-  };
 
   const handlePostClick = (post: WordPressPost) => {
     router.push(`/editor/${post.id}`);
@@ -136,106 +129,17 @@ function PostsContent() {
             ← Back to Sites
           </button>
 
-          {/* Main Content Area */}
+          {/* Posts List */}
           <div style={{ 
             height: 'calc(100vh - var(--space-120))',
-            display: 'flex',
-            gap: 'var(--space-20)'
+            overflow: 'auto'
           }}>
-            {/* Left Sidebar */}
-            <div style={{
-              width: 'var(--space-300)',
-              minWidth: 'var(--space-300)',
-              flexShrink: 0
-            }}>
-              <div style={{ marginBottom: 'var(--space-20)' }}>
-                <TuiPanel title="Filters">
-                  <TuiRadio
-                    id="filter-all"
-                    name="statusFilter"
-                    label="All Posts"
-                    value="all"
-                    checked={statusFilter === 'all'}
-                    onChange={handleStatusFilterChange}
-                  />
-                  <TuiRadio
-                    id="filter-published"
-                    name="statusFilter"
-                    label="Published"
-                    value="publish"
-                    checked={statusFilter === 'publish'}
-                    onChange={handleStatusFilterChange}
-                  />
-                  <TuiRadio
-                    id="filter-draft"
-                    name="statusFilter"
-                    label="Drafts"
-                    value="draft"
-                    checked={statusFilter === 'draft'}
-                    onChange={handleStatusFilterChange}
-                  />
-                  <TuiRadio
-                    id="filter-pending"
-                    name="statusFilter"
-                    label="Pending"
-                    value="pending"
-                    checked={statusFilter === 'pending'}
-                    onChange={handleStatusFilterChange}
-                  />
-                </TuiPanel>
-              </div>
-
-              <TuiInfoPanel 
-                title="Site Info"
-                items={[
-                  { label: 'Site', value: site?.site_name || 'Unknown' },
-                  { label: 'URL', value: site?.site_url || 'Unknown' },
-                  { label: 'User', value: site?.username || 'Unknown' }
-                ]}
-              />
-            </div>
-
-            {/* Main Content */}
-            <div style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              minWidth: 0
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginBottom: 'var(--space-20)'
-              }}>
-                <h3 style={{ margin: 0, fontSize: 'var(--space-20)' }}>
-                  {statusFilter === 'all' ? 'All Posts' : 
-                   statusFilter === 'publish' ? 'Published Posts' :
-                   statusFilter === 'draft' ? 'Draft Posts' :
-                   statusFilter === 'pending' ? 'Pending Posts' : 'Posts'}
-                </h3>
-                <button 
-                  className="tui-button tui-button-green"
-                  onClick={handleNewPost}
-                >
-                  <span className="tui-shortcut">N</span>New Post
-                </button>
-              </div>
-
-              <div style={{ 
-                flex: 1,
-                overflow: 'auto',
-                border: '1px solid #ccc',
-                borderRadius: '4px'
-              }}>
-                <ArticleList
-                  onSelectArticle={handlePostClick}
-                  onCreateNew={handleNewPost}
-                  onGenerateNew={() => router.push('/generate')}
-                  statusFilter={statusFilter}
-                />
-              </div>
-            </div>
+            <ArticleList
+              onSelectArticle={handlePostClick}
+              onCreateNew={handleNewPost}
+              onGenerateNew={() => router.push('/generate')}
+              statusFilter={statusFilter}
+            />
           </div>
         </fieldset>
       </div>
