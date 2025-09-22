@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { TuiCheckbox } from './TuiFormElements';
@@ -10,6 +11,7 @@ interface AuthFormProps {
 }
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
+  const router = useRouter();
   const { login, signup } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -52,6 +54,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
       if (result.success) {
         setSuccess(isLogin ? 'Login successful!' : 'Account created successfully!');
         onSuccess({ id: 0, email: formData.email }); // The user will be set by the hook
+        
+        // Redirect to dashboard after successful authentication
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000); // Small delay to show success message
       } else {
         setError(result.error || 'An error occurred');
       }

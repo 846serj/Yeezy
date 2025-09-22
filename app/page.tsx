@@ -88,7 +88,7 @@ export default function Home() {
             }}>
               <legend className="center">WordPress Article Editor</legend>
               <div style={{ padding: 'var(--space-20)' }}>
-                <AuthForm onSuccess={(user) => login(user.email, '')} />
+                <AuthForm onSuccess={() => {}} />
               </div>
             </fieldset>
             </div>
