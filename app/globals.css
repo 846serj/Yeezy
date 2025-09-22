@@ -156,6 +156,69 @@ body {
   .tui-table {
     font-size: 0.75rem !important; /* 12px for better mobile table readability */
   }
+  
+  /* Mobile-optimized page layouts */
+  #websites-window,
+  #posts-window,
+  #article-editor-window {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Mobile-optimized fieldset padding */
+  .tui-fieldset {
+    padding: var(--space-4) !important; /* Reduced from 40px */
+  }
+  
+  /* Mobile-optimized content containers */
+  .tui-window > .tui-fieldset > div {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 var(--space-2) !important;
+  }
+  
+  /* Mobile-optimized tables */
+  .tui-table {
+    font-size: 0.75rem !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+  
+  .tui-table th,
+  .tui-table td {
+    padding: var(--space-1) !important;
+    word-wrap: break-word !important;
+    overflow: hidden !important;
+  }
+  
+  /* Mobile-optimized modals and overlays */
+  .tui-window[style*="width: var(--space-600)"] {
+    width: 90% !important;
+    max-width: 500px !important;
+  }
+  
+  .tui-window[style*="width: var(--space-500)"] {
+    width: 90% !important;
+    max-width: 500px !important;
+  }
+  
+  /* Mobile-optimized settings page layout */
+  .tui-window[style*="width: 100%"] .tui-fieldset > div[style*="display: flex"] {
+    flex-direction: column !important;
+    gap: var(--space-4) !important;
+  }
+  
+  .tui-window[style*="width: 100%"] .tui-fieldset > div[style*="display: flex"] > div[style*="width: var(--space-200)"] {
+    width: 100% !important;
+    min-width: auto !important;
+    flex-shrink: 1 !important;
+  }
+  
+  /* Mobile-optimized sidebar */
+  .tui-window[style*="width: 100%"] .tui-fieldset > div[style*="display: flex"] > div[style*="flex: 1"] {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -181,6 +244,26 @@ body {
   .tui-input {
     padding: var(--space-1) !important; /* Minimal padding */
     font-size: 0.75rem !important; /* 12px */
+  }
+  
+  /* Extra small mobile optimizations */
+  .tui-fieldset {
+    padding: var(--space-2) !important; /* Even smaller padding */
+  }
+  
+  .tui-table {
+    font-size: 0.625rem !important; /* 10px for very small screens */
+  }
+  
+  .tui-table th,
+  .tui-table td {
+    padding: 0.25rem !important; /* Minimal table padding */
+  }
+  
+  /* Hide less important columns on very small screens */
+  .tui-table th:nth-child(3),
+  .tui-table td:nth-child(3) {
+    display: none !important;
   }
 }
 

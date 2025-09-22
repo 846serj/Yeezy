@@ -332,7 +332,8 @@ export default function Dashboard() {
                     height: 'calc(100vh - var(--space-80))',
                     overflow: 'auto',
                     maxWidth: '500px',
-                    margin: '0 auto'
+                    margin: '0 auto',
+                    width: '100%'
                   }}>
                     {/* Action Buttons */}
                     <div style={{ marginBottom: 'var(--space-20)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
