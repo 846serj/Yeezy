@@ -120,14 +120,6 @@ function PostsContent() {
         }}>
           <legend className="center">Posts - {site?.site_name || 'WordPress Site'}</legend>
           
-          {/* Back Button */}
-          <button 
-            className="tui-button"
-            onClick={handleBackToSites}
-            style={{ marginBottom: 'var(--space-20)' }}
-          >
-            ← Back to Sites
-          </button>
 
           {/* Posts List */}
           <div style={{ 

@@ -1,5 +1,6 @@
 "use client";
 import React, { FC, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Cropper from "react-easy-crop";
 
 interface Props {
@@ -14,6 +15,16 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+
+  // Reset crop state when image changes
+  React.useEffect(() => {
+    if (imageSrc) {
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCroppedAreaPixels(null);
+    }
+  }, [imageSrc]);
+
 
   const handleCropComplete = useCallback((_: any, pixels: any) => {
     setCroppedAreaPixels(pixels);
@@ -30,12 +41,50 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
   
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-black p-2 w-[98vw] max-w-[1400px] flex flex-col items-center">
-        <div className="relative w-full h-[55.125vw] max-h-[787.5px]">
+  // Use portal to render modal at document body level
+  return createPortal(
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+      style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        zIndex: 999999,
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <div 
+        className="bg-black p-2 w-[98vw] max-w-[1400px] flex flex-col items-center"
+        style={{
+          backgroundColor: 'black',
+          padding: '8px',
+          width: '98vw',
+          maxWidth: '1400px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          zIndex: 1000000
+        }}
+      >
+        <div 
+          className="relative w-full h-[55.125vw] max-h-[787.5px]"
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: '55.125vw',
+            maxHeight: '787.5px',
+            backgroundColor: '#000'
+          }}
+        >
           {imageSrc && (
             <Cropper
               image={imageSrc}
@@ -49,7 +98,12 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
               onZoomChange={setZoom}
               onCropComplete={handleCropComplete}
               style={{
-                containerStyle: { backgroundColor: "#000", width: "100%", height: "100%" },
+                containerStyle: { 
+                  backgroundColor: "#000", 
+                  width: "100%", 
+                  height: "100%",
+                  position: 'relative'
+                },
                 cropAreaStyle: { backgroundColor: "transparent", border: "none" },
               }}
             />
@@ -71,7 +125,8 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

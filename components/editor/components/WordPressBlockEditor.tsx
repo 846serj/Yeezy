@@ -349,7 +349,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
     };
 
     if (showImageToolbar && selectedImageElement) {
-      console.log('🎯 Starting continuous toolbar position updates');
       animationFrameId = requestAnimationFrame(updateToolbarPosition);
       
       return () => {
@@ -2816,7 +2815,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
         isOpen={showCropModal}
         imageSrc={currentImageToCrop?.full || currentImageToCrop?.url || ''}
         onCancel={() => {
-          console.log('❌ Crop modal cancelled');
           setShowCropModal(false);
           setCurrentImageToCrop(null);
           setCurrentBlockId(null);
