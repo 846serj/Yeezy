@@ -344,6 +344,9 @@ export default function Dashboard() {
                         Add Site
                       </button>
                     </div>
+
+                    {/* Spacer for additional spacing */}
+                    <div style={{ height: '20px', width: '100%' }}></div>
                   
                   {/* Sites List */}
                   {sites.length === 0 ? (

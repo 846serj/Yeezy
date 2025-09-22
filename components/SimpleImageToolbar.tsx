@@ -18,7 +18,7 @@ const SimpleImageToolbar: React.FC<SimpleImageToolbarProps> = ({ isVisible, posi
       style={{
         position: 'fixed',
         top: position.y - 60, // Position var(--space-60) above the image
-        left: position.x - 150, // Center the toolbar (var(--space-300) width / 2)
+        left: position.x - 100, // Center the toolbar (approximate width / 2)
         zIndex: 1000000,
         pointerEvents: 'auto',
         transform: 'translateZ(0)', // Force hardware acceleration
@@ -26,11 +26,11 @@ const SimpleImageToolbar: React.FC<SimpleImageToolbarProps> = ({ isVisible, posi
       }}
     >
       <div>
-        <button className="tui-button" title="Align">
+        {/* <button className="tui-button" title="Align">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
             <path d="M19 5.5H5V4h14v1.5ZM19 20H5v-1.5h14V20ZM5 9h14v6H5V9Z" />
           </svg>
-        </button>
+        </button> */}
         <button 
           className="tui-button" 
           title="Replace"
@@ -38,16 +38,21 @@ const SimpleImageToolbar: React.FC<SimpleImageToolbarProps> = ({ isVisible, posi
         >
           Replace
         </button>
-        <button className="tui-button" title="Crop">
+        <div style={{ 
+          width: '8px', 
+          height: '20px', 
+          display: 'inline-block'
+        }}></div>
+        {/* <button className="tui-button" title="Crop">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
             <path d="M6.5 12.4L12 8l5.5 4.4-.9 1.2L12 10l-4.5 3.6-1-1.2z"/>
           </svg>
-        </button>
-        <button className="tui-button" title="Options">
+        </button> */}
+        {/* <button className="tui-button" title="Options">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
             <path d="M13 19h-2v-2h2v2zm0-6h-2v-2h2v2zm0-6h-2V5h2v2z"/>
           </svg>
-        </button>
+        </button> */}
         <button 
           className="tui-button" 
           title="Delete Image"

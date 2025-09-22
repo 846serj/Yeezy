@@ -116,7 +116,7 @@
 }
 
 .heading-input--h2 {
-  font-size: 1.65rem;
+  font-size: 1.25rem;
 }
 
 .heading-input--h3 {
@@ -144,7 +144,7 @@
   min-height: var(--space-32);
   height: auto;
   font-family: var(--font-primary);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height-normal);
   color: inherit;
@@ -255,7 +255,7 @@ input.article-title {
 .wp-block-post-title.editor-post-title__input,
 input.editor-post-title__input {
   font-family: var(--font-primary) !important;
-  font-size: 1.65rem !important;
+  font-size: 1.25rem !important;
   font-weight: var(--font-weight-bold) !important;
   line-height: var(--line-height-tight) !important;
   color: inherit !important;

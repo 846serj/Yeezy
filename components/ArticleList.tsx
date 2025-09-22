@@ -208,6 +208,9 @@ export const ArticleList: React.FC<ArticleListProps> = ({ onSelectArticle, onCre
         </div>
       </div>
 
+      {/* Spacer for additional spacing */}
+      <div style={{ height: '20px', width: '100%' }}></div>
+
       {/* Articles List */}
       {loading && articles.length === 0 ? (
         <div className="center">

@@ -448,11 +448,15 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                  target.closest('.editor-styles-wrapper') ||
                                  target.closest('.block-editor-writing-flow');
 
+        // Check if it's a featured image (exclude from toolbar)
+        const isFeaturedImage = target.closest('.editor-visual-editor__featured-image-wrapper');
+
         console.log('🔍 Is in editor content:', !!isInEditorContent);
+        console.log('🔍 Is featured image:', !!isFeaturedImage);
         console.log('🔍 Available CSS classes on image:', target.className);
         console.log('🔍 Parent elements:', target.parentElement?.tagName, target.parentElement?.className);
 
-        if (isInEditorContent) {
+        if (isInEditorContent && !isFeaturedImage) {
           console.log('✅ Image clicked in WordPress editor!', target);
           
           // Clear ALL previous selections (ensure only one image selected at a time)
@@ -841,11 +845,15 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                  target.closest('.editor-styles-wrapper') ||
                                  target.closest('.block-editor-writing-flow');
         
+        // Check if it's a featured image (exclude from toolbar)
+        const isFeaturedImage = target.closest('.editor-visual-editor__featured-image-wrapper');
+        
         console.log('🔍 Is in editor content:', !!isInEditorContent);
+        console.log('🔍 Is featured image:', !!isFeaturedImage);
         console.log('🔍 Available CSS classes on image:', target.className);
         console.log('🔍 Parent elements:', target.parentElement?.tagName, target.parentElement?.className);
         
-        if (isInEditorContent) {
+        if (isInEditorContent && !isFeaturedImage) {
           console.log('✅ Image clicked in WordPress editor!', target);
           
             // Clear ALL previous selections (ensure only one image selected at a time)
@@ -1720,12 +1728,15 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                 {/* WordPress-style Editor Container */}
                 <div className="editor-visual-editor">
                   <div className="editor-styles-wrapper block-editor-writing-flow">
+                    {/* Spacer for additional top margin */}
+                    <div style={{ height: '20px', width: '100%' }}></div>
+                    
                     {/* Post Title Input */}
                     <div 
                       className="editor-visual-editor__post-title-wrapper edit-post-visual-editor__post-title-wrapper has-global-padding"
                       style={{
                         maxWidth: '650px',
-                        margin: '33px auto 0 auto',
+                        margin: '0 auto',
                         padding: '0 20px'
                       }}
                     >
@@ -1774,7 +1785,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                               textAlign: 'center',
                               padding: '0',
                               border: selectedFeaturedImage ? '2px solid #296DEB' : '1px solid transparent',
-                              borderRadius: '4px',
+                              borderRadius: '0px',
                               margin: '0',
                               cursor: 'pointer',
                               transition: 'border-color 0.2s ease'
@@ -1788,7 +1799,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                 style={{
                                   width: '100%',
                                   height: 'auto',
-                                  borderRadius: '4px',
+                                  borderRadius: '0px',
                                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                                   // Add subtle visual indicator for blob URLs (temporary images)
                                   opacity: featuredImage.url.startsWith('blob:') ? 0.95 : 1,
@@ -1860,46 +1871,48 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                               }}
                             />
                           </figure>
-                          <div style={{ 
-                            display: 'flex', 
-                            gap: '8px', 
-                            marginTop: '12px',
-                            justifyContent: 'center'
-                          }}>
-                            <button
-                              onClick={() => {
-                                console.log('🖼️ Opening featured image search...');
-                                openFeaturedImageSearch();
-                                // Auto-search for images
-                                handleFeaturedImageSearch('nature');
-                              }}
-                              style={{
-                                padding: '6px 12px',
-                                fontSize: '12px',
-                                backgroundColor: '#0073aa',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '3px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              Change Image
-                            </button>
-                            <button
-                              onClick={() => setFeaturedImage(null)}
-                              style={{
-                                padding: '6px 12px',
-                                fontSize: '12px',
-                                backgroundColor: '#dc3232',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '3px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              Remove
-                            </button>
-                          </div>
+                          {selectedFeaturedImage && (
+                            <div style={{ 
+                              display: 'flex', 
+                              gap: '8px', 
+                              marginTop: '12px',
+                              justifyContent: 'center'
+                            }}>
+                              <button
+                                onClick={() => {
+                                  console.log('🖼️ Opening featured image search...');
+                                  openFeaturedImageSearch();
+                                  // Auto-search for images
+                                  handleFeaturedImageSearch('nature');
+                                }}
+                                style={{
+                                  padding: '6px 12px',
+                                  fontSize: '12px',
+                                  backgroundColor: '#0073aa',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '3px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Replace Featured Image
+                              </button>
+                              <button
+                                onClick={() => setFeaturedImage(null)}
+                                style={{
+                                  padding: '6px 12px',
+                                  fontSize: '12px',
+                                  backgroundColor: '#dc3232',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '3px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div style={{
