@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { TuiCheckbox } from './TuiFormElements';
 
 interface AuthFormProps {
-  onSuccess: (user: { id: number; email: string }) => void;
+  onSuccess?: (user: { id: number; email: string }) => void;
 }
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
@@ -53,7 +53,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
 
       if (result.success) {
         setSuccess(isLogin ? 'Login successful!' : 'Account created successfully!');
-        onSuccess({ id: 0, email: formData.email }); // The user will be set by the hook
+        // User state is already set by the login/signup functions in the hook
+        
+        // Call onSuccess callback if provided
+        if (onSuccess) {
+          onSuccess({ id: 0, email: formData.email });
+        }
         
         // Redirect to dashboard after successful authentication
         setTimeout(() => {
