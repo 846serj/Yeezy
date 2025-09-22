@@ -485,16 +485,86 @@ input.editor-post-title__input {
    RESPONSIVE ADJUSTMENTS
    ======================================== */
 
-@media (max-width: var(--space-768)) {
+/* Mobile responsive adjustments for components */
+@media (max-width: 768px) {
+  /* Mobile-optimized heading inputs */
   .heading-input--h1 {
-    font-size: var(--font-size-3xl);
+    font-size: 1.5rem; /* 24px - reduced from 1.875rem */
   }
   
   .heading-input--h2 {
-    font-size: var(--font-size-2xl);
+    font-size: 1.25rem; /* 20px - reduced from 1.5rem */
   }
   
   .heading-input--h3 {
-    font-size: var(--font-size-xl);
+    font-size: 1.125rem; /* 18px - reduced from 1.25rem */
+  }
+  
+  .heading-input--h4 {
+    font-size: 1rem; /* 16px - reduced from 1.125rem */
+  }
+  
+  .heading-input--h5 {
+    font-size: 0.875rem; /* 14px - reduced from 1rem */
+  }
+  
+  .heading-input--h6 {
+    font-size: 0.75rem; /* 12px - reduced from 0.875rem */
+  }
+  
+  /* Mobile-optimized text inputs */
+  .text-input {
+    font-size: 0.875rem; /* 14px - reduced from 1rem */
+    padding: var(--space-2) !important; /* Smaller padding */
+  }
+  
+  /* Mobile-optimized buttons */
+  .btn {
+    font-size: 0.875rem; /* 14px - reduced from 1rem */
+    padding: var(--space-2) var(--space-3) !important; /* Smaller padding */
+  }
+  
+  /* Mobile-optimized form elements */
+  .form-input {
+    font-size: 0.875rem; /* 14px - reduced from 1rem */
+    padding: var(--space-2) !important; /* Smaller padding */
+  }
+  
+  /* Mobile-optimized editor container */
+  .editor-container {
+    margin: var(--space-4) !important; /* Reduced from var(--space-10) */
+    padding: var(--space-3) !important; /* Reduced from var(--space-5) */
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 480px) {
+  /* Further reduce sizes for very small screens */
+  .heading-input--h1 {
+    font-size: 1.25rem; /* 20px */
+  }
+  
+  .heading-input--h2 {
+    font-size: 1.125rem; /* 18px */
+  }
+  
+  .heading-input--h3 {
+    font-size: 1rem; /* 16px */
+  }
+  
+  .text-input,
+  .form-input {
+    font-size: 0.8125rem; /* 13px */
+    padding: var(--space-1) !important; /* Minimal padding */
+  }
+  
+  .btn {
+    font-size: 0.75rem; /* 12px */
+    padding: var(--space-1) var(--space-2) !important; /* Minimal padding */
+  }
+  
+  .editor-container {
+    margin: var(--space-2) !important; /* Minimal margin */
+    padding: var(--space-2) !important; /* Minimal padding */
   }
 }

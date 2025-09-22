@@ -233,21 +233,21 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                 borderRadius: 'var(--space-4)', 
                 marginBottom: 'var(--space-2)', 
                 transition: '0.2s',
-                backgroundColor: selectedSources.includes('unsplash') ? '#e3f2fd' : 'transparent'
+                backgroundColor: selectedSources.includes('getty') ? '#e3f2fd' : 'transparent'
               }}
-              onClick={() => handleSourceToggle('unsplash')}
+              onClick={() => handleSourceToggle('getty')}
               onMouseEnter={(e) => {
-                if (!selectedSources.includes('unsplash')) {
+                if (!selectedSources.includes('getty')) {
                   e.currentTarget.style.backgroundColor = '#f5f5f5';
                 }
               }}
               onMouseLeave={(e) => {
-                if (!selectedSources.includes('unsplash')) {
+                if (!selectedSources.includes('getty')) {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
             >
-              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Unsplash</div>
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Getty API</div>
             </div>
             
             <div 
@@ -275,7 +275,63 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                 }
               }}
             >
-              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Pexels</div>
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Pexels API</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('shutterstock') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('shutterstock')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('shutterstock')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('shutterstock')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Shutterstock API</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('unsplash') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('unsplash')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('unsplash')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('unsplash')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Unsplash API</div>
             </div>
             
             <div 
@@ -303,7 +359,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                 }
               }}
             >
-              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Wiki Commons API</div>
             </div>
           </div>
         </div>

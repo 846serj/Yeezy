@@ -126,18 +126,77 @@
 /* ========================================
    RESPONSIVE ADJUSTMENTS
    ======================================== */
-@media (max-width: var(--space-768)) {
+
+/* Mobile responsive adjustments for Gutenberg editor */
+@media (max-width: 768px) {
+  /* Mobile-optimized post title */
   .editor-post-title__input {
-    font-size: var(--font-size-xl) !important;
+    font-size: 1.25rem !important; /* 20px - reduced from 1.65rem */
+    line-height: 1.3 !important;
   }
   
+  /* Mobile-optimized heading blocks */
   .gutenberg-editor [data-type="core/heading"][data-level="1"] textarea,
   .gutenberg-editor [data-type="core/heading"][data-level="1"] input {
-    font-size: var(--font-size-3xl) !important;
+    font-size: 1.5rem !important; /* 24px - reduced from 2.25rem */
   }
   
   .gutenberg-editor [data-type="core/heading"][data-level="2"] textarea,
   .gutenberg-editor [data-type="core/heading"][data-level="2"] input {
-    font-size: var(--font-size-2xl) !important;
+    font-size: 1.25rem !important; /* 20px - reduced from 1.875rem */
+  }
+  
+  .gutenberg-editor [data-type="core/heading"][data-level="3"] textarea,
+  .gutenberg-editor [data-type="core/heading"][data-level="3"] input {
+    font-size: 1.125rem !important; /* 18px - reduced from 1.5rem */
+  }
+  
+  /* Mobile-optimized paragraph blocks */
+  .gutenberg-editor [data-type="core/paragraph"] textarea,
+  .gutenberg-editor [data-type="core/paragraph"] input {
+    font-size: 0.875rem !important; /* 14px - reduced from 1rem */
+    line-height: 1.6 !important;
+  }
+  
+  /* Mobile-optimized block editor toolbar */
+  .block-editor-block-toolbar {
+    font-size: 0.75rem !important; /* 12px - reduced from 0.875rem */
+  }
+  
+  /* Mobile-optimized block inserter */
+  .block-editor-inserter__panel-header {
+    font-size: 0.875rem !important; /* 14px - reduced from 1rem */
+  }
+  
+  /* Reduce padding for mobile editor */
+  .editor-visual-editor__post-title-wrapper {
+    padding: 0 var(--space-4) !important; /* Reduced from var(--space-20) */
+  }
+  
+  .editor-visual-editor__featured-image-wrapper {
+    padding: 0 var(--space-4) !important; /* Reduced from var(--space-20) */
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 480px) {
+  /* Further reduce sizes for very small screens */
+  .editor-post-title__input {
+    font-size: 1.125rem !important; /* 18px */
+  }
+  
+  .gutenberg-editor [data-type="core/heading"][data-level="1"] textarea,
+  .gutenberg-editor [data-type="core/heading"][data-level="1"] input {
+    font-size: 1.25rem !important; /* 20px */
+  }
+  
+  .gutenberg-editor [data-type="core/heading"][data-level="2"] textarea,
+  .gutenberg-editor [data-type="core/heading"][data-level="2"] input {
+    font-size: 1.125rem !important; /* 18px */
+  }
+  
+  .gutenberg-editor [data-type="core/paragraph"] textarea,
+  .gutenberg-editor [data-type="core/paragraph"] input {
+    font-size: 0.8125rem !important; /* 13px */
   }
 }

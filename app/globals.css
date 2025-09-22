@@ -9,9 +9,22 @@
 /* Import component styles */
 @import '../styles/components.css';
 
-/* Industry standard scaling approach */
+/* Industry standard scaling approach - Mobile responsive */
 html {
-  zoom: 1.3; /* Clean, simple 1.3x scaling */
+  zoom: 1.3; /* Clean, simple 1.3x scaling for desktop */
+}
+
+/* Mobile responsive scaling */
+@media (max-width: 768px) {
+  html {
+    zoom: 1.0; /* Reset zoom for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    zoom: 0.9; /* Slightly smaller for very small screens */
+  }
 }
 
 /* Ensure proper viewport behavior */
@@ -109,6 +122,66 @@ body {
 .tui-sidenav {
   font-family: var(--font-primary) !important;
   font-size: var(--font-size-lg) !important;
+}
+
+/* Mobile responsive TuiCss components */
+@media (max-width: 768px) {
+  .tui-window, 
+  .tui-fieldset, 
+  .tui-button, 
+  .tui-input, 
+  .tui-table, 
+  .tui-nav, 
+  .tui-statusbar, 
+  .tui-screen, 
+  .tui-screen-content, 
+  .tui-main-content, 
+  .tui-sidenav {
+    font-size: var(--font-size-base) !important; /* Reduce from lg to base */
+  }
+  
+  /* Mobile-optimized button sizing */
+  .tui-button {
+    padding: var(--space-2) var(--space-3) !important; /* Smaller padding */
+    font-size: 0.875rem !important; /* 14px */
+  }
+  
+  /* Mobile-optimized input sizing */
+  .tui-input {
+    padding: var(--space-2) !important; /* Smaller padding */
+    font-size: 0.875rem !important; /* 14px */
+  }
+  
+  /* Mobile-optimized table text */
+  .tui-table {
+    font-size: 0.75rem !important; /* 12px for better mobile table readability */
+  }
+}
+
+@media (max-width: 480px) {
+  .tui-window, 
+  .tui-fieldset, 
+  .tui-button, 
+  .tui-input, 
+  .tui-table, 
+  .tui-nav, 
+  .tui-statusbar, 
+  .tui-screen, 
+  .tui-screen-content, 
+  .tui-main-content, 
+  .tui-sidenav {
+    font-size: var(--font-size-sm) !important; /* Even smaller for very small screens */
+  }
+  
+  .tui-button {
+    padding: var(--space-1) var(--space-2) !important; /* Minimal padding */
+    font-size: 0.75rem !important; /* 12px */
+  }
+  
+  .tui-input {
+    padding: var(--space-1) !important; /* Minimal padding */
+    font-size: 0.75rem !important; /* 12px */
+  }
 }
 
 /* Spinner animation for upload indicators */

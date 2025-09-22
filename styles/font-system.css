@@ -199,3 +199,78 @@ input, textarea, select, button {
 .leading-tight { line-height: var(--line-height-tight); }
 .leading-normal { line-height: var(--line-height-normal); }
 .leading-relaxed { line-height: var(--line-height-relaxed); }
+
+/* ========================================
+   MOBILE RESPONSIVE TYPOGRAPHY
+   Industry standard mobile font sizes
+   ======================================== */
+
+/* Mobile font size adjustments */
+@media (max-width: 768px) {
+  /* Reduce base font size for mobile */
+  html {
+    font-size: 14px; /* Smaller base for mobile */
+  }
+  
+  /* Mobile-optimized heading sizes */
+  h1, .h1, .editor-heading-1 {
+    font-size: 1.5rem; /* 24px - reduced from 2.25rem */
+  }
+  
+  h2, .h2, .editor-heading-2 {
+    font-size: 1.25rem; /* 20px - reduced from 1.875rem */
+  }
+  
+  h3, .h3, .editor-heading-3 {
+    font-size: 1.125rem; /* 18px - reduced from 1.5rem */
+  }
+  
+  h4, .h4, .editor-heading-4 {
+    font-size: 1rem; /* 16px - reduced from 1.25rem */
+  }
+  
+  h5, .h5, .editor-heading-5 {
+    font-size: 0.875rem; /* 14px - reduced from 1.125rem */
+  }
+  
+  h6, .h6, .editor-heading-6 {
+    font-size: 0.75rem; /* 12px - reduced from 1rem */
+  }
+  
+  /* Mobile-optimized paragraph and body text */
+  p, .p, .editor-paragraph {
+    font-size: 0.875rem; /* 14px - reduced from 1rem */
+    line-height: 1.6; /* Slightly more relaxed for mobile reading */
+  }
+  
+  /* Mobile-optimized form elements */
+  input, textarea, select, button {
+    font-size: 0.875rem; /* 14px - reduced from 1rem */
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 480px) {
+  html {
+    font-size: 13px; /* Even smaller base for very small screens */
+  }
+  
+  /* Further reduce heading sizes for very small screens */
+  h1, .h1, .editor-heading-1 {
+    font-size: 1.25rem; /* 20px */
+  }
+  
+  h2, .h2, .editor-heading-2 {
+    font-size: 1.125rem; /* 18px */
+  }
+  
+  h3, .h3, .editor-heading-3 {
+    font-size: 1rem; /* 16px */
+  }
+  
+  /* Keep paragraph text readable but compact */
+  p, .p, .editor-paragraph {
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.5;
+  }
+}

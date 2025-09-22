@@ -5,9 +5,11 @@ import { createPortal } from 'react-dom';
 
 const sourceLabels: Record<string, string> = {
   all:         "All",
-  unsplash:    "Unsplash",
-  pexels:      "Pexels",
-  wikiCommons: "Wiki Commons",
+  unsplash:    "Unsplash API",
+  pexels:      "Pexels API",
+  wikiCommons: "Wiki Commons API",
+  shutterstock: "Shutterstock API",
+  getty:       "Getty API",
   wpMedia:     "WordPress Media",
 };
 
@@ -180,21 +182,21 @@ const ImageSearchModal: FC<Props> = ({
                   borderRadius: '4px', 
                   marginBottom: '2px', 
                   transition: '0.2s',
-                  backgroundColor: selectedSources.includes('unsplash') ? '#e3f2fd' : 'transparent'
+                  backgroundColor: selectedSources.includes('getty') ? '#e3f2fd' : 'transparent'
                 }}
-                onClick={() => onSourceToggle('unsplash')}
+                onClick={() => onSourceToggle('getty')}
                 onMouseEnter={(e) => {
-                  if (!selectedSources.includes('unsplash')) {
+                  if (!selectedSources.includes('getty')) {
                     e.currentTarget.style.backgroundColor = '#f5f5f5';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!selectedSources.includes('unsplash')) {
+                  if (!selectedSources.includes('getty')) {
                     e.currentTarget.style.backgroundColor = 'transparent';
                   }
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Unsplash</div>
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Getty API</div>
               </div>
               
               <div 
@@ -222,7 +224,63 @@ const ImageSearchModal: FC<Props> = ({
                   }
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pexels</div>
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pexels API</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('shutterstock') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('shutterstock')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('shutterstock')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('shutterstock')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Shutterstock API</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('unsplash') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('unsplash')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('unsplash')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('unsplash')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Unsplash API</div>
               </div>
               
               <div 
@@ -250,7 +308,7 @@ const ImageSearchModal: FC<Props> = ({
                   }
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Wiki Commons API</div>
               </div>
             </div>
           </div>
