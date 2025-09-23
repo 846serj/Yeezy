@@ -150,6 +150,9 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
         flexDirection: 'column',
         minHeight: 'var(--space-600)'
       }}>
+          {/* Spacing above back button */}
+          <div style={{ height: '40px' }}></div>
+          
           {/* Header with Back Button */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-10)' }}>
             <button
@@ -160,6 +163,9 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
               &lt;
             </button>
           </div>
+          
+          {/* 20px spacing div */}
+          <div style={{ height: '20px' }}></div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-16)' }}>
             {/* Title */}
@@ -306,8 +312,11 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
               </div>
             )}
 
+            {/* 20px spacing above button */}
+            <div style={{ height: '20px' }}></div>
+
             {/* Generate Button */}
-            <div>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
               <button
                 className="tui-button"
                 onClick={handleGenerate}
@@ -316,13 +325,10 @@ export const ArticleGenerator: React.FC<ArticleGeneratorProps> = ({ onBack, onAr
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 me-2 animate-spin" />
-                    Generating Article...
+                    Creating Article...
                   </>
                 ) : (
-                  <>
-                    <Plus className="h-4 w-4 me-2" />
-                    Generate Article
-                  </>
+                  'Create Article'
                 )}
               </button>
             </div>

@@ -109,7 +109,7 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
             />
           )}
         </div>
-        <div className="mt-4 flex gap-4">
+        <div className="mt-4 flex" style={{ gap: '20px' }}>
           <button
             onClick={onCancel}
             className="px-4 py-2 bg-gray-500 text-white rounded"
@@ -119,7 +119,8 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
           <button
             onClick={handleConfirm}
             disabled={loading}
-            className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50"
+            className="px-4 py-2 text-white rounded disabled:opacity-50"
+            style={{ backgroundColor: 'var(--tui-success)', border: 'none' }}
           >
             {loading ? "Applying…" : "Apply Crop"}
           </button>

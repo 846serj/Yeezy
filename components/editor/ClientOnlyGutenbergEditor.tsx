@@ -7,9 +7,55 @@ import { useBlockManagement } from './hooks/useBlockManagement';
 import { useImageSearch } from './hooks/useImageSearch';
 import { convertHtmlToBlocks } from './utils/htmlParser';
 import { getBlockEditorSettings } from './utils/blockEditorSettings';
+import { useContentEditable } from '../../hooks/useContentEditable';
 import { BlockEdit } from './components/BlockEdit';
 import { BlockInserter } from './components/BlockInserter';
 // import { BlockInsertionPoint } from './components/BlockInsertionPoint';
+
+// TitleInput component
+interface TitleInputProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const TitleInput: React.FC<TitleInputProps> = ({ value, onChange }) => {
+  const { ref, onInput, onCompositionStart, onCompositionEnd, onKeyDown } = useContentEditable({
+    value,
+    onChange,
+  });
+
+  return (
+    <div
+      ref={ref}
+      role="document"
+      aria-multiline="true"
+      className="wp-block wp-block-post-title block-editor-block-list__block editor-post-title editor-post-title__input rich-text article-title"
+      aria-label="Add title"
+      contentEditable={true}
+      data-wp-block-attribute-key="title"
+      style={{
+        textAlign: 'center',
+        flex: '1',
+        width: '100%',
+        whiteSpace: 'pre-wrap',
+        minWidth: '1px',
+        overflowWrap: 'break-word',
+        lineBreak: 'after-white-space' as any,
+        direction: 'ltr',
+        unicodeBidi: 'normal',
+        ...({
+          WebkitNbspMode: 'space',
+          WebkitUserModify: 'read-write'
+        } as any)
+      }}
+      onInput={onInput}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={onCompositionEnd}
+      onKeyDown={onKeyDown}
+      suppressContentEditableWarning={true}
+    />
+  );
+};
 
 // Import existing components
 import ImageSearchModal from '../ImageSearchModal';
@@ -338,34 +384,10 @@ const ClientOnlyGutenbergEditor = forwardRef<ClientOnlyGutenbergEditorRef, Clien
         
         {/* Header with Title and Buttons */}
         <div className="editor-visual-editor__post-title-wrapper edit-post-visual-editor__post-title-wrapper has-global-padding" style={{ marginTop: 'var(--space-2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: 'var(--space-500)' }}>
-          <div
-            role="document"
-            aria-multiline="true"
-            className="wp-block wp-block-post-title block-editor-block-list__block editor-post-title editor-post-title__input rich-text article-title"
-            aria-label="Add title"
-            contentEditable={true}
-            data-wp-block-attribute-key="title"
-            style={{
-              textAlign: 'center',
-              flex: '1',
-              width: '100%',
-              whiteSpace: 'pre-wrap',
-              minWidth: '1px',
-              overflowWrap: 'break-word',
-              lineBreak: 'after-white-space' as any,
-              ...({
-                WebkitNbspMode: 'space',
-                WebkitUserModify: 'read-write'
-              } as any)
-            }}
-            onInput={(e) => {
-              const content = e.currentTarget.textContent || '';
-              setTitle(content);
-            }}
-            suppressContentEditableWarning={true}
-          >
-            {title}
-          </div>
+          <TitleInput
+            value={title}
+            onChange={setTitle}
+          />
           
           <div style={{ display: 'flex', gap: 'var(--space-8)', marginLeft: 'var(--space-16)' }}>
             <button

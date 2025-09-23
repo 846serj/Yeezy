@@ -9,6 +9,50 @@ import { convertHtmlToBlocks } from '../utils/htmlParser';
 import { getBlockEditorSettings } from '../utils/blockEditorSettings';
 import { useContentEditable } from '../../../hooks/useContentEditable';
 
+// TitleInput component
+interface TitleInputProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const TitleInput: React.FC<TitleInputProps> = ({ value, onChange }) => {
+  const { ref, onInput, onCompositionStart, onCompositionEnd, onKeyDown } = useContentEditable({
+    value,
+    onChange,
+  });
+
+  return (
+    <div
+      ref={ref}
+      role="document"
+      aria-multiline="true"
+      className="wp-block wp-block-post-title block-editor-block-list__block editor-post-title editor-post-title__input rich-text article-title"
+      aria-label="Add title"
+      contentEditable={true}
+      data-wp-block-attribute-key="title"
+      style={{
+        textAlign: 'left',
+        width: '100%',
+        whiteSpace: 'pre-wrap',
+        minWidth: '1px',
+        overflowWrap: 'break-word',
+        lineBreak: 'after-white-space' as any,
+        direction: 'ltr',
+        unicodeBidi: 'normal',
+        ...({
+          WebkitNbspMode: 'space',
+          WebkitUserModify: 'read-write'
+        } as any)
+      }}
+      onInput={onInput}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={onCompositionEnd}
+      onKeyDown={onKeyDown}
+      suppressContentEditableWarning={true}
+    />
+  );
+};
+
 // ContentEditableHeading component
 interface ContentEditableHeadingProps {
   block: GutenbergBlock;
@@ -1740,33 +1784,10 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                         padding: '0 20px'
                       }}
                     >
-                      <div
-                        role="document"
-                        aria-multiline="true"
-                        className="wp-block wp-block-post-title block-editor-block-list__block editor-post-title editor-post-title__input rich-text article-title"
-                        aria-label="Add title"
-                        contentEditable={true}
-                        data-wp-block-attribute-key="title"
-                        style={{
-                          textAlign: 'left',
-                          width: '100%',
-                          whiteSpace: 'pre-wrap',
-                          minWidth: '1px',
-                          overflowWrap: 'break-word',
-                          lineBreak: 'after-white-space' as any,
-                          ...({
-                            WebkitNbspMode: 'space',
-                            WebkitUserModify: 'read-write'
-                          } as any)
-                        }}
-                        onInput={(e) => {
-                          const content = e.currentTarget.textContent || '';
-                          setTitle(content);
-                        }}
-                        suppressContentEditableWarning={true}
-                      >
-                        {title || ''}
-                      </div>
+                      <TitleInput
+                        value={title}
+                        onChange={setTitle}
+                      />
                     </div>
 
                     {/* Featured Image Section */}
@@ -2046,7 +2067,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                         transform: 'translate(-50%, -50%)',
                                         width: '20px',
                                         height: '20px',
-                                        backgroundColor: '#00a800',
+                                        backgroundColor: '#007cba',
                                         borderRadius: '0',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -2054,7 +2075,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                         color: 'white',
                                         fontSize: '12px',
                                         fontWeight: 'bold',
-                                        border: '2px solid white',
+                                        border: 'none',
                                         cursor: 'pointer',
                                         transition: 'all 0.2s ease',
                                         boxShadow: '0 2px 8px rgba(0, 0, 170, 0.3)'
@@ -2065,7 +2086,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 170, 0.5)';
                                       }}
                                       onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#00a800';
+                                        e.currentTarget.style.backgroundColor = '#007cba';
                                         e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
                                         e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 170, 0.3)';
                                       }}
@@ -2357,7 +2378,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                       transform: 'translate(-50%, -50%)',
                                       width: '20px',
                                       height: '20px',
-                                      backgroundColor: '#00a800',
+                                      backgroundColor: '#007cba',
                                       borderRadius: '0',
                                       display: 'flex',
                                       alignItems: 'center',
@@ -2365,7 +2386,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                       color: 'white',
                                       fontSize: '12px',
                                       fontWeight: 'bold',
-                                      border: '2px solid white',
+                                      border: 'none',
                                       cursor: 'pointer',
                                       transition: 'all 0.2s ease',
                                       boxShadow: '0 2px 8px rgba(0, 0, 170, 0.3)'
@@ -2376,7 +2397,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                       e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 170, 0.5)';
                                     }}
                                     onMouseLeave={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#00a800';
+                                      e.currentTarget.style.backgroundColor = '#007cba';
                                       e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
                                       e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 170, 0.3)';
                                     }}
