@@ -4,9 +4,10 @@ interface UseContentEditableProps {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  richText?: boolean; // New prop to enable HTML content
 }
 
-export const useContentEditable = ({ value, onChange, onKeyDown }: UseContentEditableProps) => {
+export const useContentEditable = ({ value, onChange, onKeyDown, richText = false }: UseContentEditableProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const isComposingRef = useRef(false);
 
@@ -14,14 +15,14 @@ export const useContentEditable = ({ value, onChange, onKeyDown }: UseContentEdi
     try {
       if (isComposingRef.current) return;
       
-      const content = e.currentTarget.textContent || '';
+      const content = richText ? (e.currentTarget.innerHTML || '') : (e.currentTarget.textContent || '');
       if (content !== value) {
         onChange(content);
       }
     } catch (error) {
       console.warn('ContentEditable input error:', error);
     }
-  }, [value, onChange]);
+  }, [value, onChange, richText]);
 
   const handleCompositionStart = useCallback(() => {
     isComposingRef.current = true;
@@ -30,14 +31,14 @@ export const useContentEditable = ({ value, onChange, onKeyDown }: UseContentEdi
   const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLDivElement>) => {
     try {
       isComposingRef.current = false;
-      const content = e.currentTarget.textContent || '';
+      const content = richText ? (e.currentTarget.innerHTML || '') : (e.currentTarget.textContent || '');
       if (content !== value) {
         onChange(content);
       }
     } catch (error) {
       console.warn('ContentEditable composition error:', error);
     }
-  }, [value, onChange]);
+  }, [value, onChange, richText]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
     if (onKeyDown) {
@@ -47,7 +48,8 @@ export const useContentEditable = ({ value, onChange, onKeyDown }: UseContentEdi
 
   // Update content when value changes externally (but not during user input)
   useEffect(() => {
-    if (ref.current && ref.current.textContent !== value) {
+    const currentContent = richText ? (ref.current?.innerHTML || '') : (ref.current?.textContent || '');
+    if (ref.current && currentContent !== value) {
       const selection = window.getSelection();
       let range: Range | null = null;
       let isCursorAtEnd = false;
@@ -64,7 +66,11 @@ export const useContentEditable = ({ value, onChange, onKeyDown }: UseContentEdi
         console.warn('Selection error:', error);
       }
       
-      ref.current.textContent = value;
+      if (richText) {
+        ref.current.innerHTML = value;
+      } else {
+        ref.current.textContent = value;
+      }
       
       // Restore cursor position safely
       if (selection && range && ref.current.textContent) {
@@ -95,7 +101,7 @@ export const useContentEditable = ({ value, onChange, onKeyDown }: UseContentEdi
         }
       }
     }
-  }, [value]);
+  }, [value, richText]);
 
   return {
     ref,

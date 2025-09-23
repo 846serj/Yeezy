@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { autoResize } from '../utils/autoResize';
 import ImageToolbar from '../../ImageToolbar';
+import { RichTextParagraph } from './RichTextParagraph';
 
 interface BlockEditProps {
   attributes: Record<string, any>;
@@ -49,26 +50,26 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
     }
   };
   
-  // Set initial height on mount and when content changes
+  // Set initial height on mount and when content changes (for textarea blocks only)
   useEffect(() => {
-    if (textareaRef.current) {
+    if (textareaRef.current && blockName !== 'core/paragraph') {
       // Use setTimeout to ensure DOM is updated
       setTimeout(() => {
         handleAutoResize(textareaRef.current!);
       }, 0);
     }
-  }, [content]);
+  }, [content, blockName]);
   
-  // Also trigger resize when the component mounts
+  // Also trigger resize when the component mounts (for textarea blocks only)
   useEffect(() => {
-    if (textareaRef.current) {
+    if (textareaRef.current && blockName !== 'core/paragraph') {
       handleAutoResize(textareaRef.current);
     }
-  }, []);
+  }, [blockName]);
   
-  // Force resize on every render to ensure accuracy
+  // Force resize on every render to ensure accuracy (for textarea blocks only)
   useEffect(() => {
-    if (textareaRef.current) {
+    if (textareaRef.current && blockName !== 'core/paragraph') {
       const timer = setTimeout(() => {
         handleAutoResize(textareaRef.current!);
       }, 10);
@@ -80,15 +81,15 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
     case 'core/paragraph':
       return (
         <div className="block-container">
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(e) => {
-              setAttributes({ content: e.target.value });
-              handleAutoResize(e.target);
+          <RichTextParagraph
+            content={content || ''}
+            clientId={clientId}
+            onChange={(newContent) => setAttributes({ content: newContent })}
+            onDelete={() => {
+              if (onDeleteBlock) {
+                onDeleteBlock(clientId);
+              }
             }}
-            onKeyDown={handleKeyDown}
-            className="paragraph-input"
             placeholder="Enter paragraph text..."
           />
         </div>
@@ -114,6 +115,9 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
               minWidth: '1px',
               overflowWrap: 'break-word',
               lineBreak: 'after-white-space' as any,
+              margin: '1em 0',
+              fontSize: '13px',
+              lineHeight: '1.5',
               WebkitNbspMode: 'space' as any,
               WebkitUserModify: 'read-write' as any
             } as React.CSSProperties}

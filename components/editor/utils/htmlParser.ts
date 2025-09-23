@@ -17,11 +17,12 @@ export const convertHtmlToBlocks = (html: string): GutenbergBlock[] => {
       } else if (node.nodeType === Node.ELEMENT_NODE) {
         const el = node as Element;
         if (el.tagName.toLowerCase() === 'a') {
-          // Preserve link structure
+          // Preserve link structure with all attributes
           const href = el.getAttribute('href') || '';
           const target = el.getAttribute('target') || '';
+          const rel = el.getAttribute('rel') || '';
           const text = el.textContent || '';
-          content += `<a href="${href}"${target ? ` target="${target}"` : ''}>${text}</a>`;
+          content += `<a href="${href}"${target ? ` target="${target}"` : ''}${rel ? ` rel="${rel}"` : ''}>${text}</a>`;
         } else if (el.tagName.toLowerCase() === 'strong' || el.tagName.toLowerCase() === 'b') {
           content += `<strong>${el.textContent || ''}</strong>`;
         } else if (el.tagName.toLowerCase() === 'em' || el.tagName.toLowerCase() === 'i') {

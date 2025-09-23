@@ -8,6 +8,7 @@ import { useImageSearch } from '../hooks/useImageSearch';
 import { convertHtmlToBlocks } from '../utils/htmlParser';
 import { getBlockEditorSettings } from '../utils/blockEditorSettings';
 import { useContentEditable } from '../../../hooks/useContentEditable';
+import { RichTextParagraph } from './RichTextParagraph';
 
 // TitleInput component
 interface TitleInputProps {
@@ -93,6 +94,9 @@ const ContentEditableHeading: React.FC<ContentEditableHeadingProps> = ({ block, 
         minWidth: '1px',
         overflowWrap: 'break-word',
         lineBreak: 'after-white-space' as any,
+        margin: '1em 0',
+        fontSize: '13px',
+        lineHeight: '1.5',
         ...({
           WebkitNbspMode: 'space',
           WebkitUserModify: 'read-write'
@@ -1148,7 +1152,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
     }
   }, [selectedSources, debouncedImageSearch]);
 
-  // Auto-resize textareas on mount and when content changes
+  // Auto-resize textareas on mount and when content changes (for non-paragraph blocks)
   useEffect(() => {
     const textareas = document.querySelectorAll('textarea[data-auto-resize]');
     textareas.forEach((textarea) => {
@@ -1638,15 +1642,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
     setBlocks(newBlocks as GutenbergBlock[]);
   }, [setBlocks]);
 
-  // Auto-resize textareas to match contentEditable behavior
-  const autoResizeTextarea = useCallback((textarea: HTMLTextAreaElement) => {
-    if (textarea && textarea.style) {
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, []);
-
-  // Handle textarea change with auto-resize
+  // Handle textarea change with auto-resize (for non-paragraph blocks)
   const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>, blockId: string, attribute: string) => {
     try {
       const target = e.target;
@@ -1773,7 +1769,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                 <div className="editor-visual-editor">
                   <div className="editor-styles-wrapper block-editor-writing-flow">
                     {/* Spacer for additional top margin */}
-                    <div style={{ height: '20px', width: '100%' }}></div>
+                    <div style={{ height: '30px', width: '100%' }}></div>
                     
                     {/* Post Title Input */}
                     <div 
@@ -1789,6 +1785,9 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                         onChange={setTitle}
                       />
                     </div>
+
+                    {/* 16px spacing between title and featured image */}
+                    <div style={{ height: '20px', width: '100%' }}></div>
 
                     {/* Featured Image Section */}
                     <div 
@@ -1854,14 +1853,18 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                 </div>
                               )}
                             </div>
-                            <input
-                              type="text"
-                              value={featuredImage.caption || ''}
-                              onChange={(e) => {
+                            <figcaption
+                              role="textbox"
+                              aria-multiline="true"
+                              className="block-editor-rich-text__editable wp-element-caption rich-text"
+                              aria-label="Image caption text"
+                              contentEditable={true}
+                              data-wp-block-attribute-key="caption"
+                              onInput={(e) => {
                                 if (featuredImage) {
                                   setFeaturedImage(prev => prev ? {
                                     ...prev,
-                                    caption: e.target.value
+                                    caption: e.currentTarget.textContent || ''
                                   } : null);
                                 }
                               }}
@@ -1874,23 +1877,31 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                 e.currentTarget.style.backgroundColor = 'transparent';
                               }}
                               onClick={(e) => e.stopPropagation()}
-                              placeholder="Add caption..."
+                              suppressContentEditableWarning={true}
                               style={{ 
-                                fontSize: '0.579rem',
-                                color: 'var(--wp--preset--color--contrast)',
-                                marginTop: 'var(--wp--preset--spacing--30)',
+                                whiteSpace: 'pre-wrap',
+                                minWidth: '1px',
                                 textAlign: 'center',
+                                color: 'var(--wp--preset--color--contrast)',
+                                fontSize: '0.55rem',
+                                marginTop: 'var(--wp--preset--spacing--30)',
+                                marginBottom: 'var(--wp--style--block-gap)',
                                 outline: 'none',
                                 border: '1px solid transparent',
                                 borderRadius: '2px',
-                                padding: '4px 8px',
-                                minHeight: '20px',
+                                padding: '0px 0px',
                                 cursor: 'text',
                                 backgroundColor: 'transparent',
                                 transition: 'border-color 0.2s ease',
-                                width: '100%'
-                              }}
-                            />
+                                width: '100%',
+                                overflowWrap: 'break-word',
+                                lineBreak: 'after-white-space' as any,
+                                WebkitNbspMode: 'space' as any,
+                                WebkitUserModify: 'read-write' as any
+                              } as React.CSSProperties}
+                            >
+                              {featuredImage.caption || 'Add caption...'}
+                            </figcaption>
                           </figure>
                           {selectedFeaturedImage && (
                             <div style={{ 
@@ -2097,30 +2108,25 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                 </div>
                                 
                                 {/* Block content */}
-                                <div style={{ marginBottom: '4px' }} data-block-id={block.clientId}>
+                                <div style={{ marginBottom: '0px' }} data-block-id={block.clientId}>
                                   {block.name === 'core/paragraph' && (
-                                    <textarea
+                                    <RichTextParagraph
                                       key={`paragraph-${block.clientId}`}
-                                      value={block.attributes.content || ''}
-                                      ref={(textarea) => {
-                                        if (textarea) {
-                                          textarea.style.height = 'auto';
-                                          textarea.style.height = textarea.scrollHeight + 'px';
-                                        }
+                                      content={block.attributes.content || ''}
+                                      clientId={block.clientId}
+                                      onChange={(content) => {
+                                        setBlocks(prevBlocks =>
+                                          prevBlocks.map(b =>
+                                            b.clientId === block.clientId 
+                                              ? { ...b, attributes: { ...b.attributes, content } }
+                                              : b
+                                          )
+                                        );
                                       }}
-                                      onChange={(e) => {
-                                        handleTextareaChange(e, block.clientId, 'content');
-                                        // Auto-resize the textarea
-                                        e.target.style.height = 'auto';
-                                        e.target.style.height = e.target.scrollHeight + 'px';
-                                      }}
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Backspace' && e.currentTarget.value === '') {
-                                          setBlocks(prevBlocks => prevBlocks.filter(prevBlock => prevBlock.clientId !== block.clientId));
-                                        }
+                                      onDelete={() => {
+                                        setBlocks(prevBlocks => prevBlocks.filter(prevBlock => prevBlock.clientId !== block.clientId));
                                       }}
                                       placeholder="Start writing..."
-                                      className="paragraph-input"
                                     />
                                   )}
 
@@ -2198,11 +2204,15 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                           No image selected
                                         </div>
                                       )}
-                                      <input
-                                        type="text"
-                                        value={block.attributes.caption || ''}
-                                        onChange={(e) => {
-                                          updateBlock(block.clientId, { caption: e.target.value });
+                                      <figcaption
+                                        role="textbox"
+                                        aria-multiline="true"
+                                        className="block-editor-rich-text__editable wp-element-caption rich-text"
+                                        aria-label="Image caption text"
+                                        contentEditable={true}
+                                        data-wp-block-attribute-key="caption"
+                                        onInput={(e) => {
+                                          updateBlock(block.clientId, { caption: e.currentTarget.textContent || '' });
                                         }}
                                         onFocus={(e) => {
                                           e.currentTarget.style.borderColor = '#007cba';
@@ -2213,23 +2223,31 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                           e.currentTarget.style.backgroundColor = 'transparent';
                                         }}
                                         onClick={(e) => e.stopPropagation()}
-                                        placeholder="Add caption..."
+                                        suppressContentEditableWarning={true}
                                         style={{ 
-                                          fontSize: '0.579rem',
-                                          color: 'var(--wp--preset--color--contrast)',
-                                          marginTop: 'var(--wp--preset--spacing--30)',
+                                          whiteSpace: 'pre-wrap',
+                                          minWidth: '1px',
                                           textAlign: 'center',
+                                          color: 'var(--wp--preset--color--contrast)',
+                                          fontSize: '0.55rem',
+                                          marginTop: 'var(--wp--preset--spacing--30)',
+                                          marginBottom: 'var(--wp--style--block-gap)',
                                           outline: 'none',
                                           border: '1px solid transparent',
                                           borderRadius: '2px',
-                                          padding: '4px 8px',
-                                          minHeight: '20px',
+                                          padding: '0px 0px',
                                           cursor: 'text',
                                           backgroundColor: 'transparent',
                                           transition: 'border-color 0.2s ease',
-                                          width: '100%'
-                                        }}
-                                      />
+                                          width: '100%',
+                                          overflowWrap: 'break-word',
+                                          lineBreak: 'after-white-space' as any,
+                                          WebkitNbspMode: 'space' as any,
+                                          WebkitUserModify: 'read-write' as any
+                                        } as React.CSSProperties}
+                                      >
+                                        {block.attributes.caption || 'Add caption...'}
+                                      </figcaption>
                                     </figure>
                                   )}
 

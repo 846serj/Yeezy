@@ -8,6 +8,7 @@ import { useImageSearch } from './hooks/useImageSearch';
 import { convertHtmlToBlocks } from './utils/htmlParser';
 import { getBlockEditorSettings } from './utils/blockEditorSettings';
 import { useContentEditable } from '../../hooks/useContentEditable';
+import { RichTextParagraph } from './components/RichTextParagraph';
 import { BlockEdit } from './components/BlockEdit';
 import { BlockInserter } from './components/BlockInserter';
 // import { BlockInsertionPoint } from './components/BlockInsertionPoint';

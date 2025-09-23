@@ -60,15 +60,30 @@
 }
 
 .block-editor-rich-text__editable:focus {
-  border-color: var(--tui-primary);
-  box-shadow: 0 0 0 2px rgba(0, 0, 168, 0.1);
+  border-color: transparent;
+  box-shadow: none;
   outline: none;
 }
 
 .wp-block-heading {
   /* WordPress heading block styles */
-  margin: 0;
+  margin: 1em 0 !important;
   padding: 0;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+/* Override conflicting styles with higher specificity */
+.block-editor-block-list__block.wp-block.is-selected.wp-block-heading {
+  margin: 0em 0 !important;
+  font-size: 18px !important;
+  line-height: 1.5 !important;
+}
+
+.block-editor-rich-text__editable.wp-block-heading {
+  margin: 1em 0 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
 }
 
 .rich-text {
@@ -189,9 +204,9 @@
 }
 
 .block-container--focused {
-  outline: 2px solid var(--tui-primary);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: none;
+  outline-offset: 0;
+  border-radius: 0;
 }
 
 /* ========================================
@@ -567,4 +582,162 @@ input.editor-post-title__input {
     margin: var(--space-2) !important; /* Minimal margin */
     padding: var(--space-2) !important; /* Minimal padding */
   }
+}
+
+/* ========================================
+   WORDPRESS CSS VARIABLES
+   ======================================== */
+
+:root {
+  --wp--preset--color--primary: #2271b1;
+  --wp--preset--color--contrast: #000000;
+  --wp--preset--font-size--medium: clamp(1.042rem, 1.042rem + ((1vw - 0.2rem) * 0.329), 1.25rem);
+  --wp--preset--font-family--manrope: Manrope;
+}
+
+/* ========================================
+   WORDPRESS BLOCK EDITOR STYLES
+   ======================================== */
+
+/* WordPress block editor paragraph styles */
+.block-editor-rich-text__editable {
+  position: relative;
+  min-height: 1.5em;
+  outline: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+  direction: ltr;
+  unicode-bidi: normal;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+  margin: 1em 0;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  pointer-events: auto;
+}
+
+.block-editor-rich-text__editable:empty:before {
+  content: attr(data-placeholder);
+  color: #999;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* WordPress block list styles */
+.block-editor-block-list__block {
+  overflow-wrap: break-word;
+  pointer-events: auto;
+  position: relative;
+}
+
+/* Override the margin: 0 rule that conflicts with our spacing */
+.block-editor-block-list__block.wp-block.wp-block-heading,
+.block-editor-block-list__block.wp-block.wp-block-paragraph {
+  margin: 1em 0 !important;
+}
+
+.block-editor-block-list__block.wp-block {
+  margin: 0;
+}
+
+.block-editor-block-list__block.wp-block.is-selected {
+  outline: none;
+  outline-offset: 0;
+  border-radius: 0;
+}
+
+/* WordPress paragraph specific styles */
+.wp-block-paragraph {
+  margin: 1em 0 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+/* Override conflicting styles with higher specificity */
+.block-editor-block-list__block.wp-block.is-selected.wp-block-paragraph {
+  margin: 0em 0 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+.block-editor-rich-text__editable.wp-block-paragraph {
+  margin: 1em 0 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+.wp-block-paragraph[data-empty="true"]:before {
+  content: "Start writing...";
+  color: #999;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* ========================================
+   EDITOR LINK STYLING
+   ======================================== */
+
+/* WordPress rich text format boundary styling */
+[data-rich-text-comment], 
+[data-rich-text-format-boundary] {
+  border-radius: 2px;
+}
+
+/* WordPress editor styles wrapper link styling */
+:where(.editor-styles-wrapper) a:where(:not(.wp-element-button)) {
+  color: var(--wp--preset--color--primary, #2271b1);
+  text-decoration: none;
+}
+
+:where(.editor-styles-wrapper) a {
+  transition: none;
+}
+
+/* WordPress-style link styling */
+.block-editor-rich-text__editable a,
+.wp-block-paragraph a {
+  color: #2271b1 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition-property: border, background, color;
+  transition-duration: 0.05s;
+  transition-timing-function: ease-in-out;
+  outline: 0;
+}
+
+.block-editor-rich-text__editable a:hover,
+.wp-block-paragraph a:hover {
+  color: #135e96 !important;
+  text-decoration: underline !important;
+}
+
+.block-editor-rich-text__editable a:focus,
+.wp-block-paragraph a:focus {
+  outline: 2px solid #2271b1;
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+/* WordPress data attributes for links */
+.block-editor-rich-text__editable a[data-type="link"],
+.wp-block-paragraph a[data-type="link"] {
+  color: #2271b1 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+.block-editor-rich-text__editable a[data-type="link"]:hover,
+.wp-block-paragraph a[data-type="link"]:hover {
+  color: #135e96 !important;
+  text-decoration: underline !important;
+}
+
+/* Rich text format boundary links */
+.block-editor-rich-text__editable a[data-rich-text-format-boundary],
+.wp-block-paragraph a[data-rich-text-format-boundary] {
+  border-radius: 2px;
 }
