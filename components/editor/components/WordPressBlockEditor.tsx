@@ -9,6 +9,7 @@ import { convertHtmlToBlocks } from '../utils/htmlParser';
 import { getBlockEditorSettings } from '../utils/blockEditorSettings';
 import { useContentEditable } from '../../../hooks/useContentEditable';
 import { RichTextParagraph } from './RichTextParagraph';
+import { CaptionInput } from './CaptionInput';
 
 // TitleInput component
 interface TitleInputProps {
@@ -1853,55 +1854,18 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                 </div>
                               )}
                             </div>
-                            <figcaption
-                              role="textbox"
-                              aria-multiline="true"
-                              className="block-editor-rich-text__editable wp-element-caption rich-text"
-                              aria-label="Image caption text"
-                              contentEditable={true}
-                              data-wp-block-attribute-key="caption"
-                              onInput={(e) => {
-                                if (featuredImage) {
-                                  setFeaturedImage(prev => prev ? {
-                                    ...prev,
-                                    caption: e.currentTarget.textContent || ''
-                                  } : null);
-                                }
-                              }}
-                              onFocus={(e) => {
-                                e.currentTarget.style.borderColor = '#007cba';
-                                e.currentTarget.style.backgroundColor = '#f0f8ff';
-                              }}
-                              onBlur={(e) => {
-                                e.currentTarget.style.borderColor = 'transparent';
-                                e.currentTarget.style.backgroundColor = 'transparent';
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                              suppressContentEditableWarning={true}
-                              style={{ 
-                                whiteSpace: 'pre-wrap',
-                                minWidth: '1px',
-                                textAlign: 'center',
-                                color: 'var(--wp--preset--color--contrast)',
-                                fontSize: '0.55rem',
-                                marginTop: 'var(--wp--preset--spacing--30)',
-                                marginBottom: 'var(--wp--style--block-gap)',
-                                outline: 'none',
-                                border: '1px solid transparent',
-                                borderRadius: '2px',
-                                padding: '0px 0px',
-                                cursor: 'text',
-                                backgroundColor: 'transparent',
-                                transition: 'border-color 0.2s ease',
-                                width: '100%',
-                                overflowWrap: 'break-word',
-                                lineBreak: 'after-white-space' as any,
-                                WebkitNbspMode: 'space' as any,
-                                WebkitUserModify: 'read-write' as any
-                              } as React.CSSProperties}
-                            >
-                              {featuredImage.caption || 'Add caption...'}
-                            </figcaption>
+                                <CaptionInput
+                                  content={featuredImage.caption || ''}
+                                  onChange={(content) => {
+                                    if (featuredImage) {
+                                      setFeaturedImage(prev => prev ? {
+                                        ...prev,
+                                        caption: content
+                                      } : null);
+                                    }
+                                  }}
+                                  placeholder="Add caption..."
+                                />
                           </figure>
                           {selectedFeaturedImage && (
                             <div style={{ 
@@ -2204,50 +2168,11 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                           No image selected
                                         </div>
                                       )}
-                                      <figcaption
-                                        role="textbox"
-                                        aria-multiline="true"
-                                        className="block-editor-rich-text__editable wp-element-caption rich-text"
-                                        aria-label="Image caption text"
-                                        contentEditable={true}
-                                        data-wp-block-attribute-key="caption"
-                                        onInput={(e) => {
-                                          updateBlock(block.clientId, { caption: e.currentTarget.textContent || '' });
-                                        }}
-                                        onFocus={(e) => {
-                                          e.currentTarget.style.borderColor = '#007cba';
-                                          e.currentTarget.style.backgroundColor = '#f0f8ff';
-                                        }}
-                                        onBlur={(e) => {
-                                          e.currentTarget.style.borderColor = 'transparent';
-                                          e.currentTarget.style.backgroundColor = 'transparent';
-                                        }}
-                                        onClick={(e) => e.stopPropagation()}
-                                        suppressContentEditableWarning={true}
-                                        style={{ 
-                                          whiteSpace: 'pre-wrap',
-                                          minWidth: '1px',
-                                          textAlign: 'center',
-                                          color: 'var(--wp--preset--color--contrast)',
-                                          fontSize: '0.55rem',
-                                          marginTop: 'var(--wp--preset--spacing--30)',
-                                          marginBottom: 'var(--wp--style--block-gap)',
-                                          outline: 'none',
-                                          border: '1px solid transparent',
-                                          borderRadius: '2px',
-                                          padding: '0px 0px',
-                                          cursor: 'text',
-                                          backgroundColor: 'transparent',
-                                          transition: 'border-color 0.2s ease',
-                                          width: '100%',
-                                          overflowWrap: 'break-word',
-                                          lineBreak: 'after-white-space' as any,
-                                          WebkitNbspMode: 'space' as any,
-                                          WebkitUserModify: 'read-write' as any
-                                        } as React.CSSProperties}
-                                      >
-                                        {block.attributes.caption || 'Add caption...'}
-                                      </figcaption>
+                                      <CaptionInput
+                                        content={block.attributes.caption || ''}
+                                        onChange={(content) => updateBlock(block.clientId, { caption: content })}
+                                        placeholder="Add caption..."
+                                      />
                                     </figure>
                                   )}
 
