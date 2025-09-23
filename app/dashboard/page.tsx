@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [showSiteSelector, setShowSiteSelector] = useState(false);
   const [sites, setSites] = useState<any[]>([]);
   const [loadingSites, setLoadingSites] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     // TuiCss is initialized automatically
@@ -70,29 +71,172 @@ export default function Dashboard() {
     if (!user) {
     return (
         <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-          height: '100%',
-        padding: 'var(--space-20)'
-      }}>
-          <div className="tui-window" style={{ 
-            width: 'var(--space-500)',
-            maxWidth: '90%'
+          width: '100%', 
+          margin: '0px', 
+          padding: '0px', 
+          height: '100vh',
+          overflow: 'hidden'
+        }}>
+          <fieldset className="tui-fieldset" style={{ 
+            width: '100%', 
+            margin: '0px', 
+            padding: '20px', 
+            height: '100vh',
+            overflow: 'hidden',
+            border: '6px white double !important'
           }}>
-            <fieldset className="tui-fieldset tui-border-solid" style={{
+            <legend className="center" style={{ color: 'white' }}>Yeez.ai</legend>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              alignItems: 'center', 
+              justifyContent: 'center',
+              gap: 'clamp(1rem, 4vw, 2rem)',
               width: '100%',
-              height: '100%',
-              margin: 0,
-              padding: 0
+              margin: '0 auto',
+              height: 'calc(100vh - 80px)',
+              overflow: 'hidden',
+              padding: 'clamp(1rem, 2vw, 2rem)'
             }}>
-              <legend className="center">WordPress Article Editor</legend>
-              <div style={{ padding: 'var(--space-20)' }}>
-                <AuthForm onSuccess={() => {}} />
+              {/* Demo video window */}
+              <div style={{ 
+                width: '100%',
+                maxWidth: 'min(700px, 75vw)',
+                display: 'flex', 
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: 'clamp(0.5rem, 2vw, 1rem)',
+                gap: '0.5rem'
+              }}>
+                <div style={{ 
+                  textAlign: 'center',
+                  fontSize: 'clamp(1.5rem, 5vw, 2rem)',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  lineHeight: '1.2',
+                  maxWidth: '100%'
+                }}>
+                  Add images to your articles instantly:
+                </div>
+                <div style={{ height: '0px', width: '100%' }}></div>
+                <video 
+                  src="/gif.mp4" 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                  style={{ 
+                    width: '100%', 
+                    maxWidth: '100%',
+                    height: 'auto',
+                    aspectRatio: '16/9',
+                    borderRadius: '0px',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{ height: '0px', width: '100%' }}></div>
+                <button
+                  className="tui-button tui-button-green"
+                  onClick={() => setShowAuthModal(true)}
+                  style={{
+                    fontSize: 'clamp(0.875rem, 2.5vw, 1.25rem)',
+                    padding: 'clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
+                    fontWeight: 'bold',
+                    minWidth: 'clamp(150px, 40vw, 250px)',
+                    maxWidth: '100%',
+                    width: 'auto',
+                    backgroundColor: '#00a800',
+                    color: 'white',
+                    borderColor: '#00a800',
+                    transition: 'all 0.2s ease',
+                    borderRadius: '0px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.setProperty('background-color', '#008000', 'important');
+                    e.currentTarget.style.setProperty('border-color', '#008000', 'important');
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.setProperty('background-color', '#00a800', 'important');
+                    e.currentTarget.style.setProperty('border-color', '#00a800', 'important');
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.setProperty('background-color', '#006600', 'important');
+                    e.currentTarget.style.setProperty('border-color', '#006600', 'important');
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.setProperty('background-color', '#008000', 'important');
+                    e.currentTarget.style.setProperty('border-color', '#008000', 'important');
+                  }}
+                >
+                  Try for Free
+                </button>
+                
+                {/* Logos */}
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center',
+                  gap: 'clamp(1rem, 3vw, 2rem)',
+                  marginTop: 'clamp(1rem, 2vw, 1.5rem)',
+                  flexWrap: 'wrap'
+                }}>
+                  <div style={{
+                    fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                    color: 'white',
+                    fontWeight: '500',
+                    marginRight: 'clamp(0.5rem, 1vw, 1rem)'
+                  }}>
+                    Trusted by:
+                  </div>
+                  <img 
+                    src="/image_1.jpeg" 
+                    alt="Logo 1" 
+                    style={{ 
+                      height: 'clamp(30px, 4vw, 50px)', 
+                      width: 'auto',
+                      objectFit: 'contain',
+                      borderRadius: '8px',
+                      border: '2px solid white'
+                    }} 
+                  />
+                  <img 
+                    src="/image_2.jpeg" 
+                    alt="Logo 2" 
+                    style={{ 
+                      height: 'clamp(30px, 4vw, 50px)', 
+                      width: 'auto',
+                      objectFit: 'contain',
+                      borderRadius: '8px',
+                      border: '2px solid white'
+                    }} 
+                  />
+                  <img 
+                    src="/image_3.jpeg" 
+                    alt="Logo 3" 
+                    style={{ 
+                      height: 'clamp(30px, 4vw, 50px)', 
+                      width: 'auto',
+                      objectFit: 'contain',
+                      borderRadius: '8px',
+                      border: '2px solid white'
+                    }} 
+                  />
+                  <img 
+                    src="/image_4.jpeg" 
+                    alt="Logo 4" 
+                    style={{ 
+                      height: 'clamp(30px, 4vw, 50px)', 
+                      width: 'auto',
+                      objectFit: 'contain',
+                      borderRadius: '8px',
+                      border: '2px solid white'
+                    }} 
+                  />
+                </div>
               </div>
-            </fieldset>
             </div>
-      </div>
+          </fieldset>
+        </div>
     );
   }
 
@@ -421,10 +565,72 @@ export default function Dashboard() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#c0c0c0',
+      backgroundColor: '#00f',
       padding: 'var(--space-20)'
     }}>
       {renderContent()}
+      
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div 
+            className="tui-window" 
+            style={{ 
+              width: '400px',
+              maxWidth: '90%'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <fieldset className="tui-fieldset tui-border-solid" style={{
+              width: '100%',
+              margin: 0,
+              padding: 0
+            }}>
+              <legend className="center"></legend>
+              <div style={{ 
+                padding: 'var(--space-20)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '100%'
+              }}>
+                <AuthForm onSuccess={() => setShowAuthModal(false)} />
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      )}
+      
+      {/* Footer */}
+      <footer style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#666',
+        color: 'white',
+        padding: 'clamp(0.25rem, 1vw, 0.5rem)',
+        textAlign: 'center',
+        borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+        fontSize: 'clamp(0.6rem, 1.5vw, 0.8rem)',
+        zIndex: 1000
+      }}>
+        © {new Date().getFullYear()} Yeez Technologies Inc. All rights reserved. | Patent Pending
+      </footer>
     </div>
   );
 }

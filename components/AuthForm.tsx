@@ -13,7 +13,7 @@ interface AuthFormProps {
 export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
   const router = useRouter();
   const { login, signup } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -147,7 +147,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
           </div>
         )}
 
-        <div>
+        <div style={{ textAlign: 'center' }}>
           <button
             type="submit"
             className="tui-button"
@@ -164,13 +164,22 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
           </button>
         </div>
 
-        <div className="center">
+        <div style={{ 
+          textAlign: 'center',
+          fontSize: '0.875rem', 
+          color: 'var(--tui-text)', 
+          margin: '0.75rem 0'
+        }}>
+          {isLogin ? "Don't have an account?" : "Already have an account?"}
+        </div>
+
+        <div style={{ textAlign: 'center' }}>
           <button
             type="button"
             className={`tui-button ${isLogin ? 'tui-button-gray' : 'tui-button-green'}`}
             onClick={toggleMode}
           >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+            {isLogin ? "Sign up" : "Sign in"}
           </button>
         </div>
       </form>
