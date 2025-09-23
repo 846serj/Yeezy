@@ -57,31 +57,31 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({ onConnect, onBack })
   }
 
   return (
-    <div>
+    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       {onBack && (
-        <button className="tui-button" onClick={onBack}>
+        <button className="tui-button" onClick={onBack} style={{ marginBottom: 'var(--space-20)' }}>
           Back
         </button>
       )}
       
       {error && (
-        <div>
-          <AlertCircle className="me-2" size={20} />
+        <div style={{ marginBottom: 'var(--space-20)', color: '#ff6b6b' }}>
+          <AlertCircle className="me-2" size={16} />
           {error}
         </div>
       )}
 
       {connectError && (
-        <div>
-          <AlertCircle className="me-2" size={20} />
+        <div style={{ marginBottom: 'var(--space-20)', color: '#ff6b6b' }}>
+          <AlertCircle className="me-2" size={16} />
           {connectError}
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-16)' }}>
         <fieldset className="tui-input-fieldset">
           <legend>
-            <Globe className="me-1" size={16} />
+            <Globe className="me-1" size={14} />
             WordPress Site URL
           </legend>
           <input
@@ -89,20 +89,20 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({ onConnect, onBack })
             id="siteUrl"
             name="siteUrl"
             className="tui-input"
-            style={{ width: 'var(--space-250)' }}
+            style={{ width: '100%', maxWidth: 'var(--space-200)' }}
             value={formData.siteUrl}
             onChange={handleInputChange}
             required
             placeholder="https://yoursite.com"
           />
-          <div>
+          <div style={{ fontSize: '0.85em', color: '#888', marginTop: 'var(--space-4)' }}>
             Enter the full URL of your WordPress site
           </div>
         </fieldset>
 
         <fieldset className="tui-input-fieldset">
           <legend>
-            <User className="me-1" size={16} />
+            <User className="me-1" size={14} />
             Username
           </legend>
           <input
@@ -110,7 +110,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({ onConnect, onBack })
             id="username"
             name="username"
             className="tui-input"
-            style={{ width: 'var(--space-250)' }}
+            style={{ width: '100%', maxWidth: 'var(--space-200)' }}
             value={formData.username}
             onChange={handleInputChange}
             required
@@ -121,47 +121,51 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({ onConnect, onBack })
 
         <fieldset className="tui-input-fieldset">
           <legend>
-            <Key className="me-1" size={16} />
+            <Key className="me-1" size={14} />
             Application Password
           </legend>
-          <input
-            type={showPassword ? 'text' : 'password'}
-            id="appPassword"
-            name="appPassword"
-            className="tui-input"
-            style={{ width: 'var(--space-250)' }}
-            value={formData.appPassword}
-            onChange={handleInputChange}
-            required
-            placeholder="Enter your app password"
-            autoComplete="new-password"
-          />
-          <button
-            type="button"
-            className="tui-button"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-          <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-8)' }}>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              id="appPassword"
+              name="appPassword"
+              className="tui-input"
+              style={{ width: '100%', maxWidth: 'var(--space-180)' }}
+              value={formData.appPassword}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter your app password"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="tui-button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{ padding: 'var(--space-4)', minWidth: 'auto' }}
+            >
+              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
+          <div style={{ fontSize: '0.85em', color: '#888', marginTop: 'var(--space-4)' }}>
             Generate an application password in your WordPress admin under Users → Profile
           </div>
         </fieldset>
 
-        <div>
+        <div style={{ marginTop: 'var(--space-8)', textAlign: 'center' }}>
           <button
             type="submit"
             className="tui-button"
             disabled={isConnecting}
+            style={{ minWidth: 'var(--space-120)' }}
           >
             {isConnecting ? (
               <>
-                <Loader2 className="me-2" size={16} />
+                <Loader2 className="me-2" size={14} />
                 Connecting...
               </>
             ) : (
               <>
-                <CheckCircle className="me-2" size={16} />
+                <CheckCircle className="me-2" size={14} />
                 Connect Site
               </>
             )}

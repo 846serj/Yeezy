@@ -778,7 +778,7 @@ input[type="button"] {
     border-bottom: 6px black double;
     border-left: 2px black solid;
     border-right: 2px black solid;
-    padding: 5px;
+    padding: px;
     background-color: inherit;
 }
 .tui-input-fieldset legend {

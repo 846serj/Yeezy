@@ -382,10 +382,9 @@ export default function Dashboard() {
           height: '100%',
           padding: 'var(--space-20)'
         }}>
-          <div className="tui-window" style={{ width: 'var(--space-600)' }}>
+          <div className="tui-window" style={{ width: 'var(--space-500)', maxWidth: '90vw' }}>
             <fieldset className="tui-fieldset tui-border-solid" style={{
               width: '100%',
-              height: '100%',
               margin: 0,
               padding: 0
             }}>
@@ -428,10 +427,9 @@ export default function Dashboard() {
             zIndex: 10000,
             backgroundColor: 'rgba(0, 0, 0, 0.5)'
           }}>
-            <div className="tui-window" style={{ width: 'var(--space-600)' }}>
+            <div className="tui-window" style={{ width: 'var(--space-500)', maxWidth: '90vw' }}>
               <fieldset className="tui-fieldset tui-border-solid" style={{
                 width: '100%',
-                height: '100%',
                 margin: 0,
                 padding: 0
               }}>
@@ -444,6 +442,7 @@ export default function Dashboard() {
                     <button 
                       className="tui-button"
                       onClick={() => setShowSiteSelector(false)}
+                      style={{ backgroundColor: '#666', borderColor: '#666' }}
                     >
                       Cancel
                     </button>
