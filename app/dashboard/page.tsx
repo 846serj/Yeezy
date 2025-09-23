@@ -136,7 +136,7 @@ export default function Dashboard() {
                 />
                 <div style={{ height: '0px', width: '100%' }}></div>
                 <button
-                  className="tui-button tui-button-green"
+                  className="tui-button"
                   onClick={() => setShowAuthModal(true)}
                   style={{
                     fontSize: 'clamp(0.875rem, 2.5vw, 1.25rem)',
@@ -145,9 +145,9 @@ export default function Dashboard() {
                     minWidth: 'clamp(150px, 40vw, 250px)',
                     maxWidth: '100%',
                     width: 'auto',
-                    backgroundColor: '#00a800',
-                    color: 'white',
-                    borderColor: '#00a800',
+                    backgroundColor: '#00a800 !important',
+                    color: 'white !important',
+                    borderColor: '#00a800 !important',
                     transition: 'all 0.2s ease',
                     borderRadius: '0px'
                   }}
@@ -164,8 +164,8 @@ export default function Dashboard() {
                     e.currentTarget.style.setProperty('border-color', '#006600', 'important');
                   }}
                   onMouseUp={(e) => {
-                    e.currentTarget.style.setProperty('background-color', '#008000', 'important');
-                    e.currentTarget.style.setProperty('border-color', '#008000', 'important');
+                    e.currentTarget.style.setProperty('background-color', '#00a800', 'important');
+                    e.currentTarget.style.setProperty('border-color', '#00a800', 'important');
                   }}
                 >
                   Try for Free
@@ -628,7 +628,7 @@ export default function Dashboard() {
         fontSize: 'clamp(0.6rem, 1.5vw, 0.8rem)',
         zIndex: 1000
       }}>
-        © {new Date().getFullYear()} Yeez Technologies Inc. All rights reserved. | Patent Pending
+        © {new Date().getFullYear()} Yeez Technologies Inc. All rights reserved. | Patent Pending | In Beta Mode
       </footer>
     </div>
   );
