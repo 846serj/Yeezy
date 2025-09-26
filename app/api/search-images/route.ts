@@ -89,15 +89,24 @@ async function searchImages(query: string, sources: string[], page: number, perP
 
 async function searchUnsplash(query: string, page: number, perPage: number) {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
-  if (!accessKey) return [];
+  if (!accessKey) {
+    console.log('❌ [SEARCH DEBUG] No Unsplash access key found');
+    return [];
+  }
 
+  console.log('🔍 [SEARCH DEBUG] Searching Unsplash for:', query);
+  
   const response = await fetch(
     `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}&client_id=${accessKey}`
   );
 
-  if (!response.ok) return [];
+  if (!response.ok) {
+    console.log('❌ [SEARCH DEBUG] Unsplash API error:', response.status, response.statusText);
+    return [];
+  }
 
   const data = await response.json();
+  console.log('📊 [SEARCH DEBUG] Unsplash returned', data.results?.length || 0, 'images');
   return data.results.map((photo: any) => {
     // Add UTM parameters to photographer URL for traceback
     const photographerUrl = new URL(photo.user.links.html);

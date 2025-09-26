@@ -336,7 +336,10 @@ const ImageSearchModal: FC<Props> = ({
                   {images.map((image, index) => (
                     <div
                       key={`${image.url}-${index}`}
-                      onClick={() => onSelect(image)}
+                      onClick={() => {
+                        console.log('🖱️ [MODAL DEBUG] Image clicked:', image);
+                        onSelect(image);
+                      }}
                       style={{
                         cursor: 'pointer',
                         border: '1px solid #ddd',

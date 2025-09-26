@@ -1225,6 +1225,9 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
 
   // Image handling functions
   const handleImageSelect = (image: any) => {
+    console.log('🎯 [MAIN DEBUG] handleImageSelect called with:', image);
+    alert(`Image selected: ${image.source} - ${image.photographer || 'Unknown photographer'}`);
+    
     // Trigger Unsplash download tracking when image is selected
     triggerUnsplashDownload(image);
     
