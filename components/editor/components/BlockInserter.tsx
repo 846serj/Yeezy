@@ -13,6 +13,9 @@ interface ImageResult {
   caption?: string;
   attribution?: string;
   source?: string;
+  photographer?: string;
+  photographerUrl?: string;
+  downloadLocation?: string;
 }
 
 export const BlockInserter: React.FC<BlockInserterProps> = ({ 
@@ -188,7 +191,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
         opacity: 1,
         zIndex: 1000000,
         margin: 0,
-        width: 'var(--space-900)',
+        width: '550px',
         maxWidth: '90vw',
         boxShadow: '0 var(--space-3) var(--space-30) rgba(25, 30, 35, 0.2)',
         borderRadius: 'var(--space-8)',
@@ -423,7 +426,29 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
                     }}>
-                      {image.attribution || image.caption || 'Image'}
+                      {image.source === 'unsplash' && image.photographerUrl ? (
+                        <a
+                          href={image.photographerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            color: '#007cba',
+                            textDecoration: 'none',
+                            cursor: 'pointer'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.textDecoration = 'underline';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.textDecoration = 'none';
+                          }}
+                        >
+                          {image.attribution || image.caption || 'Image'}
+                        </a>
+                      ) : (
+                        image.attribution || image.caption || 'Image'
+                      )}
                     </div>
                   </div>
                 ))}

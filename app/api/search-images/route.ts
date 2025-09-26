@@ -98,17 +98,26 @@ async function searchUnsplash(query: string, page: number, perPage: number) {
   if (!response.ok) return [];
 
   const data = await response.json();
-  return data.results.map((photo: any) => ({
-    url: photo.urls.small,
-    full: photo.urls.full,
-    caption: photo.alt_description || photo.description || 'Unsplash Image',
-    source: 'unsplash',
-    thumbnail: photo.urls.thumb,
-    link: photo.links.html,
-    photographer: photo.user.name,
-    photographerUrl: photo.user.links.html,
-    attribution: `Photo by ${photo.user.name} on Unsplash`
-  }));
+  return data.results.map((photo: any) => {
+    // Add UTM parameters to photographer URL for traceback
+    const photographerUrl = new URL(photo.user.links.html);
+    photographerUrl.searchParams.set('utm_source', 'wordpress-article-editor');
+    photographerUrl.searchParams.set('utm_medium', 'referral');
+    photographerUrl.searchParams.set('utm_campaign', 'image-attribution');
+    
+    return {
+      url: photo.urls.small,
+      full: photo.urls.full,
+      caption: photo.alt_description || photo.description || 'Unsplash Image',
+      source: 'unsplash',
+      thumbnail: photo.urls.thumb,
+      link: photo.links.html,
+      photographer: photo.user.name,
+      photographerUrl: photographerUrl.toString(),
+      attribution: `Photo by ${photo.user.name} on Unsplash`,
+      downloadLocation: photo.links.download_location
+    };
+  });
 }
 
 async function searchPexels(query: string, page: number, perPage: number) {

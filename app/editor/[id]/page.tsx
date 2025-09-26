@@ -2,13 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ClientOnlyGutenbergEditor } from '@/components/editor';
-import SmartGutenbergEditor, { SmartGutenbergEditorRef } from '@/components/editor/SmartGutenbergEditor';
+import WordPressBlockEditor, { WordPressBlockEditorRef } from '@/components/editor/components/WordPressBlockEditor';
 import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/contexts/AuthContext';
 import { TuiLayout } from '@/components/TuiLayout';
 import { WordPressPost, EditorContent } from '@/types';
-// Removed React95 imports - using Bootstrap/386 components
+// Using TuiCSS components for styling
 
 export default function EditArticle() {
   const router = useRouter();
@@ -17,13 +16,12 @@ export default function EditArticle() {
   
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { isConnected, getPost, updatePost, createPost, uploadMedia, updateMedia } = useWordPress();
-  const [useSmartEditor, setUseSmartEditor] = useState(true);
   const [article, setArticle] = useState<WordPressPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const editorRef = useRef<SmartGutenbergEditorRef>(null);
+  const editorRef = useRef<WordPressBlockEditorRef>(null);
 
   // Redirect to site selection if not connected
   useEffect(() => {
@@ -379,7 +377,7 @@ export default function EditArticle() {
                 position: 'relative'
               }}>
                 {/* Always use smart editor - client only editor commented out */}
-                <SmartGutenbergEditor
+                <WordPressBlockEditor
                   ref={editorRef}
                   post={{
                     title: article.title.rendered,

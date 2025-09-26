@@ -171,7 +171,7 @@ export const BlockInsertionPoint: React.FC<BlockInsertionPointProps> = ({
                 opacity: 1,
                 zIndex: 1000000,
                 margin: 0,
-                width: 'var(--space-900)',
+                width: '550px',
                 maxWidth: '90vw',
                 boxShadow: '0 var(--space-3) var(--space-30) rgba(25, 30, 35, 0.2)',
                 borderRadius: 'var(--space-8)',

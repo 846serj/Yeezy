@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ClientOnlyGutenbergEditor } from '@/components/editor';
-import SmartGutenbergEditor, { SmartGutenbergEditorRef } from '@/components/editor/SmartGutenbergEditor';
+import WordPressBlockEditor, { WordPressBlockEditorRef } from '@/components/editor/components/WordPressBlockEditor';
 import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/contexts/AuthContext';
 import { EditorContent } from '@/types';
@@ -14,12 +13,11 @@ function EditorPageContent() {
   const searchParams = useSearchParams();
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { isConnected, updatePost, createPost, uploadMedia, updateMedia } = useWordPress();
-  const [useSmartEditor, setUseSmartEditor] = useState(true);
   const [generatedContent, setGeneratedContent] = useState<{ title: string; content: string } | null>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingGeneratedContent, setIsLoadingGeneratedContent] = useState(false);
-  const editorRef = useRef<SmartGutenbergEditorRef>(null);
+  const editorRef = useRef<WordPressBlockEditorRef>(null);
 
   // Check for generated content from localStorage or URL params
   useEffect(() => {
@@ -358,7 +356,7 @@ function EditorPageContent() {
             position: 'relative'
           }}>
               {/* Always use smart editor - client only editor commented out */}
-              <SmartGutenbergEditor
+              <WordPressBlockEditor
                 ref={editorRef}
                 post={generatedContent ? {
                   title: generatedContent.title,

@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, forwardRef, useImperativeHandle } from 'react';
-import { ClientOnlyGutenbergEditorProps, GutenbergBlock, ImageResult } from '../types';
-import { useWordPressComponents } from '../hooks/useWordPressComponents';
+import { CustomEditorProps, GutenbergBlock, ImageResult } from '../types';
 import { useBlockManagement } from '../hooks/useBlockManagement';
 import { useImageSearch } from '../hooks/useImageSearch';
 import { convertHtmlToBlocks } from '../utils/htmlParser';
@@ -137,7 +136,7 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T &
   return debounced;
 }
 
-const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGutenbergEditorProps>(({ 
+const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorProps>(({ 
   post, 
   onSave, 
   onCancel 
@@ -401,7 +400,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
       animationFrameId = requestAnimationFrame(updateToolbarPosition);
       
       return () => {
-        console.log('🧹 Stopping toolbar position updates');
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
         }
@@ -418,7 +416,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
           showImageToolbar &&
           !['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement)?.tagName)) {
         
-        console.log('⌨️ Backspace pressed with image selected');
         event.preventDefault();
         event.stopPropagation();
         
@@ -430,7 +427,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
             // Delete by block ID (preferred method)
             const updatedBlocks = blocks.filter(block => block.clientId !== selectedImageId);
             setBlocks(updatedBlocks);
-            console.log('🗑️ Image block deleted by ID via backspace:', selectedImageId);
           } else {
             // Fallback: delete by image URL matching
             const imageUrl = selectedImageElement.src;
@@ -442,7 +438,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
               ))
             );
             setBlocks(updatedBlocks);
-            console.log('🗑️ Image block deleted by URL matching via backspace:', imageUrl);
           }
           
           // Clear selection and close toolbar
@@ -460,11 +455,9 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
     };
 
     if (showImageToolbar && selectedImageElement) {
-      console.log('⌨️ Adding keyboard event listener for image deletion');
       document.addEventListener('keydown', handleKeyDown);
       
       return () => {
-        console.log('🧹 Removing keyboard event listener');
         document.removeEventListener('keydown', handleKeyDown);
       };
     }
@@ -472,14 +465,12 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
   // Handle image clicks for toolbar and selection
   useEffect(() => {
-    console.log('🎯 Setting up image click event listener...');
 
     const handleImageClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
 
       // Check if the clicked element is an image
       if (target.tagName === 'IMG') {
-        console.log('🖼️ Image clicked!', target.className);
 
         // Only target images that are NOT in search results or popups
         const isInInserterPopup = target.closest('.block-editor-inserter__popover');
@@ -488,7 +479,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                  target.closest('.block-editor-inserter__block-list');
 
         if (isInInserterPopup || isInModal || isInSearchResults) {
-          console.log('🚫 Ignoring popup/modal/search result image click');
           return;
         }
 
@@ -500,13 +490,8 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
         // Check if it's a featured image (exclude from toolbar)
         const isFeaturedImage = target.closest('.editor-visual-editor__featured-image-wrapper');
 
-        console.log('🔍 Is in editor content:', !!isInEditorContent);
-        console.log('🔍 Is featured image:', !!isFeaturedImage);
-        console.log('🔍 Available CSS classes on image:', target.className);
-        console.log('🔍 Parent elements:', target.parentElement?.tagName, target.parentElement?.className);
 
         if (isInEditorContent && !isFeaturedImage) {
-          console.log('✅ Image clicked in WordPress editor!', target);
           
           // Clear ALL previous selections (ensure only one image selected at a time)
           if (selectedImageElement) {
@@ -532,20 +517,16 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
           
           if (figureElement) {
             figureElement.classList.add('selected-image-figure');
-            console.log('🎯 Selected entire figure (image + caption)');
           } else {
             imageElement.classList.add('selected-image');
-            console.log('🎯 Selected image only');
           }
           
           setSelectedImageElement(imageElement);
           
           // Find the matching block for delete functionality
           const imageUrl = imageElement.src;
-          console.log('🔍 Searching for block with URL:', imageUrl);
 
           const imageBlocks = blocks.filter(block => block.name === 'core/image');
-          console.log('🔍 Available image blocks:', imageBlocks.length);
 
           const matchingBlock = imageBlocks.find(block =>
             block.attributes.url === imageUrl ||
@@ -555,9 +536,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
           if (matchingBlock) {
             setSelectedImageId(matchingBlock.clientId);
-            console.log('🎯 Found matching block for delete functionality:', matchingBlock.clientId);
           } else {
-            console.log('⚠️ Image not in blocks array - using URL as ID for toolbar');
             setSelectedImageId(imageUrl);
           }
 
@@ -569,7 +548,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
           setToolbarPosition({ x: centerX, y: topY });
           setShowImageToolbar(true);
 
-          console.log('✅ Image selected and toolbar positioned:', { x: centerX, y: topY });
 
           // Prevent event bubbling
           event.stopPropagation();
@@ -579,10 +557,8 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
     // Add event listener to the document
     document.addEventListener('click', handleImageClick, true); // Use capture phase
-    console.log('✅ Image click event listener added');
 
     return () => {
-      console.log('🧹 Removing image click event listener');
       document.removeEventListener('click', handleImageClick, true);
     };
   }, [selectedImageElement, showImageToolbar]); // blocks will be available in closure
@@ -615,20 +591,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
     }
   }, [showBlockInserter, inserterPosition, showImageToolbar, selectedImageElement]);
 
-  // Custom hooks
-  const { components: WordPressComponents, isLoading: componentsLoading } = useWordPressComponents();
-  
-  // Destructure WordPress components
-  const {
-    BlockEditorProvider,
-    BlockList,
-    SlotFillProvider,
-    Button
-    // Temporarily disabled to fix React error
-    // BlockInserter,
-    // Inserter,
-    // BlockAppender
-  } = WordPressComponents || {};
+  // Custom hooks - WordPress components removed, using custom implementation only
   const {
     blocks,
     setBlocks, 
@@ -644,7 +607,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
   // Wrapper for handleSave that checks upload state
   const handleSaveWithUploadCheck = useCallback(async () => {
     if (hasUploadingImages) {
-      console.log('⚠️ Cannot save while images are uploading:', Array.from(uploadingImages));
       return;
     }
     
@@ -658,7 +620,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
     
     try {
       await handleSave();
-      console.log('✅ Save completed successfully');
     } catch (error) {
       console.error('❌ Save failed:', error);
     } finally {
@@ -714,7 +675,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                 const newBlocks = [...blocks];
                 newBlocks.splice(currentIndex + 1, 0, newBlock);
                 setBlocks(newBlocks);
-                console.log('📝 New paragraph block created after:', currentBlockId);
                 
                 // Focus the new textarea after a short delay
                 setTimeout(() => {
@@ -771,7 +731,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                     // Remove the empty block
                     const newBlocks = blocks.filter(block => block.clientId !== currentBlockId);
                     setBlocks(newBlocks);
-                    console.log('🗑️ Empty block deleted:', currentBlockId);
                     
                     // Focus the previous block if it exists, otherwise focus the next block
                     setTimeout(() => {
@@ -816,7 +775,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
             // Delete featured image
             setFeaturedImage(null);
             setSelectedFeaturedImage(false);
-            console.log('🗑️ Featured image deleted');
           } else if (selectedImageId) {
             // Delete content image block
             const blockToDelete = blocks.find(block => block.clientId === selectedImageId);
@@ -824,7 +782,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
               const updatedBlocks = blocks.filter(block => block.clientId !== selectedImageId);
               setBlocks(updatedBlocks);
               setSelectedImageId(null);
-              console.log('🗑️ Image block deleted:', selectedImageId);
             }
           }
         }
@@ -857,7 +814,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
             selectedImageElement.classList.remove('selected-image');
             setSelectedImageElement(null);
           }
-          console.log('🖱️ Image deselected by clicking outside');
         }
       }
     };
@@ -868,15 +824,12 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
   // Handle image clicks for toolbar
   useEffect(() => {
-    console.log('🎯 Setting up image click event listener...');
     
     const handleImageClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      console.log('👆 Click detected on:', target.tagName, target);
       
       // Check if the clicked element is an image
       if (target.tagName === 'IMG') {
-        console.log('🖼️ Image clicked!', target);
         
         // Only target images that are NOT in search results or popups
         const isInInserterPopup = target.closest('.block-editor-inserter__popover');
@@ -885,7 +838,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                                  target.closest('.block-editor-inserter__block-list');
         
         if (isInInserterPopup || isInModal || isInSearchResults) {
-          console.log('🚫 Ignoring popup/modal/search result image click');
           return;
         }
         
@@ -897,13 +849,8 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
         // Check if it's a featured image (exclude from toolbar)
         const isFeaturedImage = target.closest('.editor-visual-editor__featured-image-wrapper');
         
-        console.log('🔍 Is in editor content:', !!isInEditorContent);
-        console.log('🔍 Is featured image:', !!isFeaturedImage);
-        console.log('🔍 Available CSS classes on image:', target.className);
-        console.log('🔍 Parent elements:', target.parentElement?.tagName, target.parentElement?.className);
         
         if (isInEditorContent && !isFeaturedImage) {
-          console.log('✅ Image clicked in WordPress editor!', target);
           
             // Clear ALL previous selections (ensure only one image selected at a time)
             if (selectedImageElement) {
@@ -929,24 +876,16 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
             
             if (figureElement) {
               figureElement.classList.add('selected-image-figure');
-              console.log('🎯 Selected entire figure (image + caption)');
             } else {
               imageElement.classList.add('selected-image');
-              console.log('🎯 Selected image only');
             }
             
             setSelectedImageElement(imageElement);
           
           // Find the matching block for delete functionality
           const imageUrl = imageElement.src;
-          console.log('🔍 Searching for block with URL:', imageUrl);
           
           const imageBlocks = blocks.filter(block => block.name === 'core/image');
-          console.log('🔍 Available image blocks:', imageBlocks.map(b => ({ 
-            clientId: b.clientId, 
-            url: b.attributes.url,
-            urlMatch: b.attributes.url === imageUrl
-          })));
           
           const matchingBlock = imageBlocks.find(block => 
             block.attributes.url === imageUrl ||
@@ -956,9 +895,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
           
           if (matchingBlock) {
             setSelectedImageId(matchingBlock.clientId);
-            console.log('🎯 Found matching block for delete functionality:', matchingBlock.clientId);
           } else {
-            console.log('⚠️ Could not find matching block for delete functionality');
             // Set a fallback ID so we can still try to delete
             setSelectedImageId(imageUrl);
           }
@@ -971,7 +908,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
           setToolbarPosition({ x: centerX, y: topY });
           setShowImageToolbar(true);
           
-          console.log('✅ Image selected and toolbar positioned:', { x: centerX, y: topY });
           
           // Prevent event bubbling
           event.stopPropagation();
@@ -981,10 +917,8 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
     // Add event listener to the document
     document.addEventListener('click', handleImageClick, true); // Use capture phase
-    console.log('✅ Image click event listener added');
     
     return () => {
-      console.log('🧹 Removing image click event listener');
       document.removeEventListener('click', handleImageClick, true);
     };
   }, []);
@@ -1055,7 +989,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
   // Debug image search modal state changes
   useEffect(() => {
-    console.log('🔍 ImageSearchModal state changed:', { 
+    console.log('🔍 Image search modal state:', {
       showImageSearch,
       imageToReplace: !!imageToReplace,
       selectedImageElement: !!selectedImageElement
@@ -1165,28 +1099,20 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
   // Ensure we're on the client side
   useEffect(() => {
-    console.log('🌐 Setting isClient to true');
     setIsClient(true);
   }, []);
 
   // Initialize editor with post data
   useEffect(() => {
-    console.log('🔄 Initializing editor', { WordPressComponents: !!WordPressComponents, post: !!post });
-    if (!WordPressComponents || !post) {
-      console.log('⏳ Waiting for WordPress components or post data');
+    if (!post) {
       return;
     }
 
     const initializeEditor = async () => {
-      console.log('📝 Initializing editor with post data');
       setTitle(post.title || '');
       
       // Load existing featured image if available
       const postWithEmbedded = post as any; // Type assertion for embedded data
-      console.log('🔍 Post object for featured image check:', postWithEmbedded);
-      console.log('🔍 Post _embedded property:', postWithEmbedded._embedded);
-      console.log('🔍 Post featured_media property:', postWithEmbedded.featured_media);
-      console.log('🔍 Featured media check:', postWithEmbedded._embedded?.['wp:featuredmedia']?.[0]);
       
       if (postWithEmbedded._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
         const featuredMedia = postWithEmbedded._embedded['wp:featuredmedia'][0];
@@ -1196,30 +1122,19 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
           caption: featuredMedia.caption?.rendered || '',
           id: featuredMedia.id // Include the WordPress media ID
         });
-        console.log('🖼️ Loaded existing featured image:', featuredMedia.source_url, 'with ID:', featuredMedia.id);
       } else if (postWithEmbedded.featured_media && postWithEmbedded.featured_media > 0) {
-        console.log('🔍 Post has featured_media ID but no embedded data:', postWithEmbedded.featured_media);
-        console.log('⚠️ Featured image data not available in embedded response');
       } else {
-        console.log('🔍 No featured image found in post');
       }
       
       if (post.content) {
         try {
-          console.log('🔍 Parsing post content...');
-          console.log('📄 Raw post content:', post.content);
-          console.log('📄 Post content length:', post.content.length);
-          const parsedBlocks = WordPressComponents.parse(post.content);
-          console.log('✅ Parsed blocks:', parsedBlocks.length);
-          console.log('📋 Parsed blocks details:', parsedBlocks);
+          const parsedBlocks = convertHtmlToBlocks(post.content);
           
           if (parsedBlocks.length === 0) {
-            console.log('⚠️ No blocks parsed - content might be in HTML format, manually converting HTML to blocks');
             // Manually convert HTML to blocks
             try {
               const htmlContent = post.content;
               const manualBlocks = convertHtmlToBlocks(htmlContent);
-              console.log('🔧 Manually converted blocks:', manualBlocks.length);
               setBlocks(manualBlocks);
             } catch (error) {
               console.error('❌ Error in manual HTML conversion:', error);
@@ -1266,18 +1181,40 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
         }]);
       }
       
-      console.log('📄 Post object:', post);
     };
 
     initializeEditor();
-  }, [WordPressComponents, post?.id, post?.content, setBlocks, setTitle]);
+  }, [post?.id, post?.content, setBlocks, setTitle]);
+
+  // Function to trigger Unsplash download tracking
+  const triggerUnsplashDownload = async (image: any) => {
+    if (image.source === 'unsplash' && image.downloadLocation) {
+      try {
+        // Trigger download tracking asynchronously - don't wait for response
+        fetch('/api/unsplash-download', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            downloadLocation: image.downloadLocation
+          })
+        }).catch(error => {
+          console.error('Failed to trigger Unsplash download tracking:', error);
+        });
+      } catch (error) {
+        console.error('Error triggering Unsplash download tracking:', error);
+      }
+    }
+  };
 
   // Image handling functions
   const handleImageSelect = (image: any) => {
+    // Trigger Unsplash download tracking when image is selected
+    triggerUnsplashDownload(image);
+    
     // Check if we're replacing an existing image
     if (imageToReplace) {
-      console.log('🔄 Replacing existing image, opening crop modal for:', image);
-      console.log('🔄 Replacing block ID:', imageToReplace.blockId);
       
     setCurrentImageToCrop(image);
       
@@ -1287,7 +1224,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
       } else {
         // Image is not in our blocks array - we'll need to create a new block
         // For now, we'll just replace the image visually and handle the block creation later
-        console.log('⚠️ Image not in blocks array - will replace visually only');
         setCurrentBlockId(null);
       }
       
@@ -1303,8 +1239,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
       // Don't clear imageToReplace here - it's needed in handleCropConfirm
     } else if (inserterPosition) {
       // Normal image insertion flow
-      console.log('🖼️ Image selected for cropping:', image);
-      console.log('📍 Insertion position:', inserterPosition);
       
       // Set the image for cropping and the target block ID
       setCurrentImageToCrop(image);
@@ -1329,7 +1263,9 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
   // Featured image handling functions
   const handleFeaturedImageSelect = (image: any) => {
-    console.log('🖼️ Featured image selected:', image);
+    // Trigger Unsplash download tracking when featured image is selected
+    triggerUnsplashDownload(image);
+    
     setCurrentImageToCrop(image);
     setCurrentBlockId('featured-image'); // Special ID for featured image
     setShowFeaturedImageSearch(false);
@@ -1357,10 +1293,8 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
           caption: imageCaption,
           id: undefined // Will be updated after background upload
         });
-        console.log('✅ Featured image set immediately with blob URL');
       } else if (imageToReplace && (!imageToReplace.blockId || imageToReplace.blockId.startsWith('http'))) {
         // Image is not in our blocks array - replace it by deleting old and inserting new
-        console.log('🔄 Replacing image by deleting old and inserting new block');
         if (imageToReplace.element) {
           // Update the DOM element immediately for visual feedback
           imageToReplace.element.src = croppedImageUrl;
@@ -1390,7 +1324,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
             );
             
             if (oldBlockIndex !== -1) {
-              console.log('🔄 Found old block at index:', oldBlockIndex, 'deleting and replacing');
               
               // Create new image block
               const newImageBlock = {
@@ -1400,7 +1333,10 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                 attributes: {
                   url: croppedImageUrl,
                   alt: imageAlt,
-                  caption: imageCaption
+                  caption: imageCaption,
+                  photographer: currentImageToCrop.photographer,
+                  photographerUrl: currentImageToCrop.photographerUrl,
+                  source: currentImageToCrop.source
                 },
                 innerBlocks: []
               };
@@ -1408,10 +1344,8 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
               // Remove old block and insert new one at same position
               const newBlocks = [...prevBlocks];
               newBlocks.splice(oldBlockIndex, 1, newImageBlock);
-              console.log('🔄 Replaced block at index:', oldBlockIndex);
               return newBlocks;
             } else {
-              console.log('⚠️ Could not find old block to replace, adding new block at end');
               // Fallback: add new block at end
               const newImageBlock = {
                 clientId: `image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -1420,7 +1354,10 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                 attributes: {
                   url: croppedImageUrl,
                   alt: imageAlt,
-                  caption: imageCaption
+                  caption: imageCaption,
+                  photographer: currentImageToCrop.photographer,
+                  photographerUrl: currentImageToCrop.photographerUrl,
+                  source: currentImageToCrop.source
                 },
                 innerBlocks: []
               };
@@ -1450,7 +1387,10 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
             attributes: {
               url: croppedImageUrl,
               alt: imageAlt,
-              caption: imageCaption
+              caption: imageCaption,
+              photographer: currentImageToCrop.photographer,
+              photographerUrl: currentImageToCrop.photographerUrl,
+              source: currentImageToCrop.source
             },
             innerBlocks: []
           };
@@ -1472,7 +1412,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
       
       // Clear replacement state and selection if we were replacing
       if (imageToReplace) {
-        console.log('✅ Image replacement completed, clearing selection and toolbar');
         setImageToReplace(null);
         
         // Clear any existing selection
@@ -1509,7 +1448,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
               const media = await window.wordPressUpload(file);
               finalUrl = media.source_url;
               mediaId = media.id;
-              console.log('✅ Background upload to WordPress completed with media ID:', mediaId);
             } catch (error) {
               console.error('WordPress background upload failed, keeping blob URL:', error);
             }
@@ -1525,7 +1463,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
               if (uploadResponse.ok) {
                 const result = await uploadResponse.json();
                 finalUrl = result.url;
-                console.log('✅ Background upload to local server completed:', finalUrl);
               }
             } catch (error) {
               console.error('Local background upload failed, keeping blob URL:', error);
@@ -1539,7 +1476,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                 caption: imageCaption,
                 alt_text: imageAlt
               });
-              console.log('✅ Media item updated with caption and alt text');
             } catch (error) {
               console.error('❌ Failed to update media item:', error);
             }
@@ -1561,12 +1497,10 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
               }
               
               // Update the blocks array - find the block with the blob URL and update it
-              console.log('🔄 Updating blocks array for image replacement:', { finalUrl, croppedImageUrl });
               
               setBlocks(prevBlocks => {
                 const updatedBlocks = prevBlocks.map(block => {
                   if (block.name === 'core/image' && block.attributes.url === croppedImageUrl) {
-                    console.log('🔄 Found block with blob URL, updating to final URL:', { blobUrl: croppedImageUrl, finalUrl });
                     return {
                       ...block,
                       attributes: {
@@ -1578,15 +1512,12 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                   return block;
                 });
                 
-                console.log('🔄 Blocks array updated, checking for blob URLs...');
                 const blobUrls = updatedBlocks.filter(block => 
                   block.name === 'core/image' && 
                   block.attributes.url?.startsWith('blob:')
                 );
                 if (blobUrls.length > 0) {
-                  console.log('⚠️ Still have blob URLs in blocks:', blobUrls.map(b => b.attributes.url));
                 } else {
-                  console.log('✅ No blob URLs found in blocks array');
                 }
                 
                 return updatedBlocks;
@@ -1638,7 +1569,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
   // Handle block changes
   const handleBlocksChange = useCallback((newBlocks: any) => {
-    console.log('🔄 Blocks changed:', newBlocks);
     // Convert back to our format if needed
     setBlocks(newBlocks as GutenbergBlock[]);
   }, [setBlocks]);
@@ -1687,23 +1617,20 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
         
         if (isAtStart && isEmpty) {
           e.preventDefault();
-          console.log('🗑️ Deleting contentEditable block:', blockId);
           setBlocks(prevBlocks => prevBlocks.filter(block => block.clientId !== blockId));
         }
       }
     }
   }, [setBlocks]);
 
-  // Show loading while checking client side or loading WordPress components
-  if (!isClient || componentsLoading || !WordPressComponents) {
+  // Show loading while checking client side
+  if (!isClient) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         <span className="ml-3 text-gray-600">
-          Loading WordPress Editor... 
+          Loading Custom Editor... 
           {!isClient && ' (Client)'}
-          {componentsLoading && ' (Loading)'}
-          {!WordPressComponents && ' (Components)'}
         </span>
       </div>
     );
@@ -1714,6 +1641,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
 
   return (
     <div className="block-editor__container hide-if-no-js">
+      
       {/* Add CSS animation for spinner */}
       <style jsx>{`
         @keyframes spin {
@@ -1759,13 +1687,10 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
         {/* WordPress-style Body */}
         <div className="interface-interface-skeleton__body">
           <div className="interface-interface-skeleton__content">
-            <SlotFillProvider>
-              <BlockEditorProvider
-                value={wordPressBlocks}
-                onChange={handleBlocksChange}
-                settings={blockEditorSettings}
-                useSubRegistry={false}
-              >
+            <div
+              className="block-editor-writing-flow"
+              style={{ minHeight: '100%', width: '100%' }}
+            >
                 {/* WordPress-style Editor Container */}
                 <div className="editor-visual-editor">
                   <div className="editor-styles-wrapper block-editor-writing-flow">
@@ -1876,7 +1801,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                             }}>
                               <button
                                 onClick={() => {
-                                  console.log('🖼️ Opening featured image search...');
                                   openFeaturedImageSearch();
                                   // Auto-search for images
                                   handleFeaturedImageSearch('nature');
@@ -1949,7 +1873,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                           </p>
                           <button
                             onClick={() => {
-                              console.log('🖼️ Opening featured image search...');
                               openFeaturedImageSearch();
                               // Auto-search for images
                               handleFeaturedImageSearch('nature');
@@ -1971,7 +1894,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                       )}
                     </div>
 
-                    {/* Editor Content using WordPress's official components */}
+                    {/* Editor Content using custom implementation */}
                     <div 
                       className="is-root-container is-desktop-preview is-layout-constrained wp-block-post-content-is-layout-constrained has-global-padding wp-block-post-content has-global-padding block-editor-block-list__layout"
                         style={{
@@ -2353,8 +2276,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                     </div>
                   </div>
                 </div>
-              </BlockEditorProvider>
-            </SlotFillProvider>
+            </div>
           </div>
         </div>
       </div>
@@ -2369,7 +2291,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
             left: '50%',
             transform: 'translate(-50%, -50%)',
             zIndex: 1000000,
-            width: '900px',
+            width: '550px',
             maxWidth: '90vw',
             boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
             borderRadius: '8px',
@@ -2714,7 +2636,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
               // Delete by block ID (preferred method)
               const updatedBlocks = blocks.filter(block => block.clientId !== selectedImageId);
               setBlocks(updatedBlocks);
-              console.log('🗑️ Image block deleted by ID:', selectedImageId);
             } else {
               // Fallback: delete by image URL matching
               const imageUrl = selectedImageElement.src;
@@ -2726,7 +2647,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
                 ))
               );
               setBlocks(updatedBlocks);
-              console.log('🗑️ Image block deleted by URL matching:', imageUrl);
             }
             
             // Clear selection and close toolbar
@@ -2742,20 +2662,14 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
           }
         }}
         onReplace={() => {
-          console.log('🔄 Replace button clicked!', { selectedImageElement: !!selectedImageElement, selectedImageId });
           if (selectedImageElement) {
-            console.log('🔄 Replace button clicked, opening image search');
-            console.log('🔄 Setting imageToReplace:', { element: selectedImageElement, blockId: selectedImageId });
             setImageToReplace({ 
               element: selectedImageElement, 
               blockId: selectedImageId 
             });
-            console.log('🔄 Setting showImageSearch to true');
             setShowImageSearch(true);
             setShowImageToolbar(false); // Close toolbar when opening search
-            console.log('🔄 Image search modal should now be visible');
           } else {
-            console.log('⚠️ No selectedImageElement, cannot replace');
           }
         }}
       />
@@ -2768,7 +2682,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, ClientOnlyGuten
             closeImageSearch();
             // Clear replacement state if modal is closed during replacement
             if (imageToReplace) {
-              console.log('🔄 Image search closed during replacement, clearing state');
               setImageToReplace(null);
               // Restore selection if we were replacing
               if (selectedImageElement) {

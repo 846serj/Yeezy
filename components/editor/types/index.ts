@@ -8,6 +8,7 @@ export interface ImageResult {
   source: 'unsplash' | 'pexels' | 'pixabay' | 'local';
   photographer?: string;
   photographerUrl?: string;
+  downloadLocation?: string;
 }
 
 export interface EditorContent {
@@ -30,7 +31,7 @@ export interface GutenbergBlock {
   innerBlocks: GutenbergBlock[];
 }
 
-export interface ClientOnlyGutenbergEditorProps {
+export interface CustomEditorProps {
   post: EditorContent | null;
   onSave: (post: EditorContent) => void;
   onCancel: () => void;

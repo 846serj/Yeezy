@@ -166,7 +166,28 @@ export const BlockEdit: React.FC<BlockEditProps> = ({
                   marginTop: 'var(--space-8)',
                   fontStyle: 'italic'
                 }}>
-                  {caption}
+                  {attributes.source === 'unsplash' && attributes.photographerUrl ? (
+                    <a
+                      href={attributes.photographerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: '#007cba',
+                        textDecoration: 'none',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.textDecoration = 'underline';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.textDecoration = 'none';
+                      }}
+                    >
+                      {caption}
+                    </a>
+                  ) : (
+                    caption
+                  )}
                 </figcaption>
               )}
             </figure>

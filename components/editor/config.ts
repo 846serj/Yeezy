@@ -1,13 +1,7 @@
 // Editor Configuration
 export const EDITOR_CONFIG = {
-  // Use WordPress official components (more stable, less customizable)
-  USE_WORDPRESS_OFFICIAL: true,
-  
-  // Use custom implementation (more customizable, more maintenance)
-  USE_CUSTOM_IMPLEMENTATION: false,
-  
-  // Fallback to custom if WordPress components fail to load
-  FALLBACK_TO_CUSTOM: true,
+  // Using custom implementation only
+  USE_CUSTOM_IMPLEMENTATION: true,
   
   // Enable debug logging
   DEBUG: process.env.NODE_ENV === 'development',

@@ -16,10 +16,7 @@ console.log('🧹 Starting Console Log Cleanup...\n');
 const filesToClean = [
   'components/editor/components/BlockEdit.tsx',
   'components/editor/components/WordPressBlockEditor.tsx',
-  'components/editor/hooks/useWordPressComponents.ts',
   'components/ArticleGenerator.tsx',
-  'components/editor/ClientOnlyGutenbergEditor.tsx',
-  'components/editor/SmartGutenbergEditor.tsx',
   'components/SiteSelector.tsx',
   'components/editor/hooks/useBlockManagement.ts',
   'components/editor/hooks/useImageSearch.ts',

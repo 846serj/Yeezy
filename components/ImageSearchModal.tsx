@@ -130,7 +130,7 @@ const ImageSearchModal: FC<Props> = ({
           position: 'relative',
           opacity: 1,
           margin: 0,
-          width: '900px',
+          width: '550px',
           maxWidth: '90vw',
           boxShadow: '0 3px 30px rgba(25, 30, 35, 0.2)',
           borderRadius: '8px',
@@ -372,7 +372,29 @@ const ImageSearchModal: FC<Props> = ({
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
                       }}>
-                        {image.attribution || image.caption || 'Image'}
+                        {image.source === 'unsplash' && image.photographerUrl ? (
+                          <a
+                            href={image.photographerUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              color: '#007cba',
+                              textDecoration: 'none',
+                              cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.textDecoration = 'underline';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.textDecoration = 'none';
+                            }}
+                          >
+                            {image.attribution || image.caption || 'Image'}
+                          </a>
+                        ) : (
+                          image.attribution || image.caption || 'Image'
+                        )}
                       </div>
                     </div>
                   ))}

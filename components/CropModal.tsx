@@ -63,12 +63,12 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
       }}
     >
       <div 
-        className="bg-black p-2 w-[98vw] max-w-[1400px] flex flex-col items-center"
+        className="bg-black p-2 w-[98vw] max-w-[550px] flex flex-col items-center"
         style={{
           backgroundColor: 'black',
           padding: '8px',
           width: '98vw',
-          maxWidth: '1400px',
+          maxWidth: '550px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',

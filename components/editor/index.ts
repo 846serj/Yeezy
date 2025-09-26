@@ -1,7 +1,5 @@
-export { default as ClientOnlyGutenbergEditor } from './ClientOnlyGutenbergEditor';
 export { default as WordPressBlockEditor } from './components/WordPressBlockEditor';
 export * from './types';
-export * from './hooks/useWordPressComponents';
 export * from './hooks/useBlockManagement';
 export * from './hooks/useImageSearch';
 export * from './utils/htmlParser';
