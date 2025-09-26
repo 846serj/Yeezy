@@ -323,6 +323,11 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
   const handleInserterImageSelect = (image: any) => {
     if (!inserterPosition) return;
     
+    console.log('🎯 [INSERTER DEBUG] handleInserterImageSelect called with:', image);
+    alert(`Inserter Image selected: ${image.source} - ${image.photographer || 'Unknown photographer'}`);
+    
+    // Trigger Unsplash download tracking when image is selected
+    triggerUnsplashDownload(image);
     
     // Set the image for cropping and the target block ID
     setCurrentImageToCrop(image);
@@ -2451,7 +2456,10 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
                     {inserterImages.map((image, index) => (
                       <div
                         key={`${image.url}-${index}`}
-                        onClick={() => handleInserterImageSelect(image)}
+                        onClick={() => {
+                          console.log('🖱️ [INSERTER MODAL DEBUG] Image clicked:', image);
+                          handleInserterImageSelect(image);
+                        }}
                         style={{
                           cursor: 'pointer',
                           border: '1px solid #ddd',
