@@ -32,12 +32,18 @@ export async function POST(request: NextRequest) {
 
     console.log('📊 [UNSPLASH DEBUG] Response status:', response.status);
     console.log('📊 [UNSPLASH DEBUG] Response statusText:', response.statusText);
+    
+    // Log the response body to see what Unsplash returns
+    const responseText = await response.text();
+    console.log('📄 [UNSPLASH DEBUG] Response body:', responseText);
 
     if (!response.ok) {
       console.error('❌ [UNSPLASH DEBUG] Failed to trigger Unsplash download tracking:', response.status, response.statusText);
+      console.error('❌ [UNSPLASH DEBUG] Error response:', responseText);
       // Don't fail the request if tracking fails - this is just for analytics
     } else {
       console.log('✅ [UNSPLASH DEBUG] Successfully triggered Unsplash download tracking!');
+      console.log('📄 [UNSPLASH DEBUG] Unsplash response:', responseText);
     }
 
     return NextResponse.json({ success: true });
