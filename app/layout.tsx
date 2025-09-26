@@ -3,6 +3,7 @@ import './globals.css'
 import '../styles/gutenberg.css'
 import Script from 'next/script'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata: Metadata = {
   title: 'WordPress Article Editor - TuiCss',
@@ -32,6 +33,7 @@ export default function RootLayout({
           {children}
         </AuthProvider>
         <Script src="/tuicss/tuicss.min.js" />
+        <Analytics />
       </body>
     </html>
   )
