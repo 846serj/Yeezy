@@ -105,7 +105,7 @@ async function searchUnsplash(query: string, page: number, perPage: number) {
     photographerUrl.searchParams.set('utm_medium', 'referral');
     photographerUrl.searchParams.set('utm_campaign', 'image-attribution');
     
-    return {
+    const imageData = {
       url: photo.urls.small,
       full: photo.urls.full,
       caption: photo.alt_description || photo.description || 'Unsplash Image',
@@ -117,6 +117,15 @@ async function searchUnsplash(query: string, page: number, perPage: number) {
       attribution: `Photo by ${photo.user.name} on Unsplash`,
       downloadLocation: photo.links.download_location
     };
+
+    // Debug logging for Unsplash images
+    console.log('📸 [UNSPLASH SEARCH DEBUG] Image processed:', {
+      photographer: imageData.photographer,
+      hasDownloadLocation: !!imageData.downloadLocation,
+      downloadLocation: imageData.downloadLocation
+    });
+
+    return imageData;
   });
 }
 

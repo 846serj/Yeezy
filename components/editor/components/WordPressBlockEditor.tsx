@@ -1188,7 +1188,15 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
 
   // Function to trigger Unsplash download tracking
   const triggerUnsplashDownload = async (image: any) => {
+    console.log('🎯 [CLIENT DEBUG] Image selected:', {
+      source: image.source,
+      photographer: image.photographer,
+      hasDownloadLocation: !!image.downloadLocation,
+      downloadLocation: image.downloadLocation
+    });
+
     if (image.source === 'unsplash' && image.downloadLocation) {
+      console.log('🚀 [CLIENT DEBUG] Triggering Unsplash download tracking...');
       try {
         // Trigger download tracking asynchronously - don't wait for response
         fetch('/api/unsplash-download', {
@@ -1199,12 +1207,19 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
           body: JSON.stringify({
             downloadLocation: image.downloadLocation
           })
+        }).then(response => {
+          console.log('📡 [CLIENT DEBUG] API response status:', response.status);
+          return response.json();
+        }).then(data => {
+          console.log('📡 [CLIENT DEBUG] API response data:', data);
         }).catch(error => {
-          console.error('Failed to trigger Unsplash download tracking:', error);
+          console.error('❌ [CLIENT DEBUG] Failed to trigger Unsplash download tracking:', error);
         });
       } catch (error) {
-        console.error('Error triggering Unsplash download tracking:', error);
+        console.error('💥 [CLIENT DEBUG] Error triggering Unsplash download tracking:', error);
       }
+    } else {
+      console.log('⏭️ [CLIENT DEBUG] Skipping download tracking - not Unsplash or no download location');
     }
   };
 
