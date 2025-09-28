@@ -324,7 +324,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
     if (!inserterPosition) return;
     
     console.log('🎯 [INSERTER DEBUG] handleInserterImageSelect called with:', image);
-    alert(`Inserter Image selected: ${image.source} - ${image.photographer || 'Unknown photographer'}`);
     
     // Trigger Unsplash download tracking when image is selected
     triggerUnsplashDownload(image);
@@ -1233,7 +1232,6 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
   // Image handling functions
   const handleImageSelect = (image: any) => {
     console.log('🎯 [MAIN DEBUG] handleImageSelect called with:', image);
-    alert(`Image selected: ${image.source} - ${image.photographer || 'Unknown photographer'}`);
     
     // Trigger Unsplash download tracking when image is selected
     triggerUnsplashDownload(image);
@@ -1305,7 +1303,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
       let imageCaption = '';
       let imageAlt = currentImageToCrop.caption; // Use original caption for alt text
       
-      if (currentImageToCrop.attribution && (currentImageToCrop.source === 'unsplash' || currentImageToCrop.source === 'pexels' || currentImageToCrop.source === 'pixabay' || currentImageToCrop.source === 'flickr' || currentImageToCrop.source === 'nasa' || currentImageToCrop.source === 'rawpixel' || currentImageToCrop.source === 'inaturalist' || currentImageToCrop.source === 'stocksnap' || currentImageToCrop.source === 'wikiCommons')) {
+      if (currentImageToCrop.attribution && (currentImageToCrop.source === 'unsplash' || currentImageToCrop.source === 'pexels' || currentImageToCrop.source === 'pixabay' || currentImageToCrop.source === 'flickr' || currentImageToCrop.source === 'nasa' || currentImageToCrop.source === 'rawpixel' || currentImageToCrop.source === 'inaturalist' || currentImageToCrop.source === 'stocksnap' || currentImageToCrop.source === 'wikiCommons' || currentImageToCrop.source === 'internet')) {
         imageCaption = currentImageToCrop.attribution; // Show photographer attribution in caption
       }
 
@@ -2605,6 +2603,34 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
                   }}
                 >
                   <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
+                </div>
+                
+                <div 
+                  className="block-editor-block-types-list__item" 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '8px 12px', 
+                    cursor: 'pointer', 
+                    border: '1px solid transparent', 
+                    borderRadius: '4px', 
+                    marginBottom: '2px', 
+                    transition: '0.2s',
+                    backgroundColor: selectedSources.includes('internet') ? '#e3f2fd' : 'transparent'
+                  }}
+                  onClick={() => handleSourceToggle('internet')}
+                  onMouseEnter={(e) => {
+                    if (!selectedSources.includes('internet')) {
+                      e.currentTarget.style.backgroundColor = '#f5f5f5';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedSources.includes('internet')) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Internet</div>
                 </div>
               </div>
             </div>

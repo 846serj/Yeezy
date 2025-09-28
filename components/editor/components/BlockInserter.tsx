@@ -30,7 +30,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
-  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'openverse', 'wikiCommons']);
+  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'openverse', 'wikiCommons', 'internet']);
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -538,6 +538,34 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
             >
               <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
             </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('internet') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('internet')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('internet')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('internet')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Internet</div>
+            </div>
           </div>
         </div>
         
@@ -600,7 +628,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
                     }}>
-                      {(image.source === 'unsplash' || image.source === 'pixabay' || image.source === 'flickr' || image.source === 'nasa' || image.source === 'rawpixel' || image.source === 'inaturalist' || image.source === 'stocksnap') && image.photographerUrl ? (
+                      {(image.source === 'unsplash' || image.source === 'pixabay' || image.source === 'flickr' || image.source === 'nasa' || image.source === 'rawpixel' || image.source === 'inaturalist' || image.source === 'stocksnap' || image.source === 'internet') && image.photographerUrl ? (
                         <a
                           href={image.photographerUrl}
                           target="_blank"

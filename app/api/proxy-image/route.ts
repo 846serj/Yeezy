@@ -9,20 +9,21 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Validate that it's a supported Openverse source
-    const supportedDomains = [
-      'inaturalist-open-data.s3.amazonaws.com',
-      'cdn.stocksnap.io',
-      'live.staticflickr.com',
-      'farm.staticflickr.com',
-      'images.rawpixel.com',
-      'cdn.rawpixel.com',
-      'api.openverse.org' // Openverse's own thumbnail service
-    ];
-
+    // Validate that it's a valid URL
     const url = new URL(imageUrl);
-    if (!supportedDomains.some(domain => url.hostname.includes(domain))) {
-      return NextResponse.json({ error: 'Unsupported image source' }, { status: 400 });
+    
+    // Block potentially dangerous or unsupported protocols
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return NextResponse.json({ error: 'Unsupported protocol' }, { status: 400 });
+    }
+    
+    // Block localhost and internal IPs for security
+    if (url.hostname === 'localhost' || 
+        url.hostname.startsWith('127.') || 
+        url.hostname.startsWith('192.168.') ||
+        url.hostname.startsWith('10.') ||
+        url.hostname.startsWith('172.')) {
+      return NextResponse.json({ error: 'Internal URLs not allowed' }, { status: 400 });
     }
 
     // Prepare headers based on the source

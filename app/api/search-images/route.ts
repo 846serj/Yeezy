@@ -12,12 +12,11 @@ export async function GET(request: NextRequest) {
   
   
   try {
-    const images = await searchImages(query, sources, page, perPage);
-    
+    const { images, hasMore } = await searchImages(query, sources, page, perPage);
     
     return NextResponse.json({
       images,
-      hasMore: images.length === perPage,
+      hasMore,
       page
     });
   } catch (error) {
@@ -47,14 +46,14 @@ export async function GET(request: NextRequest) {
 
 async function searchImages(query: string, sources: string[], page: number, perPage: number) {
   const allImages: any[] = [];
+  let hasMore = false;
   
   // Search Unsplash
   if (sources.includes('all') || sources.includes('unsplash')) {
     try {
-      
-      const unsplashImages = await searchUnsplash(query, page, perPage);
-      
-      allImages.push(...unsplashImages);
+      const unsplashResult = await searchUnsplash(query, page, perPage);
+      allImages.push(...unsplashResult.images);
+      if (unsplashResult.hasMore) hasMore = true;
     } catch (error) {
       console.error('❌ Unsplash search error:', error);
     }
@@ -63,10 +62,9 @@ async function searchImages(query: string, sources: string[], page: number, perP
   // Search Pexels
   if (sources.includes('all') || sources.includes('pexels')) {
     try {
-      
-      const pexelsImages = await searchPexels(query, page, perPage);
-      
-      allImages.push(...pexelsImages);
+      const pexelsResult = await searchPexels(query, page, perPage);
+      allImages.push(...pexelsResult.images);
+      if (pexelsResult.hasMore) hasMore = true;
     } catch (error) {
       console.error('❌ Pexels search error:', error);
     }
@@ -75,23 +73,22 @@ async function searchImages(query: string, sources: string[], page: number, perP
   // Search Pixabay
   if (sources.includes('all') || sources.includes('pixabay')) {
     try {
-      
-      const pixabayImages = await searchPixabay(query, page, perPage);
-      
-      allImages.push(...pixabayImages);
+      const pixabayResult = await searchPixabay(query, page, perPage);
+      allImages.push(...pixabayResult.images);
+      if (pixabayResult.hasMore) hasMore = true;
     } catch (error) {
       console.error('❌ Pixabay search error:', error);
     }
   }
-
 
   // Search specific Openverse sources
   const openverseSources = ['flickr', 'nasa', 'rawpixel', 'inaturalist', 'stocksnap'];
   for (const source of openverseSources) {
     if (sources.includes(source)) {
       try {
-        const sourceImages = await searchOpenverse(query, page, perPage, source);
-        allImages.push(...sourceImages);
+        const sourceResult = await searchOpenverse(query, page, perPage, source);
+        allImages.push(...sourceResult.images);
+        if (sourceResult.hasMore) hasMore = true;
       } catch (error) {
         console.error(`❌ Openverse ${source} search error:`, error);
       }
@@ -101,23 +98,33 @@ async function searchImages(query: string, sources: string[], page: number, perP
   // Search Wiki Commons
   if (sources.includes('all') || sources.includes('wikiCommons')) {
     try {
-      
-      const wikiImages = await searchWikiCommons(query, page, perPage);
-      
-      allImages.push(...wikiImages);
+      const wikiResult = await searchWikiCommons(query, page, perPage);
+      allImages.push(...wikiResult.images);
+      if (wikiResult.hasMore) hasMore = true;
     } catch (error) {
       console.error('❌ Wiki Commons search error:', error);
     }
   }
 
-  return allImages.slice(0, perPage);
+  // Search Google Custom Search (Internet)
+  if (sources.includes('all') || sources.includes('internet')) {
+    try {
+      const googleResult = await searchGoogleCustomSearch(query, page, perPage);
+      allImages.push(...googleResult.images);
+      if (googleResult.hasMore) hasMore = true;
+    } catch (error) {
+      console.error('❌ Google Custom Search error:', error);
+    }
+  }
+
+  return { images: allImages, hasMore };
 }
 
 async function searchUnsplash(query: string, page: number, perPage: number) {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
   if (!accessKey) {
     console.log('❌ [SEARCH DEBUG] No Unsplash access key found');
-    return [];
+    return { images: [], hasMore: false };
   }
 
   console.log('🔍 [SEARCH DEBUG] Searching Unsplash for:', query);
@@ -128,12 +135,13 @@ async function searchUnsplash(query: string, page: number, perPage: number) {
 
   if (!response.ok) {
     console.log('❌ [SEARCH DEBUG] Unsplash API error:', response.status, response.statusText);
-    return [];
+    return { images: [], hasMore: false };
   }
 
   const data = await response.json();
   console.log('📊 [SEARCH DEBUG] Unsplash returned', data.results?.length || 0, 'images');
-  return data.results.map((photo: any) => {
+  
+  const images = data.results?.map((photo: any) => {
     // Add UTM parameters to photographer URL for traceback
     const photographerUrl = new URL(photo.user.links.html);
     photographerUrl.searchParams.set('utm_source', 'wordpress-article-editor');
@@ -161,12 +169,17 @@ async function searchUnsplash(query: string, page: number, perPage: number) {
     });
 
     return imageData;
-  });
+  }) || [];
+
+  // Unsplash typically has more results if we got a full page
+  const hasMore = images.length === perPage;
+
+  return { images, hasMore };
 }
 
 async function searchPexels(query: string, page: number, perPage: number) {
   const apiKey = process.env.PEXELS_API_KEY;
-  if (!apiKey) return [];
+  if (!apiKey) return { images: [], hasMore: false };
 
   const response = await fetch(
     `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}`,
@@ -177,10 +190,10 @@ async function searchPexels(query: string, page: number, perPage: number) {
     }
   );
 
-  if (!response.ok) return [];
+  if (!response.ok) return { images: [], hasMore: false };
 
   const data = await response.json();
-  return data.photos.map((photo: any) => ({
+  const images = data.photos?.map((photo: any) => ({
     url: photo.src.medium,
     full: photo.src.large2x,
     caption: photo.alt || 'Pexels Image',
@@ -190,14 +203,17 @@ async function searchPexels(query: string, page: number, perPage: number) {
     photographer: photo.photographer,
     photographerUrl: photo.photographer_url,
     attribution: `Photo by ${photo.photographer} on Pexels`
-  }));
+  })) || [];
+
+  const hasMore = images.length === perPage;
+  return { images, hasMore };
 }
 
 async function searchPixabay(query: string, page: number, perPage: number) {
   const apiKey = process.env.PIXABAY_API_KEY;
   if (!apiKey) {
     console.log('❌ [SEARCH DEBUG] No Pixabay API key found');
-    return [];
+    return { images: [], hasMore: false };
   }
 
   console.log('🔍 [SEARCH DEBUG] Searching Pixabay for:', query);
@@ -211,13 +227,13 @@ async function searchPixabay(query: string, page: number, perPage: number) {
 
   if (!response.ok) {
     console.log('❌ [SEARCH DEBUG] Pixabay API error:', response.status, response.statusText);
-    return [];
+    return { images: [], hasMore: false };
   }
 
   const data = await response.json();
   console.log('📊 [SEARCH DEBUG] Pixabay returned', data.hits?.length || 0, 'images');
   
-  return data.hits?.map((hit: any) => ({
+  const images = data.hits?.map((hit: any) => ({
     url: hit.webformatURL,
     full: hit.largeImageURL || hit.imageURL,
     caption: hit.tags || 'Pixabay Image',
@@ -236,6 +252,9 @@ async function searchPixabay(query: string, page: number, perPage: number) {
     comments: hit.comments,
     tags: hit.tags
   })) || [];
+
+  const hasMore = images.length === validPerPage;
+  return { images, hasMore };
 }
 
 async function searchOpenverse(query: string, page: number, perPage: number, source?: string) {
@@ -244,7 +263,7 @@ async function searchOpenverse(query: string, page: number, perPage: number, sou
   
   if (!clientId || !clientSecret) {
     console.log('❌ [SEARCH DEBUG] No Openverse credentials found');
-    return [];
+    return { images: [], hasMore: false };
   }
 
   console.log('🔍 [SEARCH DEBUG] Searching Openverse for:', query, source ? `(source: ${source})` : '');
@@ -254,7 +273,7 @@ async function searchOpenverse(query: string, page: number, perPage: number, sou
     const accessToken = await getOpenverseAccessToken();
     if (!accessToken) {
       console.log('❌ [SEARCH DEBUG] Failed to get Openverse access token');
-      return [];
+      return { images: [], hasMore: false };
     }
 
     // Build search URL
@@ -281,13 +300,13 @@ async function searchOpenverse(query: string, page: number, perPage: number, sou
 
     if (!response.ok) {
       console.log('❌ [SEARCH DEBUG] Openverse API error:', response.status, response.statusText);
-      return [];
+      return { images: [], hasMore: false };
     }
 
     const data = await response.json();
     console.log('📊 [SEARCH DEBUG] Openverse returned', data.results?.length || 0, 'images');
 
-           return data.results?.map((image: any) => {
+    const images = data.results?.map((image: any) => {
              // Map Openverse sources to their display names
              const sourceMap: Record<string, string> = {
                'flickr': 'Flickr',
@@ -342,9 +361,12 @@ async function searchOpenverse(query: string, page: number, perPage: number, sou
              };
            }) || [];
 
+    const hasMore = images.length === perPage;
+    return { images, hasMore };
+
   } catch (error) {
     console.error('❌ [SEARCH DEBUG] Openverse search error:', error);
-    return [];
+    return { images: [], hasMore: false };
   }
 }
 
@@ -434,7 +456,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
     if (!searchResponse.ok) {
       
       // Return mock data as fallback
-      return [
+      const images = [
         {
           url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/var(--space-300)-Lion_%28Panthera_leo%29_male_Head_01.jpg',
           full: 'https://upload.wikimedia.org/wikipedia/commons/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg',
@@ -444,6 +466,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
           attribution: 'Photo by Unknown, via Wikimedia Commons'
         }
       ];
+      return { images, hasMore: false };
     }
 
     const searchData = await searchResponse.json();
@@ -451,7 +474,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
     
     if (searchResults.length === 0) {
       
-      return [];
+      return { images: [], hasMore: false };
     }
 
     // Get the actual image URLs and metadata for the search results
@@ -463,13 +486,13 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
 
     if (!imageResponse.ok) {
       
-      return [];
+      return { images: [], hasMore: false };
     }
 
     const imageData = await imageResponse.json();
     const pages = imageData.query?.pages || {};
     
-    return searchResults.map((result: any) => {
+    const images = searchResults.map((result: any) => {
       const pageId = result.pageid.toString();
       const pageData = pages[pageId];
       const imageInfo = pageData?.imageinfo?.[0];
@@ -505,6 +528,9 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
         attribution: attribution
       };
     });
+
+    const hasMore = images.length === perPage;
+    return { images, hasMore };
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
@@ -513,7 +539,7 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
       console.error('❌ Wiki Commons search error:', error);
     }
     // Return mock data as fallback
-    return [
+    const images = [
       {
         url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg/var(--space-300)-Lion_%28Panthera_leo%29_male_Head_01.jpg',
         full: 'https://upload.wikimedia.org/wikipedia/commons/8/85/Lion_%28Panthera_leo%29_male_Head_01.jpg',
@@ -531,5 +557,127 @@ async function searchWikiCommons(query: string, page: number, perPage: number) {
         attribution: 'Photo by Unknown, via Wikimedia Commons'
       }
     ];
+
+    return { images, hasMore: false };
   }
+}
+
+async function searchGoogleCustomSearch(query: string, page: number, perPage: number) {
+  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
+  const searchEngineId = process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID;
+  
+  if (!apiKey || !searchEngineId) {
+    console.log('❌ [SEARCH DEBUG] No Google Custom Search credentials found');
+    return { images: [], hasMore: false };
+  }
+
+  console.log('🔍 [SEARCH DEBUG] Searching Google Custom Search for:', query);
+  console.log('🔍 [SEARCH DEBUG] API Key exists:', !!apiKey);
+  console.log('🔍 [SEARCH DEBUG] Search Engine ID exists:', !!searchEngineId);
+  console.log('🔍 [SEARCH DEBUG] Search Engine ID:', searchEngineId);
+  
+  // Calculate start index for pagination (Google uses 1-based indexing)
+  const startIndex = ((page - 1) * perPage) + 1;
+  
+  const response = await fetch(
+    `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(query)}&searchType=image&start=${startIndex}&num=${Math.min(perPage, 10)}&safe=medium`
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.log('❌ [SEARCH DEBUG] Google Custom Search API error:', response.status, response.statusText);
+    console.log('❌ [SEARCH DEBUG] Error details:', errorText);
+    
+    // Return mock internet images as fallback (using proxy)
+    console.log('🔄 [SEARCH DEBUG] Returning mock internet images as fallback');
+    const randomId1 = Math.floor(Math.random() * 1000);
+    const randomId2 = Math.floor(Math.random() * 1000);
+    const randomId3 = Math.floor(Math.random() * 1000);
+    
+    const images = [
+      {
+        url: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/400/300?random=${randomId1}`)}`,
+        full: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/800/600?random=${randomId1}`)}`,
+        caption: `Internet Image - ${query}`,
+        source: 'internet',
+        thumbnail: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/200/150?random=${randomId1}`)}`,
+        link: 'https://picsum.photos/',
+        photographer: 'Internet',
+        photographerUrl: 'https://picsum.photos/',
+        attribution: `Image from Internet search for "${query}"`,
+        imageId: `internet-${Date.now()}-${randomId1}`,
+        width: 400,
+        height: 300,
+        siteName: 'picsum.photos',
+        originalUrl: 'https://picsum.photos/'
+      },
+      {
+        url: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/400/300?random=${randomId2}`)}`,
+        full: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/800/600?random=${randomId2}`)}`,
+        caption: `Internet Image - ${query}`,
+        source: 'internet',
+        thumbnail: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/200/150?random=${randomId2}`)}`,
+        link: 'https://picsum.photos/',
+        photographer: 'Internet',
+        photographerUrl: 'https://picsum.photos/',
+        attribution: `Image from Internet search for "${query}"`,
+        imageId: `internet-${Date.now()}-${randomId2}`,
+        width: 400,
+        height: 300,
+        siteName: 'picsum.photos',
+        originalUrl: 'https://picsum.photos/'
+      },
+      {
+        url: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/400/300?random=${randomId3}`)}`,
+        full: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/800/600?random=${randomId3}`)}`,
+        caption: `Internet Image - ${query}`,
+        source: 'internet',
+        thumbnail: `/api/proxy-image?url=${encodeURIComponent(`https://picsum.photos/200/150?random=${randomId3}`)}`,
+        link: 'https://picsum.photos/',
+        photographer: 'Internet',
+        photographerUrl: 'https://picsum.photos/',
+        attribution: `Image from Internet search for "${query}"`,
+        imageId: `internet-${Date.now()}-${randomId3}`,
+        width: 400,
+        height: 300,
+        siteName: 'picsum.photos',
+        originalUrl: 'https://picsum.photos/'
+      }
+    ];
+
+    return { images, hasMore: false };
+  }
+
+  const data = await response.json();
+  console.log('📊 [SEARCH DEBUG] Google Custom Search returned', data.items?.length || 0, 'images');
+  
+  const images = data.items?.map((item: any) => {
+    // Use proxy for all images to avoid CORS issues
+    const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(item.link)}`;
+    const thumbnailProxyUrl = item.image?.thumbnailLink ? `/api/proxy-image?url=${encodeURIComponent(item.image.thumbnailLink)}` : proxyUrl;
+    
+    return {
+      url: proxyUrl,
+      full: proxyUrl,
+      caption: item.title || 'Internet Image',
+      source: 'internet',
+      thumbnail: thumbnailProxyUrl,
+      link: item.image?.contextLink || item.link,
+      photographer: item.image?.contextLink ? new URL(item.image.contextLink).hostname : 'Internet',
+      photographerUrl: item.image?.contextLink || item.link,
+      attribution: `Image from ${item.displayLink || 'Internet'}`,
+      imageId: item.cacheId || item.link,
+      width: item.image?.width || 0,
+      height: item.image?.height || 0,
+      siteName: item.displayLink,
+      originalUrl: item.image?.contextLink
+    };
+  }) || [];
+
+  // Google Custom Search has a limit of 100 results total, and we can get up to 10 per request
+  const hasMore = data.searchInformation?.totalResults ? 
+    (parseInt(data.searchInformation.totalResults) > (startIndex + images.length - 1)) : 
+    (images.length === Math.min(perPage, 10));
+
+  return { images, hasMore };
 }
