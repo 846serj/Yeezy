@@ -84,6 +84,20 @@ async function searchImages(query: string, sources: string[], page: number, perP
     }
   }
 
+
+  // Search specific Openverse sources
+  const openverseSources = ['flickr', 'nasa', 'rawpixel', 'inaturalist', 'stocksnap'];
+  for (const source of openverseSources) {
+    if (sources.includes(source)) {
+      try {
+        const sourceImages = await searchOpenverse(query, page, perPage, source);
+        allImages.push(...sourceImages);
+      } catch (error) {
+        console.error(`❌ Openverse ${source} search error:`, error);
+      }
+    }
+  }
+
   // Search Wiki Commons
   if (sources.includes('all') || sources.includes('wikiCommons')) {
     try {
@@ -222,6 +236,181 @@ async function searchPixabay(query: string, page: number, perPage: number) {
     comments: hit.comments,
     tags: hit.tags
   })) || [];
+}
+
+async function searchOpenverse(query: string, page: number, perPage: number, source?: string) {
+  const clientId = process.env.OPENVERSE_CLIENT_ID;
+  const clientSecret = process.env.OPENVERSE_CLIENT_SECRET;
+  
+  if (!clientId || !clientSecret) {
+    console.log('❌ [SEARCH DEBUG] No Openverse credentials found');
+    return [];
+  }
+
+  console.log('🔍 [SEARCH DEBUG] Searching Openverse for:', query, source ? `(source: ${source})` : '');
+
+  try {
+    // Get access token
+    const accessToken = await getOpenverseAccessToken();
+    if (!accessToken) {
+      console.log('❌ [SEARCH DEBUG] Failed to get Openverse access token');
+      return [];
+    }
+
+    // Build search URL
+    const searchUrl = new URL('https://api.openverse.org/v1/images/');
+    searchUrl.searchParams.set('q', query);
+    searchUrl.searchParams.set('page', page.toString());
+    searchUrl.searchParams.set('page_size', perPage.toString());
+    searchUrl.searchParams.set('license', 'cc0,pdm,by,by-sa');
+    searchUrl.searchParams.set('category', 'photograph,illustration');
+    searchUrl.searchParams.set('filter_dead', 'true');
+    searchUrl.searchParams.set('mature', 'false');
+    
+    // Add source filtering if specified
+    if (source) {
+      searchUrl.searchParams.set('source', source);
+    }
+
+    const response = await fetch(searchUrl.toString(), {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.log('❌ [SEARCH DEBUG] Openverse API error:', response.status, response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+    console.log('📊 [SEARCH DEBUG] Openverse returned', data.results?.length || 0, 'images');
+
+           return data.results?.map((image: any) => {
+             // Map Openverse sources to their display names
+             const sourceMap: Record<string, string> = {
+               'flickr': 'Flickr',
+               'nasa': 'NASA',
+               'rawpixel': 'Rawpixel',
+               'inaturalist': 'iNaturalist',
+               'stocksnap': 'StockSnap.io'
+             };
+             
+            const sourceName = sourceMap[source || ''] || 'Openverse';
+            
+            // Handle photographer field based on source
+            let photographer = image.creator;
+            if (!photographer) {
+              if (source === 'rawpixel') {
+                photographer = 'Rawpixel';
+              } else {
+                photographer = 'Unknown';
+              }
+            }
+            
+            // Handle attribution format based on source
+            let attribution;
+            if (source === 'rawpixel') {
+              attribution = 'Photo credit: Rawpixel.com';
+            } else {
+              attribution = `by ${photographer} via ${sourceName}`;
+            }
+             
+             // Use proxy for Openverse images to avoid CORS issues
+             const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(image.url)}`;
+             const thumbnailProxyUrl = image.thumbnail ? `/api/proxy-image?url=${encodeURIComponent(image.thumbnail)}` : undefined;
+             
+             return {
+               url: proxyUrl,
+               full: proxyUrl,
+               caption: image.title || 'Openverse Image',
+               source: source || 'openverse',
+               thumbnail: thumbnailProxyUrl,
+               link: image.foreign_landing_url,
+               photographer: photographer,
+               photographerUrl: image.creator_url,
+               attribution: attribution,
+               imageId: image.id,
+               width: image.width,
+               height: image.height,
+               license: image.license,
+               licenseUrl: image.license_url,
+               provider: image.provider,
+               category: image.category,
+               tags: image.tags?.map((tag: any) => tag.name) || []
+             };
+           }) || [];
+
+  } catch (error) {
+    console.error('❌ [SEARCH DEBUG] Openverse search error:', error);
+    return [];
+  }
+}
+
+async function getOpenverseAccessToken(): Promise<string | null> {
+  try {
+    const clientId = process.env.OPENVERSE_CLIENT_ID;
+    const clientSecret = process.env.OPENVERSE_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      return null;
+    }
+
+    // Check if we have a cached token
+    const cachedToken = await getCachedToken();
+    if (cachedToken && !isTokenExpired(cachedToken)) {
+      return cachedToken.access_token;
+    }
+
+    // Get new token
+    const tokenResponse = await fetch('https://api.openverse.org/v1/auth_tokens/token/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      return null;
+    }
+
+    const tokenData = await tokenResponse.json();
+    
+    // Cache the token
+    await cacheToken(tokenData);
+    
+    return tokenData.access_token;
+
+  } catch (error) {
+    console.error('❌ [OPENVERSE ERROR] Token error:', error);
+    return null;
+  }
+}
+
+// Simple in-memory token cache
+let tokenCache: { token: any; expires: number } | null = null;
+
+async function getCachedToken() {
+  return tokenCache?.token || null;
+}
+
+async function cacheToken(tokenData: any) {
+  const expiresIn = tokenData.expires_in || 3600; // Default to 1 hour
+  tokenCache = {
+    token: tokenData,
+    expires: Date.now() + (expiresIn * 1000)
+  };
+}
+
+function isTokenExpired(tokenData: any): boolean {
+  if (!tokenCache) return true;
+  return Date.now() >= tokenCache.expires;
 }
 
 async function searchWikiCommons(query: string, page: number, perPage: number) {

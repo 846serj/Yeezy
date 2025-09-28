@@ -5,12 +5,17 @@ import { createPortal } from 'react-dom';
 
 const sourceLabels: Record<string, string> = {
   all:         "All",
-  unsplash:    "Unsplash API",
-  pexels:      "Pexels API",
-  pixabay:     "Pixabay API",
-  wikiCommons: "Wiki Commons API",
-  shutterstock: "Shutterstock API",
-  getty:       "Getty API",
+  unsplash:    "Unsplash",
+  pexels:      "Pexels",
+  pixabay:     "Pixabay",
+  flickr:      "Flickr",
+  nasa:        "NASA",
+  rawpixel:    "Rawpixel",
+  inaturalist: "iNaturalist",
+  stocksnap:   "StockSnap.io",
+  wikiCommons: "Wiki Commons",
+  shutterstock: "Shutterstock",
+  getty:       "Getty",
   wpMedia:     "WordPress Media",
 };
 
@@ -224,7 +229,7 @@ const ImageSearchModal: FC<Props> = ({
                   }
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pexels API</div>
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pexels</div>
               </div>
               
               <div 
@@ -280,7 +285,7 @@ const ImageSearchModal: FC<Props> = ({
                   }
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Unsplash API</div>
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Unsplash</div>
               </div>
               
               <div 
@@ -308,7 +313,147 @@ const ImageSearchModal: FC<Props> = ({
                   }
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pixabay API</div>
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pixabay</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('flickr') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('flickr')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('flickr')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('flickr')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Flickr</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('nasa') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('nasa')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('nasa')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('nasa')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>NASA</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('rawpixel') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('rawpixel')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('rawpixel')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('rawpixel')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Rawpixel</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('inaturalist') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('inaturalist')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('inaturalist')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('inaturalist')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>iNaturalist</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
+                  backgroundColor: selectedSources.includes('stocksnap') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('stocksnap')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('stocksnap')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('stocksnap')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>StockSnap.io</div>
               </div>
               
               <div 
@@ -336,7 +481,7 @@ const ImageSearchModal: FC<Props> = ({
                   }
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Wiki Commons API</div>
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
               </div>
             </div>
           </div>
@@ -403,7 +548,7 @@ const ImageSearchModal: FC<Props> = ({
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
                       }}>
-                        {(image.source === 'unsplash' || image.source === 'pixabay') && image.photographerUrl ? (
+                        {(image.source === 'unsplash' || image.source === 'pixabay' || image.source === 'flickr' || image.source === 'nasa' || image.source === 'rawpixel' || image.source === 'inaturalist' || image.source === 'stocksnap') && image.photographerUrl ? (
                           <a
                             href={image.photographerUrl}
                             target="_blank"

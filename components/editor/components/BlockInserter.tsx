@@ -30,7 +30,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
-  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'wikiCommons']);
+  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'openverse', 'wikiCommons']);
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -278,7 +278,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                 }
               }}
             >
-              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Pexels API</div>
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Pexels</div>
             </div>
             
             <div 
@@ -334,7 +334,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                 }
               }}
             >
-              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Unsplash API</div>
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Unsplash</div>
             </div>
             
             <div 
@@ -368,7 +368,147 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                 fontWeight: '600', 
                 fontSize: 'var(--space-14)', 
                 color: 'rgb(30, 30, 30)'
-              }}>Pixabay API</div>
+              }}>Pixabay</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('flickr') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('flickr')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('flickr')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('flickr')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Flickr</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('nasa') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('nasa')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('nasa')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('nasa')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>NASA</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('rawpixel') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('rawpixel')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('rawpixel')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('rawpixel')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Rawpixel</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('inaturalist') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('inaturalist')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('inaturalist')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('inaturalist')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>iNaturalist</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
+                backgroundColor: selectedSources.includes('stocksnap') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('stocksnap')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('stocksnap')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('stocksnap')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>StockSnap.io</div>
             </div>
             
             <div 
@@ -396,7 +536,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                 }
               }}
             >
-              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Wiki Commons API</div>
+              <div style={{ fontWeight: '600', fontSize: 'var(--space-14)', color: 'rgb(30, 30, 30)' }}>Wiki Commons</div>
             </div>
           </div>
         </div>
@@ -460,7 +600,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
                     }}>
-                      {(image.source === 'unsplash' || image.source === 'pixabay') && image.photographerUrl ? (
+                      {(image.source === 'unsplash' || image.source === 'pixabay' || image.source === 'flickr' || image.source === 'nasa' || image.source === 'rawpixel' || image.source === 'inaturalist' || image.source === 'stocksnap') && image.photographerUrl ? (
                         <a
                           href={image.photographerUrl}
                           target="_blank"

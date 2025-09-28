@@ -187,7 +187,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
   const [showFeaturedImageSearch, setShowFeaturedImageSearch] = useState(false);
   const [featuredImageSearchImages, setFeaturedImageSearchImages] = useState<ImageResult[]>([]);
   const [featuredImageSearchLoading, setFeaturedImageSearchLoading] = useState(false);
-  const [featuredImageSelectedSources, setFeaturedImageSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'wikiCommons']);
+  const [featuredImageSelectedSources, setFeaturedImageSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'flickr', 'nasa', 'wikiCommons']);
   const [featuredImageHasMore, setFeaturedImageHasMore] = useState(false);
   const [featuredImageLastQuery, setFeaturedImageLastQuery] = useState<string>('');
 
@@ -1305,7 +1305,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
       let imageCaption = '';
       let imageAlt = currentImageToCrop.caption; // Use original caption for alt text
       
-      if (currentImageToCrop.attribution && (currentImageToCrop.source === 'unsplash' || currentImageToCrop.source === 'pexels' || currentImageToCrop.source === 'pixabay' || currentImageToCrop.source === 'wikiCommons')) {
+      if (currentImageToCrop.attribution && (currentImageToCrop.source === 'unsplash' || currentImageToCrop.source === 'pexels' || currentImageToCrop.source === 'pixabay' || currentImageToCrop.source === 'flickr' || currentImageToCrop.source === 'nasa' || currentImageToCrop.source === 'rawpixel' || currentImageToCrop.source === 'inaturalist' || currentImageToCrop.source === 'stocksnap' || currentImageToCrop.source === 'wikiCommons')) {
         imageCaption = currentImageToCrop.attribution; // Show photographer attribution in caption
       }
 
@@ -2436,7 +2436,147 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
                     fontWeight: '600', 
                     fontSize: '14px', 
                     color: 'rgb(30, 30, 30)'
-                  }}>Pixabay API</div>
+                  }}>Pixabay</div>
+                </div>
+                
+                <div 
+                  className="block-editor-block-types-list__item" 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '8px 12px', 
+                    cursor: 'pointer', 
+                    border: '1px solid transparent', 
+                    borderRadius: '4px', 
+                    marginBottom: '2px', 
+                    transition: '0.2s',
+                    backgroundColor: selectedSources.includes('flickr') ? '#e3f2fd' : 'transparent'
+                  }}
+                  onClick={() => handleSourceToggle('flickr')}
+                  onMouseEnter={(e) => {
+                    if (!selectedSources.includes('flickr')) {
+                      e.currentTarget.style.backgroundColor = '#f5f5f5';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedSources.includes('flickr')) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Flickr</div>
+                </div>
+                
+                <div 
+                  className="block-editor-block-types-list__item" 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '8px 12px', 
+                    cursor: 'pointer', 
+                    border: '1px solid transparent', 
+                    borderRadius: '4px', 
+                    marginBottom: '2px', 
+                    transition: '0.2s',
+                    backgroundColor: selectedSources.includes('nasa') ? '#e3f2fd' : 'transparent'
+                  }}
+                  onClick={() => handleSourceToggle('nasa')}
+                  onMouseEnter={(e) => {
+                    if (!selectedSources.includes('nasa')) {
+                      e.currentTarget.style.backgroundColor = '#f5f5f5';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedSources.includes('nasa')) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>NASA</div>
+                </div>
+                
+                <div 
+                  className="block-editor-block-types-list__item" 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '8px 12px', 
+                    cursor: 'pointer', 
+                    border: '1px solid transparent', 
+                    borderRadius: '4px', 
+                    marginBottom: '2px', 
+                    transition: '0.2s',
+                    backgroundColor: selectedSources.includes('rawpixel') ? '#e3f2fd' : 'transparent'
+                  }}
+                  onClick={() => handleSourceToggle('rawpixel')}
+                  onMouseEnter={(e) => {
+                    if (!selectedSources.includes('rawpixel')) {
+                      e.currentTarget.style.backgroundColor = '#f5f5f5';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedSources.includes('rawpixel')) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Rawpixel</div>
+                </div>
+                
+                <div 
+                  className="block-editor-block-types-list__item" 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '8px 12px', 
+                    cursor: 'pointer', 
+                    border: '1px solid transparent', 
+                    borderRadius: '4px', 
+                    marginBottom: '2px', 
+                    transition: '0.2s',
+                    backgroundColor: selectedSources.includes('inaturalist') ? '#e3f2fd' : 'transparent'
+                  }}
+                  onClick={() => handleSourceToggle('inaturalist')}
+                  onMouseEnter={(e) => {
+                    if (!selectedSources.includes('inaturalist')) {
+                      e.currentTarget.style.backgroundColor = '#f5f5f5';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedSources.includes('inaturalist')) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>iNaturalist</div>
+                </div>
+                
+                <div 
+                  className="block-editor-block-types-list__item" 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '8px 12px', 
+                    cursor: 'pointer', 
+                    border: '1px solid transparent', 
+                    borderRadius: '4px', 
+                    marginBottom: '2px', 
+                    transition: '0.2s',
+                    backgroundColor: selectedSources.includes('stocksnap') ? '#e3f2fd' : 'transparent'
+                  }}
+                  onClick={() => handleSourceToggle('stocksnap')}
+                  onMouseEnter={(e) => {
+                    if (!selectedSources.includes('stocksnap')) {
+                      e.currentTarget.style.backgroundColor = '#f5f5f5';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedSources.includes('stocksnap')) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>StockSnap.io</div>
                 </div>
                 
                 <div 
