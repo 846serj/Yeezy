@@ -5,7 +5,7 @@ export const useImageSearch = () => {
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [searchImages, setSearchImages] = useState<ImageResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'wikiCommons']);
+  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'wikiCommons']);
   const [hasMoreImages, setHasMoreImages] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
   const [lastSearchQuery, setLastSearchQuery] = useState<string>('');

@@ -7,6 +7,7 @@ const sourceLabels: Record<string, string> = {
   all:         "All",
   unsplash:    "Unsplash API",
   pexels:      "Pexels API",
+  pixabay:     "Pixabay API",
   wikiCommons: "Wiki Commons API",
   shutterstock: "Shutterstock API",
   getty:       "Getty API",
@@ -19,7 +20,6 @@ export interface ImageResult {
   caption:    string;
   source:     string;
   thumbnail?: string;
-  videoId?:   string;
   imageId?:   string;
   assets?:    { preview_1500?: { url: string } };
   link?:      string;
@@ -294,6 +294,34 @@ const ImageSearchModal: FC<Props> = ({
                   borderRadius: '4px', 
                   marginBottom: '2px', 
                   transition: '0.2s',
+                  backgroundColor: selectedSources.includes('pixabay') ? '#e3f2fd' : 'transparent'
+                }}
+                onClick={() => onSourceToggle('pixabay')}
+                onMouseEnter={(e) => {
+                  if (!selectedSources.includes('pixabay')) {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedSources.includes('pixabay')) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pixabay API</div>
+              </div>
+              
+              <div 
+                className="block-editor-block-types-list__item" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '8px 12px', 
+                  cursor: 'pointer', 
+                  border: '1px solid transparent', 
+                  borderRadius: '4px', 
+                  marginBottom: '2px', 
+                  transition: '0.2s',
                   backgroundColor: selectedSources.includes('wikiCommons') ? '#e3f2fd' : 'transparent'
                 }}
                 onClick={() => onSourceToggle('wikiCommons')}
@@ -375,7 +403,7 @@ const ImageSearchModal: FC<Props> = ({
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
                       }}>
-                        {image.source === 'unsplash' && image.photographerUrl ? (
+                        {(image.source === 'unsplash' || image.source === 'pixabay') && image.photographerUrl ? (
                           <a
                             href={image.photographerUrl}
                             target="_blank"

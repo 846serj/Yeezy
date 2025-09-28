@@ -187,7 +187,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
   const [showFeaturedImageSearch, setShowFeaturedImageSearch] = useState(false);
   const [featuredImageSearchImages, setFeaturedImageSearchImages] = useState<ImageResult[]>([]);
   const [featuredImageSearchLoading, setFeaturedImageSearchLoading] = useState(false);
-  const [featuredImageSelectedSources, setFeaturedImageSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'wikiCommons']);
+  const [featuredImageSelectedSources, setFeaturedImageSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'wikiCommons']);
   const [featuredImageHasMore, setFeaturedImageHasMore] = useState(false);
   const [featuredImageLastQuery, setFeaturedImageLastQuery] = useState<string>('');
 
@@ -1204,6 +1204,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
       console.log('🚀 [CLIENT DEBUG] Triggering Unsplash download tracking...');
       try {
         // Trigger download tracking asynchronously - don't wait for response
+        console.log('🌐 [CLIENT DEBUG] Making API call to /api/unsplash-download');
         fetch('/api/unsplash-download', {
           method: 'POST',
           headers: {
@@ -1214,6 +1215,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
           })
         }).then(response => {
           console.log('📡 [CLIENT DEBUG] API response status:', response.status);
+          console.log('📡 [CLIENT DEBUG] API response headers:', response.headers);
           return response.json();
         }).then(data => {
           console.log('📡 [CLIENT DEBUG] API response data:', data);
@@ -1303,7 +1305,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
       let imageCaption = '';
       let imageAlt = currentImageToCrop.caption; // Use original caption for alt text
       
-      if (currentImageToCrop.attribution && (currentImageToCrop.source === 'unsplash' || currentImageToCrop.source === 'pexels' || currentImageToCrop.source === 'wikiCommons')) {
+      if (currentImageToCrop.attribution && (currentImageToCrop.source === 'unsplash' || currentImageToCrop.source === 'pexels' || currentImageToCrop.source === 'pixabay' || currentImageToCrop.source === 'wikiCommons')) {
         imageCaption = currentImageToCrop.attribution; // Show photographer attribution in caption
       }
 
@@ -2401,6 +2403,40 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
                   }}
                 >
                   <div style={{ fontWeight: '600', fontSize: '14px', color: 'rgb(30, 30, 30)' }}>Pexels</div>
+                </div>
+                
+                <div 
+                  className="block-editor-block-types-list__item" 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '8px 12px', 
+                    cursor: 'pointer', 
+                    border: '1px solid transparent', 
+                    borderRadius: '4px', 
+                    marginBottom: '2px', 
+                    transition: '0.2s',
+                    backgroundColor: selectedSources.includes('pixabay') ? '#e3f2fd' : 'transparent'
+                  }}
+                  onClick={() => handleSourceToggle('pixabay')}
+                  onMouseEnter={(e) => {
+                    if (!selectedSources.includes('pixabay')) {
+                      e.currentTarget.style.backgroundColor = '#f5f5f5';
+                      e.currentTarget.style.borderColor = '#ddd';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selectedSources.includes('pixabay')) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.borderColor = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ 
+                    fontWeight: '600', 
+                    fontSize: '14px', 
+                    color: 'rgb(30, 30, 30)'
+                  }}>Pixabay API</div>
                 </div>
                 
                 <div 

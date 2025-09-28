@@ -72,6 +72,18 @@ async function searchImages(query: string, sources: string[], page: number, perP
     }
   }
 
+  // Search Pixabay
+  if (sources.includes('all') || sources.includes('pixabay')) {
+    try {
+      
+      const pixabayImages = await searchPixabay(query, page, perPage);
+      
+      allImages.push(...pixabayImages);
+    } catch (error) {
+      console.error('❌ Pixabay search error:', error);
+    }
+  }
+
   // Search Wiki Commons
   if (sources.includes('all') || sources.includes('wikiCommons')) {
     try {
@@ -165,6 +177,51 @@ async function searchPexels(query: string, page: number, perPage: number) {
     photographerUrl: photo.photographer_url,
     attribution: `Photo by ${photo.photographer} on Pexels`
   }));
+}
+
+async function searchPixabay(query: string, page: number, perPage: number) {
+  const apiKey = process.env.PIXABAY_API_KEY;
+  if (!apiKey) {
+    console.log('❌ [SEARCH DEBUG] No Pixabay API key found');
+    return [];
+  }
+
+  console.log('🔍 [SEARCH DEBUG] Searching Pixabay for:', query);
+  
+  // Ensure perPage is within Pixabay's limits (3-200)
+  const validPerPage = Math.min(Math.max(perPage, 3), 200);
+  
+  const response = await fetch(
+    `https://pixabay.com/api/?key=${apiKey}&q=${encodeURIComponent(query)}&page=${page}&per_page=${validPerPage}&image_type=photo&safesearch=true&order=popular`
+  );
+
+  if (!response.ok) {
+    console.log('❌ [SEARCH DEBUG] Pixabay API error:', response.status, response.statusText);
+    return [];
+  }
+
+  const data = await response.json();
+  console.log('📊 [SEARCH DEBUG] Pixabay returned', data.hits?.length || 0, 'images');
+  
+  return data.hits?.map((hit: any) => ({
+    url: hit.webformatURL,
+    full: hit.largeImageURL || hit.imageURL,
+    caption: hit.tags || 'Pixabay Image',
+    source: 'pixabay',
+    thumbnail: hit.previewURL,
+    link: hit.pageURL,
+    photographer: hit.user,
+    photographerUrl: `https://pixabay.com/users/${hit.user}-${hit.user_id}/`,
+    attribution: `Image by ${hit.user} from Pixabay`,
+    imageId: hit.id.toString(),
+    width: hit.imageWidth,
+    height: hit.imageHeight,
+    views: hit.views,
+    downloads: hit.downloads,
+    likes: hit.likes,
+    comments: hit.comments,
+    tags: hit.tags
+  })) || [];
 }
 
 async function searchWikiCommons(query: string, page: number, perPage: number) {

@@ -30,7 +30,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
-  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'wikiCommons']);
+  const [selectedSources, setSelectedSources] = useState<string[]>(['unsplash', 'pexels', 'pixabay', 'wikiCommons']);
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -348,6 +348,40 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                 borderRadius: 'var(--space-4)', 
                 marginBottom: 'var(--space-2)', 
                 transition: '0.2s',
+                backgroundColor: selectedSources.includes('pixabay') ? '#e3f2fd' : 'transparent'
+              }}
+              onClick={() => handleSourceToggle('pixabay')}
+              onMouseEnter={(e) => {
+                if (!selectedSources.includes('pixabay')) {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  e.currentTarget.style.borderColor = '#ddd';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedSources.includes('pixabay')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }
+              }}
+            >
+              <div style={{ 
+                fontWeight: '600', 
+                fontSize: 'var(--space-14)', 
+                color: 'rgb(30, 30, 30)'
+              }}>Pixabay API</div>
+            </div>
+            
+            <div 
+              className="block-editor-block-types-list__item" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: 'var(--space-8) var(--space-12)', 
+                cursor: 'pointer', 
+                border: 'var(--space-1) solid transparent', 
+                borderRadius: 'var(--space-4)', 
+                marginBottom: 'var(--space-2)', 
+                transition: '0.2s',
                 backgroundColor: selectedSources.includes('wikiCommons') ? '#e3f2fd' : 'transparent'
               }}
               onClick={() => handleSourceToggle('wikiCommons')}
@@ -426,7 +460,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
                     }}>
-                      {image.source === 'unsplash' && image.photographerUrl ? (
+                      {(image.source === 'unsplash' || image.source === 'pixabay') && image.photographerUrl ? (
                         <a
                           href={image.photographerUrl}
                           target="_blank"
