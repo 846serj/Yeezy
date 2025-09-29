@@ -188,19 +188,33 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose }
                           <h4>Free Tier</h4>
                           <p className="tui-text-muted">25 image crops per month</p>
                           <div className="tui-margin-top">
-                            <div className="tui-progress-bar" style={{ marginBottom: 'var(--space-8)' }}>
+                            <div className="tui-progress-bar" style={{ 
+                              marginBottom: 'var(--space-8)',
+                              width: '100%',
+                              height: '20px',
+                              backgroundColor: '#f0f0f0',
+                              borderRadius: '10px',
+                              overflow: 'hidden',
+                              position: 'relative'
+                            }}>
                               <div 
                                 className="tui-progress-bar-fill"
                                 style={{ 
-                                  width: `${Math.min((usageInfo.usage / 25) * 100, 100)}%`,
-                                  backgroundColor: (usageInfo.usage / 25) > 0.8 ? '#ff6b6b' : '#4ecdc4'
+                                  width: `${Math.min((usageInfo.usage / usageInfo.limit) * 100, 100)}%`,
+                                  height: '100%',
+                                  backgroundColor: (usageInfo.usage / usageInfo.limit) > 0.8 ? '#ff6b6b' : '#4ecdc4',
+                                  borderRadius: '10px',
+                                  transition: 'width 0.5s ease-in-out, background-color 0.3s ease-in-out',
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0
                                 }}
                               ></div>
                             </div>
                             <p className="tui-text-muted">
-                              {usageInfo.usage} / 25 crops used this month
+                              {usageInfo.usage} / {usageInfo.limit} crops used this month
                             </p>
-                            {usageInfo.usage >= 25 && (
+                            {usageInfo.usage >= usageInfo.limit && (
                               <p className="tui-text-error">⚠️ Monthly limit reached</p>
                             )}
                           </div>
