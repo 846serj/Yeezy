@@ -15,8 +15,11 @@ export async function POST(request: NextRequest) {
     const accessKey = process.env.UNSPLASH_ACCESS_KEY;
     if (!accessKey) {
       console.error('❌ [UNSPLASH DEBUG] Unsplash access key not configured');
+      console.error('🔧 [UNSPLASH DEBUG] Please set UNSPLASH_ACCESS_KEY in your environment variables');
       return NextResponse.json({ error: 'Unsplash access key not configured' }, { status: 500 });
     }
+    
+    console.log('🔑 [UNSPLASH DEBUG] Access key found:', accessKey.substring(0, 10) + '...');
 
     // Extract photo ID from download_location URL
     // The download_location URL format is: https://api.unsplash.com/photos/{photo_id}/download
@@ -38,6 +41,8 @@ export async function POST(request: NextRequest) {
       method: 'GET',
       headers: {
         'Authorization': `Client-ID ${accessKey}`,
+        'User-Agent': 'WordPress-Article-Editor/1.0 (https://your-app-domain.com)',
+        'Accept': 'application/json',
       },
     });
 
@@ -51,10 +56,30 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       console.error('❌ [UNSPLASH DEBUG] Failed to trigger Unsplash download tracking:', response.status, response.statusText);
       console.error('❌ [UNSPLASH DEBUG] Error response:', responseText);
+      
+      // Check for specific error conditions
+      if (response.status === 401) {
+        console.error('🔑 [UNSPLASH DEBUG] Authentication failed - check your UNSPLASH_ACCESS_KEY');
+      } else if (response.status === 403) {
+        console.error('🚫 [UNSPLASH DEBUG] Access forbidden - check API permissions');
+      } else if (response.status === 404) {
+        console.error('🔍 [UNSPLASH DEBUG] Photo not found - invalid photo ID:', photoId);
+      }
+      
       // Don't fail the request if tracking fails - this is just for analytics
     } else {
       console.log('✅ [UNSPLASH DEBUG] Successfully triggered Unsplash download tracking!');
       console.log('📄 [UNSPLASH DEBUG] Unsplash response:', responseText);
+      
+      // Try to parse the response to get the download URL
+      try {
+        const responseData = JSON.parse(responseText);
+        if (responseData.url) {
+          console.log('🔗 [UNSPLASH DEBUG] Download URL received:', responseData.url);
+        }
+      } catch (parseError) {
+        console.log('📝 [UNSPLASH DEBUG] Response is not JSON, likely a redirect URL');
+      }
     }
 
     return NextResponse.json({ success: true });

@@ -61,6 +61,7 @@ declare global {
     site_name: string | null;
     created_at: string;
   }>> | undefined;
+  var __imageUsage: Map<string, number> | undefined;
 }
 
 const users = globalThis.__users || new Map();
@@ -437,7 +438,24 @@ export async function getImageUsage(userId: number | string, date?: string): Pro
 
 export async function incrementImageUsage(userId: number | string): Promise<ImageUsage> {
   if (!isPostgresAvailable) {
-    throw new Error('Database not available');
+    // Simulate usage tracking in development
+    const userKey = `usage_${userId}`;
+    const currentUsage = global.__imageUsage?.get(userKey) || 0;
+    const newUsage = currentUsage + 1;
+    
+    if (!global.__imageUsage) {
+      global.__imageUsage = new Map();
+    }
+    global.__imageUsage.set(userKey, newUsage);
+    
+    return {
+      id: 'mock-' + Date.now(),
+      user_id: userId,
+      usage_date: new Date().toISOString().split('T')[0],
+      usage_count: newUsage,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
   }
 
   try {
@@ -495,19 +513,45 @@ export async function getMonthlyImageUsage(userId: number | string): Promise<num
 
 // Check if user can use image crop (free plan: 25/month, premium: unlimited)
 export async function canUseImageCrop(userId: number | string): Promise<{ canUse: boolean; usage: number; limit: number; planType: string }> {
-  const subscription = await getUserSubscription(userId);
-  const monthlyUsage = await getMonthlyImageUsage(userId);
-  
-  const planType = subscription?.plan_type || 'free';
-  const limit = planType === 'premium' ? Infinity : 25;
-  const canUse = monthlyUsage < limit;
-  
-  return {
-    canUse,
-    usage: monthlyUsage,
-    limit: planType === 'premium' ? -1 : limit, // -1 indicates unlimited
-    planType
-  };
+  if (!isPostgresAvailable) {
+    // For development without database, simulate usage tracking
+    const userKey = `usage_${userId}`;
+    const currentUsage = global.__imageUsage?.get(userKey) || 0;
+    const limit = 25; // Free tier limit
+    const canUse = currentUsage < limit;
+    
+    return {
+      canUse,
+      usage: currentUsage,
+      limit,
+      planType: 'free'
+    };
+  }
+
+  try {
+    const subscription = await getUserSubscription(userId);
+    const monthlyUsage = await getMonthlyImageUsage(userId);
+    
+    const planType = subscription?.plan_type || 'free';
+    const limit = planType === 'premium' ? Infinity : 25;
+    const canUse = monthlyUsage < limit;
+    
+    return {
+      canUse,
+      usage: monthlyUsage,
+      limit: planType === 'premium' ? -1 : limit, // -1 indicates unlimited
+      planType
+    };
+  } catch (error) {
+    console.error('Error checking image crop usage:', error);
+    // Fallback to allowing usage if there's an error
+    return {
+      canUse: true,
+      usage: 0,
+      limit: -1,
+      planType: 'free'
+    };
+  }
 }
 
 // Helper function to find subscription by Stripe customer ID

@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SiteSelector } from '@/components/SiteSelector';
 import { AuthForm } from '@/components/AuthForm';
-import UsageDisplay from '@/components/UsageDisplay';
-import SubscriptionManager from '@/components/SubscriptionManager';
+import SubscriptionModal from '@/components/SubscriptionModal';
 import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -14,6 +13,7 @@ export default function Dashboard() {
   const { user, login, logout } = useAuth();
   const { site, loading: sitesLoading, error: sitesError, connect, isConnected } = useWordPress();
   const [showSiteSelector, setShowSiteSelector] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [sites, setSites] = useState<any[]>([]);
   const [loadingSites, setLoadingSites] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -415,6 +415,12 @@ export default function Dashboard() {
         zIndex: 9999,
         backgroundColor: '#c0c0c0'
       }}>
+        {/* Subscription Modal */}
+        <SubscriptionModal 
+          isOpen={showSubscriptionModal}
+          onClose={() => setShowSubscriptionModal(false)}
+        />
+
         {/* Site Selector Modal */}
         {showSiteSelector && (
           <div style={{
@@ -476,31 +482,33 @@ export default function Dashboard() {
                   <div style={{ 
                     height: 'calc(100vh - var(--space-80))',
                     overflow: 'auto',
-                    maxWidth: '1200px',
+                    maxWidth: '500px',
                     margin: '0 auto',
                     width: '100%',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 'var(--space-20)',
                     padding: '0 var(--space-20)'
                   }}>
-                    {/* Left Column - Usage and Subscription */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-20)' }}>
-                      <UsageDisplay />
-                      <SubscriptionManager />
+                    {/* Action Buttons */}
+                    <div style={{ 
+                      marginBottom: 'var(--space-20)', 
+                      display: 'flex', 
+                      justifyContent: 'flex-end', 
+                      alignItems: 'center',
+                      gap: 'var(--space-12)'
+                    }}>
+                      <button 
+                        className="tui-button"
+                        onClick={() => setShowSubscriptionModal(true)}
+                        style={{ backgroundColor: '#007cba', borderColor: '#007cba' }}
+                      >
+                        Subscription
+                      </button>
+                      <button 
+                        className="tui-button"
+                        onClick={() => setShowSiteSelector(true)}
+                      >
+                        Add Site
+                      </button>
                     </div>
-                    
-                    {/* Right Column - Websites */}
-                    <div>
-                      {/* Action Buttons */}
-                      <div style={{ marginBottom: 'var(--space-20)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                        <button 
-                          className="tui-button"
-                          onClick={() => setShowSiteSelector(true)}
-                        >
-                          Add Site
-                        </button>
-                      </div>
 
                       {/* Spacer for additional spacing */}
                       <div style={{ height: '20px', width: '100%' }}></div>
@@ -565,7 +573,6 @@ export default function Dashboard() {
                           </tbody>
                         </table>
                       )}
-                    </div>
                   </div>
           </fieldset>
         </div>
