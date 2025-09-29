@@ -21,7 +21,7 @@ export const useImageSearch = () => {
       }
       
       const page = loadMore ? searchPage + 1 : 1;
-      const response = await fetch(`/api/search-images?query=${encodeURIComponent(searchQuery)}&sources=${selectedSources.join(',')}&page=${page}&perPage=20`);
+      const response = await fetch(`/api/search-images?query=${encodeURIComponent(searchQuery)}&sources=${selectedSources.join(',')}&page=${page}&perPage=12`);
       const data = await response.json();
       
       if (loadMore) {

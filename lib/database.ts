@@ -21,6 +21,28 @@ export interface UserSite {
   updated_at: string;
 }
 
+export interface UserSubscription {
+  id: number | string;
+  user_id: number | string;
+  plan_type: 'free' | 'premium';
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  status: 'active' | 'cancelled' | 'past_due';
+  current_period_start: string | null;
+  current_period_end: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ImageUsage {
+  id: number | string;
+  user_id: number | string;
+  usage_date: string;
+  usage_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // Fallback in-memory store for development when Postgres is not available
 // Using global variables to persist across requests in the same process
 declare global {
@@ -247,10 +269,43 @@ export async function initializeDatabase() {
         )
       `;
 
+      // Create user_subscriptions table
+      await sql`
+        CREATE TABLE IF NOT EXISTS user_subscriptions (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          plan_type VARCHAR(50) NOT NULL DEFAULT 'free',
+          stripe_customer_id VARCHAR(255),
+          stripe_subscription_id VARCHAR(255),
+          status VARCHAR(50) NOT NULL DEFAULT 'active',
+          current_period_start TIMESTAMP WITH TIME ZONE,
+          current_period_end TIMESTAMP WITH TIME ZONE,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        )
+      `;
+
+      // Create image_usage table
+      await sql`
+        CREATE TABLE IF NOT EXISTS image_usage (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          usage_date DATE NOT NULL DEFAULT CURRENT_DATE,
+          usage_count INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, usage_date)
+        )
+      `;
+
       // Create indexes for better performance
       await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`;
       await sql`CREATE INDEX IF NOT EXISTS idx_user_sites_user_id ON user_sites(user_id)`;
       await sql`CREATE INDEX IF NOT EXISTS idx_user_sites_site_url ON user_sites(site_url)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user_id ON user_subscriptions(user_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_user_subscriptions_stripe_customer_id ON user_subscriptions(stripe_customer_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_image_usage_user_id ON image_usage(user_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_image_usage_date ON image_usage(usage_date)`;
 
       
     } catch (error) {
@@ -288,5 +343,190 @@ export async function ensureDatabaseInitialized() {
         
       }
     }
+  }
+}
+
+// Subscription management functions
+export async function getUserSubscription(userId: number | string): Promise<UserSubscription | null> {
+  if (!isPostgresAvailable) {
+    return null; // No subscription tracking in development
+  }
+
+  try {
+    const result = await sql`
+      SELECT * FROM user_subscriptions 
+      WHERE user_id = ${userId} 
+      ORDER BY created_at DESC 
+      LIMIT 1
+    `;
+    
+    return result.rows[0] as UserSubscription || null;
+  } catch (error) {
+    console.error('Error getting user subscription:', error);
+    return null;
+  }
+}
+
+export async function createUserSubscription(
+  userId: number | string,
+  planType: 'free' | 'premium',
+  stripeCustomerId?: string,
+  stripeSubscriptionId?: string
+): Promise<UserSubscription> {
+  if (!isPostgresAvailable) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    const result = await sql`
+      INSERT INTO user_subscriptions (user_id, plan_type, stripe_customer_id, stripe_subscription_id)
+      VALUES (${userId}, ${planType}, ${stripeCustomerId || null}, ${stripeSubscriptionId || null})
+      RETURNING *
+    `;
+    
+    return result.rows[0] as UserSubscription;
+  } catch (error) {
+    console.error('Error creating user subscription:', error);
+    throw error;
+  }
+}
+
+export async function updateUserSubscription(
+  userId: number | string,
+  updates: Partial<Pick<UserSubscription, 'plan_type' | 'status' | 'stripe_customer_id' | 'stripe_subscription_id' | 'current_period_start' | 'current_period_end'>>
+): Promise<UserSubscription | null> {
+  if (!isPostgresAvailable) {
+    return null;
+  }
+
+  try {
+    const setClause = Object.keys(updates)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
+    
+    const values = Object.values(updates);
+    const query = `UPDATE user_subscriptions SET ${setClause} WHERE user_id = $1 RETURNING *`;
+    
+    const result = await sql.query(query, [userId, ...values]);
+    return result.rows[0] as UserSubscription || null;
+  } catch (error) {
+    console.error('Error updating user subscription:', error);
+    return null;
+  }
+}
+
+// Image usage tracking functions
+export async function getImageUsage(userId: number | string, date?: string): Promise<ImageUsage | null> {
+  if (!isPostgresAvailable) {
+    return null;
+  }
+
+  try {
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    const result = await sql`
+      SELECT * FROM image_usage 
+      WHERE user_id = ${userId} AND usage_date = ${targetDate}
+    `;
+    
+    return result.rows[0] as ImageUsage || null;
+  } catch (error) {
+    console.error('Error getting image usage:', error);
+    return null;
+  }
+}
+
+export async function incrementImageUsage(userId: number | string): Promise<ImageUsage> {
+  if (!isPostgresAvailable) {
+    throw new Error('Database not available');
+  }
+
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Try to update existing record
+    const updateResult = await sql`
+      UPDATE image_usage 
+      SET usage_count = usage_count + 1, updated_at = CURRENT_TIMESTAMP
+      WHERE user_id = ${userId} AND usage_date = ${today}
+      RETURNING *
+    `;
+    
+    if (updateResult.rows.length > 0) {
+      return updateResult.rows[0] as ImageUsage;
+    }
+    
+    // If no existing record, create new one
+    const insertResult = await sql`
+      INSERT INTO image_usage (user_id, usage_date, usage_count)
+      VALUES (${userId}, ${today}, 1)
+      RETURNING *
+    `;
+    
+    return insertResult.rows[0] as ImageUsage;
+  } catch (error) {
+    console.error('Error incrementing image usage:', error);
+    throw error;
+  }
+}
+
+export async function getMonthlyImageUsage(userId: number | string): Promise<number> {
+  if (!isPostgresAvailable) {
+    return 0;
+  }
+
+  try {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    
+    const result = await sql`
+      SELECT COALESCE(SUM(usage_count), 0) as total_usage
+      FROM image_usage 
+      WHERE user_id = ${userId} 
+      AND usage_date >= ${startOfMonth.toISOString().split('T')[0]}
+    `;
+    
+    return parseInt(result.rows[0]?.total_usage || '0');
+  } catch (error) {
+    console.error('Error getting monthly image usage:', error);
+    return 0;
+  }
+}
+
+// Check if user can use image crop (free plan: 25/month, premium: unlimited)
+export async function canUseImageCrop(userId: number | string): Promise<{ canUse: boolean; usage: number; limit: number; planType: string }> {
+  const subscription = await getUserSubscription(userId);
+  const monthlyUsage = await getMonthlyImageUsage(userId);
+  
+  const planType = subscription?.plan_type || 'free';
+  const limit = planType === 'premium' ? Infinity : 25;
+  const canUse = monthlyUsage < limit;
+  
+  return {
+    canUse,
+    usage: monthlyUsage,
+    limit: planType === 'premium' ? -1 : limit, // -1 indicates unlimited
+    planType
+  };
+}
+
+// Helper function to find subscription by Stripe customer ID
+export async function getUserSubscriptionByStripeCustomerId(customerId: string): Promise<UserSubscription | null> {
+  if (!isPostgresAvailable) {
+    return null;
+  }
+
+  try {
+    const result = await sql`
+      SELECT * FROM user_subscriptions 
+      WHERE stripe_customer_id = ${customerId} 
+      ORDER BY created_at DESC 
+      LIMIT 1
+    `;
+    
+    return result.rows[0] as UserSubscription || null;
+  } catch (error) {
+    console.error('Error getting subscription by Stripe customer ID:', error);
+    return null;
   }
 }

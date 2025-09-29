@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get('query') || '';
   const sources = searchParams.get('sources')?.split(',') || ['wikiCommons'];
   const page = parseInt(searchParams.get('page') || '1');
-  const perPage = parseInt(searchParams.get('perPage') || '20');
+  const perPage = parseInt(searchParams.get('perPage') || '12');
   
   
   
@@ -127,10 +127,13 @@ async function searchUnsplash(query: string, page: number, perPage: number) {
     return { images: [], hasMore: false };
   }
 
-  console.log('🔍 [SEARCH DEBUG] Searching Unsplash for:', query);
+  // Reduce Unsplash requests to conserve API limit - max 1 image per request
+  const unsplashPerPage = Math.min(perPage, 1);
+  
+  console.log('🔍 [SEARCH DEBUG] Searching Unsplash for:', query, `(reduced to ${unsplashPerPage} images)`);
   
   const response = await fetch(
-    `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}&client_id=${accessKey}`
+    `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&page=${page}&per_page=${unsplashPerPage}&client_id=${accessKey}`
   );
 
   if (!response.ok) {
@@ -172,7 +175,7 @@ async function searchUnsplash(query: string, page: number, perPage: number) {
   }) || [];
 
   // Unsplash typically has more results if we got a full page
-  const hasMore = images.length === perPage;
+  const hasMore = images.length === unsplashPerPage;
 
   return { images, hasMore };
 }

@@ -62,7 +62,7 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
     setShowImageResults(true);
     
     try {
-      const response = await fetch(`/api/search-images?query=${encodeURIComponent(query)}&sources=${selectedSources.join(',')}&page=${loadMore ? page + 1 : 1}&perPage=20`);
+      const response = await fetch(`/api/search-images?query=${encodeURIComponent(query)}&sources=${selectedSources.join(',')}&page=${loadMore ? page + 1 : 1}&perPage=12`);
       const data = await response.json();
       
       if (loadMore) {

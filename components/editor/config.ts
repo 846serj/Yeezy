@@ -50,7 +50,7 @@ export const EDITOR_CONFIG = {
     enabled: true,
     sources: ['unsplash', 'pexels', 'pixabay'],
     defaultSource: 'all',
-    perPage: 20,
+    perPage: 12,
   },
   
   // Auto-resize settings

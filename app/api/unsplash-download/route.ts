@@ -18,12 +18,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unsplash access key not configured' }, { status: 500 });
     }
 
-    console.log('🚀 [UNSPLASH DEBUG] Making request to Unsplash download endpoint...');
-    console.log('🔗 [UNSPLASH DEBUG] URL:', downloadLocation);
+    // Extract photo ID from download_location URL
+    // The download_location URL format is: https://api.unsplash.com/photos/{photo_id}/download
+    const photoIdMatch = downloadLocation.match(/\/photos\/([^\/]+)\/download/);
+    if (!photoIdMatch) {
+      console.error('❌ [UNSPLASH DEBUG] Could not extract photo ID from download location:', downloadLocation);
+      return NextResponse.json({ error: 'Invalid download location URL' }, { status: 400 });
+    }
 
-    // Trigger the download tracking endpoint asynchronously
-    // This increments the download counter for the photographer
-    const response = await fetch(downloadLocation, {
+    const photoId = photoIdMatch[1];
+    console.log('🆔 [UNSPLASH DEBUG] Extracted photo ID:', photoId);
+
+    // Make the correct API call to Unsplash's download endpoint
+    const downloadUrl = `https://api.unsplash.com/photos/${photoId}/download`;
+    console.log('🚀 [UNSPLASH DEBUG] Making request to Unsplash download endpoint...');
+    console.log('🔗 [UNSPLASH DEBUG] URL:', downloadUrl);
+
+    const response = await fetch(downloadUrl, {
       method: 'GET',
       headers: {
         'Authorization': `Client-ID ${accessKey}`,

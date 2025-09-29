@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SiteSelector } from '@/components/SiteSelector';
 import { AuthForm } from '@/components/AuthForm';
+import UsageDisplay from '@/components/UsageDisplay';
+import SubscriptionManager from '@/components/SubscriptionManager';
 import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -470,87 +472,100 @@ export default function Dashboard() {
           }}>
             <legend className="center">Websites</legend>
                   
-                  {/* Websites List */}
+                  {/* Dashboard Content */}
                   <div style={{ 
                     height: 'calc(100vh - var(--space-80))',
                     overflow: 'auto',
-                    maxWidth: '500px',
+                    maxWidth: '1200px',
                     margin: '0 auto',
-                    width: '100%'
+                    width: '100%',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: 'var(--space-20)',
+                    padding: '0 var(--space-20)'
                   }}>
-                    {/* Action Buttons */}
-                    <div style={{ marginBottom: 'var(--space-20)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                      <button 
-                        className="tui-button"
-                        onClick={() => setShowSiteSelector(true)}
-                      >
-                        Add Site
-                      </button>
+                    {/* Left Column - Usage and Subscription */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-20)' }}>
+                      <UsageDisplay />
+                      <SubscriptionManager />
                     </div>
+                    
+                    {/* Right Column - Websites */}
+                    <div>
+                      {/* Action Buttons */}
+                      <div style={{ marginBottom: 'var(--space-20)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <button 
+                          className="tui-button"
+                          onClick={() => setShowSiteSelector(true)}
+                        >
+                          Add Site
+                        </button>
+                      </div>
 
-                    {/* Spacer for additional spacing */}
-                    <div style={{ height: '20px', width: '100%' }}></div>
-                  
-                  {/* Sites List */}
-                  {sites.length === 0 ? (
-                    <div className="center">
-                      <h3>No sites connected</h3>
-                      <p>Connect to your first WordPress site to get started.</p>
-                      <button 
-                        className="tui-button"
-                        onClick={() => setShowSiteSelector(true)}
-                      >
-                        <span className="tui-shortcut">F2</span> Connect Site
-                      </button>
-                    </div>
-                  ) : (
-                    <table className="tui-table hovered-cyan striped-purple" style={{ width: '100%' }}>
-                      <thead>
-                        <tr>
-                          <th>Site Name</th>
-                          <th>URL</th>
-                          <th>User</th>
-                          {/* <th>Actions</th> */}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sites.map((siteItem, index) => (
-                          <tr
-                            key={`${siteItem.id}-${index}`}
-                            onClick={() => handleSiteSelect(siteItem)}
-                            style={{ cursor: 'pointer' }}
+                      {/* Spacer for additional spacing */}
+                      <div style={{ height: '20px', width: '100%' }}></div>
+                    
+                      {/* Sites List */}
+                      {sites.length === 0 ? (
+                        <div className="center">
+                          <h3>No sites connected</h3>
+                          <p>Connect to your first WordPress site to get started.</p>
+                          <button 
+                            className="tui-button"
+                            onClick={() => setShowSiteSelector(true)}
                           >
-                            <td>
-                              <div style={{ fontWeight: 'bold', marginBottom: 'var(--space-4)' }}>
-                                {siteItem.site_name || 'Unnamed Site'}
-                              </div>
-                            </td>
-                            <td>
-                              <div style={{ fontSize: '0.9em', color: '#888' }}>
-                                {siteItem.site_url}
-                              </div>
-                            </td>
-                            <td>
-                              <div style={{ fontSize: '0.9em' }}>
-                                {siteItem.username}
-                              </div>
-                            </td>
-                            {/* <td>
-                              <button 
-                                className="tui-button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSiteSelect(siteItem);
-                                }}
+                            <span className="tui-shortcut">F2</span> Connect Site
+                          </button>
+                        </div>
+                      ) : (
+                        <table className="tui-table hovered-cyan striped-purple" style={{ width: '100%' }}>
+                          <thead>
+                            <tr>
+                              <th>Site Name</th>
+                              <th>URL</th>
+                              <th>User</th>
+                              {/* <th>Actions</th> */}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sites.map((siteItem, index) => (
+                              <tr
+                                key={`${siteItem.id}-${index}`}
+                                onClick={() => handleSiteSelect(siteItem)}
+                                style={{ cursor: 'pointer' }}
                               >
-                                <span className="tui-shortcut">Enter</span> View Posts
-                              </button>
-                            </td> */}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
+                                <td>
+                                  <div style={{ fontWeight: 'bold', marginBottom: 'var(--space-4)' }}>
+                                    {siteItem.site_name || 'Unnamed Site'}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div style={{ fontSize: '0.9em', color: '#888' }}>
+                                    {siteItem.site_url}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div style={{ fontSize: '0.9em' }}>
+                                    {siteItem.username}
+                                  </div>
+                                </td>
+                                {/* <td>
+                                  <button 
+                                    className="tui-button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleSiteSelect(siteItem);
+                                    }}
+                                  >
+                                    <span className="tui-shortcut">Enter</span> View Posts
+                                  </button>
+                                </td> */}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
                   </div>
           </fieldset>
         </div>

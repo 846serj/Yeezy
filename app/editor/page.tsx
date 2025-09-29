@@ -7,6 +7,7 @@ import { useWordPress } from '@/hooks/useWordPress';
 import { useAuth } from '@/contexts/AuthContext';
 import { EditorContent } from '@/types';
 import { TuiLayout } from '@/components/TuiLayout';
+import { cleanHtmlContent } from '@/lib/cleanHtml';
 
 function EditorPageContent() {
   const router = useRouter();
@@ -306,42 +307,106 @@ function EditorPageContent() {
             >
               &lt;
             </button>
-            {isUploadingImages || isSaving ? (
-              <span className="tui-button disabled">
-                {isSaving ? 'Saving...' : 'Uploading...'}
-              </span>
-            ) : (
+            <div style={{ display: 'flex', gap: 'var(--space-10)' }}>
+              {isUploadingImages || isSaving ? (
+                <span className="tui-button disabled">
+                  {isSaving ? 'Saving...' : 'Uploading...'}
+                </span>
+              ) : (
+                <button 
+                  className="tui-button"
+                  onClick={async () => {
+                    try {
+                      // Use the handleSaveWithUploadCheck function directly from the editor ref
+                      if (editorRef.current) {
+                        await editorRef.current.handleSaveWithUploadCheck();
+                      } else {
+                        // Fallback: use our handleSave function directly
+                        
+                        if (generatedContent) {
+                          await handleSave({
+                            title: generatedContent.title,
+                            content: generatedContent.content,
+                            excerpt: '',
+                            status: 'draft' as const,
+                            featured_media: null,
+                            categories: [],
+                            tags: []
+                          });
+                        }
+                      }
+                    } catch (error) {
+                      console.error('❌ Error in TuiCss save button:', error);
+                    }
+                  }}
+                  title="Save Article"
+                >
+                  Save
+                </button>
+              )}
+              
               <button 
                 className="tui-button"
-                onClick={async () => {
+                onClick={async (e) => {
                   try {
-                    // Use the handleSaveWithUploadCheck function directly from the editor ref
-                    if (editorRef.current) {
-                      await editorRef.current.handleSaveWithUploadCheck();
+                    // Get the current content from the editor
+                    const editorContent = document.querySelector('.editor-visual-editor');
+                    if (!editorContent) {
+                      throw new Error('Editor content not found');
+                    }
+
+                    // Extract title and content
+                    const titleElement = document.querySelector('.article-title') as HTMLElement;
+                    const title = titleElement?.textContent || 'Untitled';
+                    const contentArea = editorContent.querySelector('.block-editor-block-list__layout');
+                    const content = contentArea?.innerHTML || editorContent.innerHTML;
+                    
+                    // Create clean HTML
+                    const cleanHtml = cleanHtmlContent(content);
+                    const formattedContent = `<h1>${title}</h1>\n\n${cleanHtml}`;
+                    
+                    // Copy to clipboard
+                    if (navigator.clipboard) {
+                      await navigator.clipboard.writeText(formattedContent);
                     } else {
-                      // Fallback: use our handleSave function directly
+                      // Fallback method
+                      const textarea = document.createElement('textarea');
+                      textarea.value = formattedContent;
+                      textarea.style.position = 'fixed';
+                      textarea.style.left = '-999999px';
+                      textarea.style.top = '-999999px';
+                      document.body.appendChild(textarea);
+                      textarea.focus();
+                      textarea.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(textarea);
+                    }
+                    
+                    // Show feedback
+                    const button = e.currentTarget as HTMLButtonElement;
+                    if (button) {
+                      const originalText = button.textContent;
+                      button.textContent = 'Copied!';
+                      button.style.backgroundColor = 'var(--tui-color-success)';
                       
-                      if (generatedContent) {
-                        await handleSave({
-                          title: generatedContent.title,
-                          content: generatedContent.content,
-                          excerpt: '',
-                          status: 'draft' as const,
-                          featured_media: null,
-                          categories: [],
-                          tags: []
-                        });
-                      }
+                      setTimeout(() => {
+                        if (button) {
+                          button.textContent = originalText;
+                          button.style.backgroundColor = '';
+                        }
+                      }, 2000);
                     }
                   } catch (error) {
-                    console.error('❌ Error in TuiCss save button:', error);
+                    console.error('Copy failed:', error);
+                    alert('Failed to copy content. Please try again.');
                   }
                 }}
-                title="Save Article"
+                title="Copy Article Content"
+                style={{ backgroundColor: 'var(--tui-color-info)' }}
               >
-                Save
+                Copy
               </button>
-            )}
+            </div>
           </div>
           
           {/* Editor Content - Constrained to table width */}

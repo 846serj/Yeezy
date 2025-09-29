@@ -953,7 +953,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
       }
       
       const page = loadMore ? 1 : 1; // Simplified for now
-      const response = await fetch(`/api/search-images?query=${encodeURIComponent(searchQuery)}&sources=${featuredImageSelectedSources.join(',')}&page=${page}&perPage=20`);
+      const response = await fetch(`/api/search-images?query=${encodeURIComponent(searchQuery)}&sources=${featuredImageSelectedSources.join(',')}&page=${page}&perPage=12`);
       const data = await response.json();
       
       if (loadMore) {
@@ -1013,7 +1013,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
       setInserterLoading(true);
       
       try {
-        const response = await fetch(`/api/search-images?query=${encodeURIComponent(query)}&sources=${selectedSources.join(',')}&page=${page}&perPage=20`);
+        const response = await fetch(`/api/search-images?query=${encodeURIComponent(query)}&sources=${selectedSources.join(',')}&page=${page}&perPage=12`);
         const data = await response.json();
         
         if (append) {
@@ -1046,7 +1046,7 @@ const WordPressBlockEditor = forwardRef<WordPressBlockEditorRef, CustomEditorPro
     setInserterLoading(true);
     
     try {
-      const response = await fetch(`/api/search-images?query=${encodeURIComponent(query)}&sources=${selectedSources.join(',')}&page=${page}&perPage=20`);
+      const response = await fetch(`/api/search-images?query=${encodeURIComponent(query)}&sources=${selectedSources.join(',')}&page=${page}&perPage=12`);
       const data = await response.json();
       
       if (append) {

@@ -34,6 +34,21 @@ const CropModal: FC<Props> = ({ isOpen, imageSrc, onCancel, onConfirm, loading }
     if (!croppedAreaPixels) return;
     
     try {
+      // Check usage limits before allowing crop
+      const usageResponse = await fetch('/api/usage', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (!usageResponse.ok) {
+        const errorData = await usageResponse.json();
+        if (errorData.error === 'Usage limit exceeded') {
+          alert(`You've reached your monthly limit of ${errorData.limit} image crops. Upgrade to premium for unlimited usage!`);
+          return;
+        }
+        throw new Error('Failed to check usage limits');
+      }
+      
       const croppedImageUrl = await getCroppedImg(imageSrc, croppedAreaPixels);
       onConfirm(croppedImageUrl);
     } catch (error) {
