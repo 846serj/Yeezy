@@ -93,6 +93,22 @@ export const BlockInserter: React.FC<BlockInserterProps> = ({
   };
 
   const handleImageSelect = (image: ImageResult) => {
+    // Track Unsplash download if applicable
+    if (image.source === 'unsplash' && image.downloadLocation) {
+      console.log('📸 [UNSPLASH TRACKING] Triggering download tracking for:', image.downloadLocation);
+      fetch('/api/unsplash-download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          downloadLocation: image.downloadLocation
+        })
+      }).catch(error => {
+        console.error('❌ [UNSPLASH TRACKING] Failed to track download:', error);
+      });
+    }
+    
     if (onAddImage) {
       onAddImage(image);
     } else {
