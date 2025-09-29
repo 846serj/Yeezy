@@ -33,6 +33,7 @@ export interface ImageResult {
   photographer?: string;
   photographerUrl?: string;
   attribution?: string;
+  downloadLocation?: string;
 }
 
 interface Props {
